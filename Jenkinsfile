@@ -3,7 +3,12 @@
 // See https://github.com/capralifecycle/jenkins-pipeline-library
 @Library('cals') _
 
-buildConfig {
+buildConfig([
+  slack: [
+    channel: '#cals-dev-info',
+    teamDomain: 'cals-capra',
+  ],
+]) {
   dockerNode {
     checkout scm
 
