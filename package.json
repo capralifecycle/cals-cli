@@ -4,7 +4,10 @@
   "description": "CLI for starting new projects in CALS",
   "main": "index.jt",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "test": "echo 'No tests yet'",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'"
   },
   "dependencies": {
     "yargs": "13.2.2"
