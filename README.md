@@ -23,6 +23,13 @@ Run the cli:
 cals
 ```
 
+## Goals of CLI
+
+* Provide an uniform way of consistently doing repeatable CALS tasks
+* Provide simple guidelines to improve the experience for developers
+* A tool that everybody uses and gets ownership of
+* Automate repeatable CALS tasks as we go
+
 ## Ideas and future work
 
 * Migrate GitHub configuration script: https://github.com/capralifecycle/cals-tools/blob/master/github/configure-github.kts
