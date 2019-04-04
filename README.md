@@ -22,3 +22,20 @@ Run the cli:
 ```bash
 cals
 ```
+
+## Ideas and future work
+
+* Migrate GitHub configuration script: https://github.com/capralifecycle/cals-tools/blob/master/github/configure-github.kts
+** `cals github ...`
+* Migrate GitHub clone script: https://github.com/capralifecycle/cals-tools/blob/master/github/generate-clone-commands.py
+** `cals clone-repos ...`
+* Automate onboarding of people
+** Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
+* Automate offboarding of people
+* Automate generation of new projects/resources
+** Creating GitHub repos, giving permissions etc
+** Slack channels
+** AWS account and structure
+** Checklist for manual processes
+* AWS infrastructure management, e.g. scripts such as https://github.com/capralifecycle/rvr-aws-infrastructure/blob/master/rvr/create-stack.sh
+** `cals aws ...`
