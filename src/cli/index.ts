@@ -1,5 +1,6 @@
 import yargs from 'yargs'
 import gettingStarted from './commands/getting-started'
+import github from './commands/github'
 
 const gitCommit =
   (global as any).__GIT_COMMIT__ === undefined
@@ -31,6 +32,7 @@ Usage: cals <command>`
     .locale('en')
     .version(`${gitCommit}-${buildTime}`)
     .help('help')
+    .command(github)
     .command(gettingStarted)
     .demandCommand()
     .option('non-interactive', {

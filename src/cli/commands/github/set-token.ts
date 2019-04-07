@@ -1,0 +1,59 @@
+import read from 'read'
+import { CommandModule } from 'yargs'
+import { GitHubService } from '../../../github/service'
+import { Reporter } from '../../reporter'
+import { createReporter } from '../../util'
+import { createGitHubService } from '../github'
+
+const setToken = async ({
+  reporter,
+  github,
+  token,
+}: {
+  reporter: Reporter
+  github: GitHubService
+  token: string | undefined
+}) => {
+  if (token === undefined) {
+    reporter.error('Need API token to talk to GitHub')
+    reporter.error(
+      'https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook',
+    )
+
+    token = await new Promise<string>((resolve, reject) => {
+      read(
+        {
+          prompt: 'Enter new GitHub API token: ',
+          silent: true,
+        },
+        (err, answer) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(answer)
+        },
+      )
+    })
+  }
+
+  github.setToken(token)
+  reporter.info('Token save')
+}
+
+const command: CommandModule = {
+  command: 'set-token',
+  describe: 'Set GitHub token for API calls',
+  builder: yargs =>
+    yargs.positional('token', {
+      describe:
+        'Token. If not provided it will be requested as input. Can be generated at https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook',
+    }),
+  handler: argv =>
+    setToken({
+      reporter: createReporter(),
+      github: createGitHubService(),
+      token: argv.token as string | undefined,
+    }),
+}
+
+export default command
