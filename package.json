@@ -1,6 +1,6 @@
 {
   "name": "cals-cli",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "CLI for starting new projects in CALS",
   "main": "index.jt",
   "scripts": {
