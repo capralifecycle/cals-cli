@@ -1,7 +1,7 @@
 {
   "name": "cals-cli",
   "version": "0.0.1",
-  "description": "CLI for starting new projects in CALS",
+  "description": "CLI for repeatable tasks in CALS",
   "scripts": {
     "build": "tsc",
     "test": "jest src",
