@@ -37,11 +37,11 @@ Usage: cals <command>`
     .demandCommand()
     .option('non-interactive', {
       describe: 'Non-interactive mode',
-      type: 'boolean'
+      type: 'boolean',
     })
     .option('verbose', {
       describe: 'Verbose output',
-      type: 'boolean'
+      type: 'boolean',
     })
     .parse()
 }

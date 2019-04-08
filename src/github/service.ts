@@ -14,10 +14,7 @@ import { Permission, Repo } from './types'
 import { undefinedForNotFound } from './util'
 
 export async function createGitHubService(config: Config) {
-  return new GitHubService(
-    config,
-    await createOctokit(config)
-  )
+  return new GitHubService(config, await createOctokit(config))
 }
 
 const keyringService = 'cals'
@@ -89,7 +86,9 @@ export class GitHubService {
 
     if (!response.ok) {
       throw new Error(
-        `Response from GitHub not OK (${response.status}): ${JSON.stringify(response)}`,
+        `Response from GitHub not OK (${response.status}): ${JSON.stringify(
+          response,
+        )}`,
       )
     }
 
