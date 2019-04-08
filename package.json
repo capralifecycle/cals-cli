@@ -6,7 +6,8 @@
     "build": "tsc",
     "test": "jest src",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'"
+    "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
+    "prepare": "npm run build"
   },
   "bin": {
     "cals": "lib/cals-cli.js"
@@ -38,6 +39,9 @@
     "tslint-config-prettier": "1.18.0",
     "typescript": "3.4.2"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/capralifecycle/cals-cli.git"
