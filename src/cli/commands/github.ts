@@ -17,7 +17,27 @@ const command: CommandModule = {
       .command(listRepos)
       .command(listWebhooks)
       .command(setToken)
-      .demandCommand(),
+      .demandCommand()
+      .usage(`cals github
+
+Notes:
+  Before doing anything against GitHub you need to configure a token
+  used for authentication. The following command will ask for a token
+  and provide a link to generate one:
+  $ cals github set-token
+
+  Quick clone all repos:
+  $ cals github generate-clone-commands --all -x | bash
+
+  And for a specific project:
+  $ cals github generate-clone-commands -x buildtools | bash
+
+  Keeping up to date with removed/renamed repos:
+  $ cals github analyze-directory
+
+  Some responses are cached for some time. Wipe the cals-cli
+  cache folder in your users cache dir (~/.cache/cals-cli on Linux)
+  to invalidate cache.`),
   handler: () => {
     yargs.showHelp()
   },
