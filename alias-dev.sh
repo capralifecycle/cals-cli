@@ -1,5 +1,5 @@
 # Source this file:
-# $ source alias.sh
+# $ source alias-dev.sh
 #
 # Then you can run the cli by only writing:
 # $ cals

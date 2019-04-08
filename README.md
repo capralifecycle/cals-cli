@@ -5,6 +5,8 @@
 Make sure you have a recent version of node. E.g. by following
 https://github.com/creationix/nvm
 
+Clone this repo.
+
 Install dependencies:
 
 ```bash
@@ -14,7 +16,7 @@ npm install
 Alias the cli by sourcing the provided script:
 
 ```bash
-source alias.sh
+source alias-lib.sh
 ```
 
 Run the cli:
@@ -22,6 +24,29 @@ Run the cli:
 ```bash
 cals
 ```
+
+### Updating
+
+```bash
+git pull
+npm run build
+```
+
+### Development
+
+Source the version that uses the source files directly.
+
+```bash
+source alias-dev.sh
+```
+
+Run the cli:
+
+```bash
+cals
+```
+
+This is slower than using the build due to running through the TypeScript compiler.
 
 ## Goals of CLI
 
@@ -32,6 +57,7 @@ cals
 
 ## Ideas and future work
 
+* Release as package on NPM
 * Automate onboarding of people
 ** Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
 * Automate offboarding of people
