@@ -108,7 +108,7 @@ function validateDefinition(definition: Definition) {
     team.members.forEach(login => {
       if (!loginList.includes(login)) {
         throw new Error(
-          `Team member $login in team ${
+          `Team member ${login} in team ${
             team.name
           } is not registered in user list`,
         )
