@@ -32,10 +32,6 @@ cals
 
 ## Ideas and future work
 
-* Migrate GitHub configuration script: https://github.com/capralifecycle/cals-tools/blob/master/github/configure-github.kts
-** `cals github ...`
-* Migrate GitHub clone script: https://github.com/capralifecycle/cals-tools/blob/master/github/generate-clone-commands.py
-** `cals clone-repos ...`
 * Automate onboarding of people
 ** Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
 * Automate offboarding of people
