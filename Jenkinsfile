@@ -27,6 +27,14 @@ buildConfig([
       stage('Tests') {
         sh 'npm test'
       }
+
+      stage('Build') {
+        sh 'npm run build'
+      }
+
+      stage('Test CLI') {
+        sh 'node lib/cals-cli.js --help'
+      }
     }
   }
 }
