@@ -2,11 +2,10 @@ import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
 import { provideCacheJson } from '../../../cache'
 import { Config } from '../../../config'
-import { GitHubService } from '../../../github/service'
+import { createGitHubService, GitHubService } from '../../../github/service'
 import { isAbandoned } from '../../../github/util'
 import { Reporter } from '../../reporter'
 import { createConfig, createReporter } from '../../util'
-import { createGitHubService } from '../github'
 
 const e = encodeURIComponent
 
@@ -104,7 +103,11 @@ const command: CommandModule = {
   describe: 'List CALS Git repos web hooks',
   handler: async () => {
     const config = createConfig()
-    await listWebhooks(createReporter(), config, createGitHubService(config))
+    await listWebhooks(
+      createReporter(),
+      config,
+      await createGitHubService(config),
+    )
   },
 }
 

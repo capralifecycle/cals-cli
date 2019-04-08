@@ -1,9 +1,8 @@
 import read from 'read'
 import { CommandModule } from 'yargs'
-import { GitHubService } from '../../../github/service'
+import { createGitHubService, GitHubService } from '../../../github/service'
 import { Reporter } from '../../reporter'
-import { createReporter } from '../../util'
-import { createGitHubService } from '../github'
+import { createConfig, createReporter } from '../../util'
 
 const setToken = async ({
   reporter,
@@ -15,8 +14,8 @@ const setToken = async ({
   token: string | undefined
 }) => {
   if (token === undefined) {
-    reporter.error('Need API token to talk to GitHub')
-    reporter.error(
+    reporter.info('Need API token to talk to GitHub')
+    reporter.info(
       'https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook',
     )
 
@@ -37,7 +36,7 @@ const setToken = async ({
   }
 
   github.setToken(token)
-  reporter.info('Token save')
+  reporter.info('Token saved')
 }
 
 const command: CommandModule = {
@@ -48,10 +47,10 @@ const command: CommandModule = {
       describe:
         'Token. If not provided it will be requested as input. Can be generated at https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook',
     }),
-  handler: argv =>
+  handler: async argv =>
     setToken({
       reporter: createReporter(),
-      github: createGitHubService(),
+      github: await createGitHubService(createConfig()),
       token: argv.token as string | undefined,
     }),
 }

@@ -7,10 +7,9 @@ import { sprintf } from 'sprintf-js'
 import yargs, { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
 import { getDefinition } from '../../../github/definition'
-import { GitHubService } from '../../../github/service'
+import { GitHubService, createGitHubService } from '../../../github/service'
 import { Project, Team, User } from '../../../github/types'
-import { createReporter } from '../../util'
-import { createGitHubService } from '../github'
+import { createReporter, createConfig } from '../../util'
 
 interface MembersDiff {
   unknownMembers: OrgsListMembersResponseItem[]
@@ -255,7 +254,7 @@ const projectsCommand: CommandModule = {
   describe: 'Configure projects',
   handler: async () => {
     const reporter = createReporter()
-    const github = createGitHubService()
+    const github = await createGitHubService(createConfig())
     await reportRateLimit(reporter, github, async () => {
       const definition = getDefinition(github)
       const org = await github.getOrg('capralifecycle')
@@ -275,7 +274,7 @@ const membersCommand: CommandModule = {
   describe: 'Configure members',
   handler: async () => {
     const reporter = createReporter()
-    const github = createGitHubService()
+    const github = await createGitHubService(createConfig())
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
       const definition = getDefinition(github)
@@ -289,7 +288,7 @@ const teamsCommand: CommandModule = {
   describe: 'Configure teams',
   handler: async () => {
     const reporter = createReporter()
-    const github = createGitHubService()
+    const github = await createGitHubService(createConfig())
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
       const definition = getDefinition(github)

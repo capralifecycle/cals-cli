@@ -5,10 +5,9 @@ import { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
 import { createConfig, createReporter } from '../../../cli/util'
 import { Config } from '../../../config'
-import { GitHubService } from '../../../github/service'
+import { GitHubService, createGitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
 import { isAbandoned } from '../../../github/util'
-import { createGitHubService } from '../github'
 
 const analyzeDirectory = async (
   reporter: Reporter,
@@ -72,9 +71,9 @@ const analyzeDirectory = async (
 const command: CommandModule = {
   command: 'analyze-directory',
   describe: 'Analyze directory for git repos',
-  handler: () => {
+  handler: async () => {
     const config = createConfig()
-    const github = createGitHubService(config)
+    const github = await createGitHubService(config)
     const reporter = createReporter()
     return analyzeDirectory(reporter, config, github)
   },

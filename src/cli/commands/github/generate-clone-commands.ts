@@ -4,14 +4,13 @@ import { sprintf } from 'sprintf-js'
 import yargs, { CommandModule } from 'yargs'
 import { createConfig, createReporter } from '../../../cli/util'
 import { Config } from '../../../config'
-import { GitHubService } from '../../../github/service'
+import { GitHubService, createGitHubService } from '../../../github/service'
 import {
   getGroupedRepos,
   includesTopic,
   isAbandoned,
 } from '../../../github/util'
 import { Reporter } from '../../reporter'
-import { createGitHubService } from '../github'
 
 const generateCloneCommands = async ({
   reporter,
@@ -102,13 +101,13 @@ const command: CommandModule = {
         describe: 'Exclude if existing in working directory',
         type: 'boolean',
       }),
-  handler: argv => {
+  handler: async argv => {
     const config = createConfig()
 
     return generateCloneCommands({
       reporter: createReporter(),
       config,
-      github: createGitHubService(config),
+      github: await createGitHubService(config),
       all: !!argv.all,
       listGroups: !!argv['list-groups'],
       includeAbandoned: !!argv['include-abandoned'],

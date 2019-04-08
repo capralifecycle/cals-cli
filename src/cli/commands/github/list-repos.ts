@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs'
-import { GitHubService } from '../../../github/service'
+import { createGitHubService, GitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
 import {
   getGroup,
@@ -8,8 +8,7 @@ import {
   isAbandoned,
 } from '../../../github/util'
 import { Reporter } from '../../reporter'
-import { createReporter } from '../../util'
-import { createGitHubService } from '../github'
+import { createConfig, createReporter } from '../../util'
 
 const getReposMissingGroup = (repos: Repo[]) =>
   repos.filter(it => getGroup(it) === null)
@@ -128,10 +127,10 @@ const command: CommandModule = {
         describe: 'Filter by specific topic',
         type: 'string',
       }),
-  handler: argv =>
+  handler: async argv =>
     listRepos({
       reporter: createReporter(),
-      github: createGitHubService(),
+      github: await createGitHubService(createConfig()),
       includeAbandoned: !!argv['include-abandoned'],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,

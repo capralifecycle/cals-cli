@@ -1,7 +1,4 @@
 import yargs, { CommandModule } from 'yargs'
-import { createConfig } from '../../cli/util'
-import { Config } from '../../config'
-import { GitHubService } from '../../github/service'
 import analyzeDirectory from './github/analyze-directory'
 import configure from './github/configure'
 import generateCloneCommands from './github/generate-clone-commands'
@@ -24,10 +21,6 @@ const command: CommandModule = {
   handler: () => {
     yargs.showHelp()
   },
-}
-
-export function createGitHubService(config: Config = createConfig()) {
-  return new GitHubService(config)
 }
 
 export default command

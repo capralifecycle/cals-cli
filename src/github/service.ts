@@ -6,21 +6,36 @@ import Octokit, {
   TeamsListMembersResponseItem,
   TeamsListResponseItem,
 } from '@octokit/rest'
+import keytar from 'keytar'
 import fetch from 'node-fetch'
 import { provideCacheJson } from '../cache'
 import { Config } from '../config'
 import { Permission, Repo } from './types'
 import { undefinedForNotFound } from './util'
 
+export async function createGitHubService(config: Config) {
+  return new GitHubService(
+    config,
+    await createOctokit(config)
+  )
+}
+
+const keyringService = 'cals'
+const keyringAccount = 'github-token'
+
+async function createOctokit(config: Config) {
+  return new Octokit({
+    auth: await GitHubService.getToken(),
+    request: {
+      agent: config.agent,
+    },
+  })
+}
+
 export class GitHubService {
-  constructor(config: Config) {
+  constructor(config: Config, octokit: Octokit) {
     this.config = config
-    this.octokit = new Octokit({
-      auth: this.token,
-      request: {
-        agent: config.agent,
-      },
-    })
+    this.octokit = octokit
   }
 
   private config: Config
@@ -30,43 +45,35 @@ export class GitHubService {
     return this.config.requireConfig('githubDefinitionFile')
   }
 
-  private removeToken() {
-    this.config.updateConfig('githubToken', undefined)
+  private async removeToken() {
+    await keytar.deletePassword(keyringService, keyringAccount)
   }
 
-  public setToken(value: string) {
-    this.config.updateConfig('githubToken', value)
+  public async setToken(value: string) {
+    await keytar.setPassword(keyringService, keyringAccount, value)
   }
 
-  private tokenCached?: string = undefined
-  public get token(): string {
-    const existingToken = this.tokenCached
-    if (existingToken !== undefined) {
-      return existingToken
-    }
-
+  public static async getToken(): Promise<string | undefined> {
     if (process.env.CALS_GITHUB_TOKEN) {
-      const envToken = process.env.CALS_GITHUB_TOKEN
-      this.tokenCached = envToken
-      return envToken
+      return process.env.CALS_GITHUB_TOKEN
     }
 
-    const token = this.config.getConfig('githubToken')
-    if (token === undefined) {
+    const result = await keytar.getPassword(keyringService, keyringAccount)
+    if (result == null) {
       process.stderr.write(
         'No token found. Register using `cals github set-token`\n',
       )
-      process.exit(1)
-      throw Error()
+      return undefined
     }
 
-    this.tokenCached = token
-    return token
+    return result
   }
 
   public async runGraphqlQuery<T>(query: string) {
     const url = 'https://api.github.com/graphql'
-    const headers = { Authorization: `Bearer ${await this.token}` }
+    const headers = {
+      Authorization: `Bearer ${await GitHubService.getToken()}`,
+    }
 
     const response = await fetch(url, {
       method: 'POST',
@@ -82,7 +89,7 @@ export class GitHubService {
 
     if (!response.ok) {
       throw new Error(
-        `Response from GitHub not OK: ${JSON.stringify(response)}`,
+        `Response from GitHub not OK (${response.status}): ${JSON.stringify(response)}`,
       )
     }
 
@@ -111,7 +118,7 @@ export class GitHubService {
       method: 'GET',
       headers: {
         Accept: 'application/vnd.github.v3+json',
-        Authorization: `Bearer ${await this.token}`,
+        Authorization: `Bearer ${await GitHubService.getToken()}`,
       },
       agent: this.config.agent,
     })
