@@ -59,12 +59,12 @@ This is slower than using the build due to running through the TypeScript compil
 
 * Release as package on NPM
 * Automate onboarding of people
-** Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
+  * Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
 * Automate offboarding of people
 * Automate generation of new projects/resources
-** Creating GitHub repos, giving permissions etc
-** Slack channels
-** AWS account and structure
-** Checklist for manual processes
+  * Creating GitHub repos, giving permissions etc
+  * Slack channels
+  * AWS account and structure
+  * Checklist for manual processes
 * AWS infrastructure management, e.g. scripts such as https://github.com/capralifecycle/rvr-aws-infrastructure/blob/master/rvr/create-stack.sh
-** `cals aws ...`
+  * `cals aws ...`
