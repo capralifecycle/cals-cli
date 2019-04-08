@@ -12,8 +12,9 @@ buildConfig([
   dockerNode {
     checkout scm
 
-    def img = docker.image('node:11-alpine')
-    img.pull()
+    // There is actually a race condition here as multiple builds might
+    // build the same tag.
+    def img = docker.build('cals-cli')
     img.inside {
       stage('Install dependencies') {
         sh 'npm ci'
