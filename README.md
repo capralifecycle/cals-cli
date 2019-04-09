@@ -7,7 +7,7 @@ https://github.com/creationix/nvm
 
 Clone this repo.
 
-Use NPM to link this repo as a global repository:
+Use NPM to link this repo as a global package:
 
 ```bash
 npm install
