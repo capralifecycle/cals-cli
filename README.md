@@ -7,25 +7,24 @@ https://github.com/creationix/nvm
 
 Clone this repo.
 
-Install dependencies:
+Use NPM to link this repo as a global repository:
 
 ```bash
 npm install
+npm link
 ```
 
-Alias the cli by sourcing the provided script:
-
-```bash
-source alias-lib.sh
-```
-
-Run the cli:
+Run the cli from any folder (as it is linked by NPM it will also
+work in other terminals):
 
 ```bash
 cals
 ```
 
 ### Updating
+
+The `npm link` command will also build the application. When
+changing the code, a rebuild must be done.
 
 ```bash
 git pull
@@ -46,7 +45,8 @@ Run the cli:
 cals
 ```
 
-This is slower than using the build due to running through the TypeScript compiler.
+This is slower than using the build with `npm link` due to running
+through the TypeScript compiler.
 
 ## Goals of CLI
 
