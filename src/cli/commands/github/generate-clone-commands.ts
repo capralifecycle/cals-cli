@@ -62,8 +62,10 @@ const generateCloneCommands = async ({
           !fs.existsSync(path.resolve(config.cwd, it.name)),
       )
       .forEach(repo => {
-        reporter.log(
-          sprintf('[ ! -e "%s" ] && git clone %s', repo.name, repo.sshUrl),
+        // The output of this is used to pipe into e.g. bash.
+        // We cannot use reporter.log as it adds additional characters.
+        process.stdout.write(
+          sprintf('[ ! -e "%s" ] && git clone %s\n', repo.name, repo.sshUrl),
         )
       })
   })
