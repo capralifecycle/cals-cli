@@ -276,4 +276,110 @@ export class GitHubService {
       permission,
     })
   }
+
+  public async getSearchedPullRequestList() {
+    interface QueryResult {
+      search: {
+        pageInfo: {
+          hasNextPage: boolean
+          endCursor: string | null
+        }
+        edges: Array<{
+          node: {
+            __typename: string
+            number: number
+            baseRepository: {
+              name: string
+              owner: {
+                login: string
+              }
+              defaultBranchRef: {
+                name: string
+              }
+            }
+            author: {
+              login: string
+            }
+            title: string
+            commits: {
+              nodes: Array<{
+                commit: {
+                  messageHeadline: string
+                }
+              }>
+            }
+            createdAt: string
+            updatedAt: string
+          }
+        }>
+      }
+    }
+
+    const getQuery = (after: string | null) => `{
+  search(
+    query: "is:open is:pr user:capralifecycle user:capraconsulting archived:false",
+    type: ISSUE,
+    first: 100${
+      after === null
+        ? ''
+        : `,
+    after: "${after}"`
+    }
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        __typename
+        ... on PullRequest {
+          number
+          baseRepository {
+            name
+            owner {
+              login
+            }
+            defaultBranchRef {
+              name
+            }
+          }
+          author {
+            login
+          }
+          title
+          commits(first: 10) {
+            nodes {
+              commit {
+                messageHeadline
+              }
+            }
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    }
+  }
+}`
+
+    const pulls: Array<QueryResult['search']['edges'][0]['node']> = []
+    let after = null
+
+    while (true) {
+      const query = getQuery(after)
+      const res = await this.runGraphqlQuery<QueryResult>(query)
+
+      pulls.push(...res.search.edges.map(it => it.node))
+
+      if (!res.search.pageInfo.hasNextPage) {
+        break
+      }
+
+      process.stderr.write('Requesting next page...\n')
+      after = res.search.pageInfo.endCursor
+    }
+
+    return pulls.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }
 }
