@@ -87,7 +87,7 @@ const listPullRequestsStats = async ({
 }
 
 const command: CommandModule = {
-  command: 'list-pull-requests',
+  command: 'list-pull-requests-stats',
   describe: 'List stats for pull requests with special filter',
   handler: async argv =>
     listPullRequestsStats({
