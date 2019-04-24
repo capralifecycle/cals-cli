@@ -23,7 +23,7 @@ export interface Definition {
 export interface Project {
   name: string
   repos: DefinitionRepo[]
-  teams: RepoTeam[]
+  teams?: RepoTeam[]
 }
 
 export type User = UserBot | UserEmployee | UserExternal

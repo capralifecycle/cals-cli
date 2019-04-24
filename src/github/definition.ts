@@ -22,7 +22,7 @@ interface YamlDefinition {
 
 type YamlProject = Omit<Project, 'repos' | 'teams'> & {
   repos: YamlDefinitionRepo[]
-  teams: YamlRepoTeam[]
+  teams?: YamlRepoTeam[]
 }
 
 type YamlDefinitionRepo = Omit<DefinitionRepo, 'teams'> & {
@@ -75,10 +75,13 @@ export function getDefinition(github: GitHubService) {
                 permission: permissionFromYaml(team.permission),
               })),
       })),
-      teams: project.teams.map(team => ({
-        ...team,
-        permission: permissionFromYaml(team.permission),
-      })),
+      teams:
+        project.teams === undefined
+          ? undefined
+          : project.teams.map(team => ({
+              ...team,
+              permission: permissionFromYaml(team.permission),
+            })),
     })),
   }
 
@@ -126,7 +129,7 @@ function validateDefinition(definition: Definition) {
 
   // Verify project teams exists as teams.
   definition.projects.forEach(project => {
-    project.teams.forEach(team => {
+    (project.teams || []).forEach(team => {
       if (!teamNameList.includes(team.name)) {
         throw new Error(
           `Project team ${team.name} in project ${

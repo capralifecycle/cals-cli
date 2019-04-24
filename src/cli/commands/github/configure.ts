@@ -100,7 +100,7 @@ async function processProjects(
         )
       }
 
-      const expectedTeams = [...project.teams, ...(projectRepo.teams || [])]
+      const expectedTeams = [...(project.teams || []), ...(projectRepo.teams || [])]
       const existingTeams = await github.getRepositoryTeamsList(repo)
 
       // Check for teams to be added / modified.
