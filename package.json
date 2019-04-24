@@ -17,7 +17,7 @@
     "cachedir": "2.2.0",
     "chalk": "2.4.2",
     "js-yaml": "3.13.1",
-    "keytar": "4.4.2",
+    "keytar": "4.5.0",
     "node-fetch": "2.3.0",
     "read": "1.0.7",
     "sprintf-js": "1.1.2",
