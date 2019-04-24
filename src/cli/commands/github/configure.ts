@@ -53,10 +53,11 @@ async function processProjects(
   projects: Project[],
   org: OrgsGetResponse,
   teams: TeamsListResponseItem[],
+  dryRun: boolean,
 ) {
   for (const project of projects) {
     reporter.log('-----------------------------------')
-    reporter.log(`Processing project: ${project.name}`)
+    reporter.log(`Processing project: ${project.name}${dryRun ? ' (dry run)' : ''}`)
 
     for (const projectRepo of project.repos) {
       reporter.log(`Repo: ${projectRepo.name}`)
@@ -115,7 +116,9 @@ async function processProjects(
                 repoteam.permission,
               ),
             )
-            github.setTeamPermission(repo, found, repoteam.permission)
+            if (!dryRun) {
+              github.setTeamPermission(repo, found, repoteam.permission)
+            }
           }
         } else {
           const team = teams.find(it => repoteam.name === it.name)
@@ -126,7 +129,9 @@ async function processProjects(
           reporter.log(
             sprintf('  Adding team %s (%s)', team.name, repoteam.permission),
           )
-          github.setTeamPermission(repo, team, repoteam.permission)
+          if (!dryRun) {
+            github.setTeamPermission(repo, team, repoteam.permission)
+          }
         }
       }
 
@@ -252,10 +257,16 @@ async function reportRateLimit(
 const projectsCommand: CommandModule = {
   command: 'projects',
   describe: 'Configure projects',
-  handler: async () => {
+  builder: yargs =>
+    yargs.options('dry-run', {
+      describe: 'Run in dry run mode',
+      type: 'boolean',
+    }),
+  handler: async argv => {
     const reporter = createReporter()
     const github = await createGitHubService(createConfig())
     await reportRateLimit(reporter, github, async () => {
+
       const definition = getDefinition(github)
       const org = await github.getOrg('capralifecycle')
       await processProjects(
@@ -264,6 +275,7 @@ const projectsCommand: CommandModule = {
         definition.projects,
         org,
         await github.getTeamList(org),
+        !!argv['dry-run'],
       )
     })
   },
