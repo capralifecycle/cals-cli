@@ -68,3 +68,10 @@ through the TypeScript compiler.
   * Checklist for manual processes
 * AWS infrastructure management, e.g. scripts such as https://github.com/capralifecycle/rvr-aws-infrastructure/blob/master/rvr/create-stack.sh
   * `cals aws ...`
+
+### Snyk management
+
+https://snyk.docs.apiary.io/reference/projects
+
+- [ ] Automatically set up project in Snyk
+- [ ] Report of which repos are in Snyk and which is not
