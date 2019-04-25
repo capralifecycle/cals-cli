@@ -57,7 +57,9 @@ async function processProjects(
 ) {
   for (const project of projects) {
     reporter.log('-----------------------------------')
-    reporter.log(`Processing project: ${project.name}${dryRun ? ' (dry run)' : ''}`)
+    reporter.log(
+      `Processing project: ${project.name}${dryRun ? ' (dry run)' : ''}`,
+    )
 
     for (const projectRepo of project.repos) {
       reporter.log(`Repo: ${projectRepo.name}`)
@@ -100,7 +102,10 @@ async function processProjects(
         )
       }
 
-      const expectedTeams = [...(project.teams || []), ...(projectRepo.teams || [])]
+      const expectedTeams = [
+        ...(project.teams || []),
+        ...(projectRepo.teams || []),
+      ]
       const existingTeams = await github.getRepositoryTeamsList(repo)
 
       // Check for teams to be added / modified.
@@ -266,7 +271,6 @@ const projectsCommand: CommandModule = {
     const reporter = createReporter()
     const github = await createGitHubService(createConfig())
     await reportRateLimit(reporter, github, async () => {
-
       const definition = getDefinition(github)
       const org = await github.getOrg('capralifecycle')
       await processProjects(
