@@ -3,12 +3,6 @@ import yaml from 'js-yaml'
 import { GitHubService } from './service'
 import { Definition } from './types'
 
-export function getDefinition(github: GitHubService) {
-  const definition = yaml.safeLoad(getRawDefinition(github)) as Definition
-  validateDefinition(definition)
-  return definition
-}
-
 export function getRawDefinition(github: GitHubService) {
   return fs.readFileSync(github.getDefinitionFile(), 'utf-8')
 }
@@ -73,4 +67,10 @@ function validateDefinition(definition: Definition) {
       }
       return [...acc, repo.name]
     }, [])
+}
+
+export function getDefinition(github: GitHubService) {
+  const definition = yaml.safeLoad(getRawDefinition(github)) as Definition
+  validateDefinition(definition)
+  return definition
 }

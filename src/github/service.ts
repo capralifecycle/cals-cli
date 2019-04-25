@@ -13,24 +13,11 @@ import { Config } from '../config'
 import { Permission, Repo } from './types'
 import { undefinedForNotFound } from './util'
 
-export async function createGitHubService(config: Config) {
-  return new GitHubService(config, await createOctokit(config))
-}
-
 const keyringService = 'cals'
 const keyringAccount = 'github-token'
 
-async function createOctokit(config: Config) {
-  return new Octokit({
-    auth: await GitHubService.getToken(),
-    request: {
-      agent: config.agent,
-    },
-  })
-}
-
 export class GitHubService {
-  constructor(config: Config, octokit: Octokit) {
+  public constructor(config: Config, octokit: Octokit) {
     this.config = config
     this.octokit = octokit
   }
@@ -94,6 +81,7 @@ export class GitHubService {
 
     const json = (await response.json()) as {
       data?: T | null
+      // eslint-disable-next-line
       errors?: any
     }
 
@@ -257,6 +245,7 @@ export class GitHubService {
 
   public async getTeamMemberList(team: TeamsListResponseItem) {
     const options = this.octokit.teams.listMembers.endpoint.merge({
+      // eslint-disable-next-line
       team_id: team.id,
     })
     return (await this.octokit.paginate(
@@ -272,6 +261,7 @@ export class GitHubService {
     await this.octokit.teams.addOrUpdateRepo({
       owner: repo.owner.login,
       repo: repo.name,
+      // eslint-disable-next-line
       team_id: team.id,
       permission,
     })
@@ -284,7 +274,7 @@ export class GitHubService {
           hasNextPage: boolean
           endCursor: string | null
         }
-        edges: Array<{
+        edges: {
           node: {
             __typename: string
             number: number
@@ -302,16 +292,16 @@ export class GitHubService {
             }
             title: string
             commits: {
-              nodes: Array<{
+              nodes: {
                 commit: {
                   messageHeadline: string
                 }
-              }>
+              }[]
             }
             createdAt: string
             updatedAt: string
           }
-        }>
+        }[]
       }
     }
 
@@ -363,7 +353,7 @@ export class GitHubService {
   }
 }`
 
-    const pulls: Array<QueryResult['search']['edges'][0]['node']> = []
+    const pulls: QueryResult['search']['edges'][0]['node'][] = []
     let after = null
 
     while (true) {
@@ -382,4 +372,17 @@ export class GitHubService {
 
     return pulls.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }
+}
+
+async function createOctokit(config: Config) {
+  return new Octokit({
+    auth: await GitHubService.getToken(),
+    request: {
+      agent: config.agent,
+    },
+  })
+}
+
+export async function createGitHubService(config: Config) {
+  return new GitHubService(config, await createOctokit(config))
 }

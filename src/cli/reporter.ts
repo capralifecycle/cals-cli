@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import { clearLine } from './util'
 
 export class Reporter {
-  constructor(
+  public constructor(
     opts: {
       nonInteractive?: boolean
       verbose?: boolean

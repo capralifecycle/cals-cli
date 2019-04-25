@@ -25,11 +25,11 @@ import { createConfig, createReporter } from '../../util'
 
 interface DetailedProject {
   name: string
-  repos: Array<{
+  repos: {
     basic: Repo
     repository: ReposGetResponse
     teams: ReposListTeamsResponseItem[]
-  }>
+  }[]
 }
 
 async function getRepos(

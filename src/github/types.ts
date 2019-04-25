@@ -9,7 +9,7 @@ export interface Repo {
   createdAt: string
   updatedAt: string
   sshUrl: string
-  repositoryTopics: { edges: Array<{ node: { topic: { name: string } } }> }
+  repositoryTopics: { edges: { node: { topic: { name: string } } }[] }
 }
 
 export type Permission = 'admin' | 'push' | 'pull'
