@@ -1,89 +1,12 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
-import { Omit } from '../types'
 import { GitHubService } from './service'
-import {
-  Definition,
-  DefinitionRepo,
-  Permission,
-  Project,
-  RepoTeam,
-  Team,
-  UserBot,
-  UserEmployee,
-  UserExternal,
-} from './types'
-
-interface YamlDefinition {
-  users: YamlDefinitionUsers
-  teams: Team[]
-  projects: YamlProject[]
-}
-
-type YamlProject = Omit<Project, 'repos' | 'teams'> & {
-  repos: YamlDefinitionRepo[]
-  teams?: YamlRepoTeam[]
-}
-
-type YamlDefinitionRepo = Omit<DefinitionRepo, 'teams'> & {
-  teams?: YamlRepoTeam[]
-}
-
-type YamlRepoTeam = Omit<RepoTeam, 'permission'> & {
-  permission: YamlPermission
-}
-
-interface YamlDefinitionUsers {
-  bots: UserBot[]
-  employees: UserEmployee[]
-  external: UserExternal[]
-}
-
-type YamlPermission = 'ADMIN' | 'PUSH' | 'PULL'
+import { Definition } from './types'
 
 export function getDefinition(github: GitHubService) {
-  const data = yaml.safeLoad(
+  const definition = yaml.safeLoad(
     fs.readFileSync(github.getDefinitionFile(), 'utf-8'),
-  ) as YamlDefinition
-
-  // Convert from the stored format to our preferred format in code.
-  const definition: Definition = {
-    users: [
-      ...data.users.bots.map<UserBot>(it => ({
-        ...it,
-        type: 'bot',
-      })),
-      ...data.users.employees.map<UserEmployee>(it => ({
-        ...it,
-        type: 'employee',
-      })),
-      ...data.users.external.map<UserExternal>(it => ({
-        ...it,
-        type: 'external',
-      })),
-    ],
-    teams: data.teams,
-    projects: data.projects.map(project => ({
-      ...project,
-      repos: project.repos.map(repo => ({
-        ...repo,
-        teams:
-          repo.teams === undefined
-            ? undefined
-            : repo.teams.map(team => ({
-                ...team,
-                permission: permissionFromYaml(team.permission),
-              })),
-      })),
-      teams:
-        project.teams === undefined
-          ? undefined
-          : project.teams.map(team => ({
-              ...team,
-              permission: permissionFromYaml(team.permission),
-            })),
-    })),
-  }
+  ) as Definition
 
   validateDefinition(definition)
   return definition
@@ -129,7 +52,7 @@ function validateDefinition(definition: Definition) {
 
   // Verify project teams exists as teams.
   definition.projects.forEach(project => {
-    (project.teams || []).forEach(team => {
+    ;(project.teams || []).forEach(team => {
       if (!teamNameList.includes(team.name)) {
         throw new Error(
           `Project team ${team.name} in project ${
@@ -149,16 +72,4 @@ function validateDefinition(definition: Definition) {
       }
       return [...acc, repo.name]
     }, [])
-}
-
-function permissionFromYaml(permission: YamlPermission): Permission {
-  switch (permission) {
-    case 'ADMIN':
-      return 'admin'
-    case 'PULL':
-      return 'pull'
-    case 'PUSH':
-      return 'push'
-  }
-  throw Error(`Unknown permission: ${permission}`)
 }
