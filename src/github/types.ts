@@ -53,6 +53,7 @@ export interface DefinitionRepo {
   issues?: boolean
   wiki?: boolean
   teams?: RepoTeam[]
+  snyk?: boolean
 }
 
 export interface RepoTeam {

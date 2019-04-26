@@ -74,4 +74,4 @@ through the TypeScript compiler.
 https://snyk.docs.apiary.io/reference/projects
 
 - [ ] Automatically set up project in Snyk
-- [ ] Report of which repos are in Snyk and which is not
+- [x] Report of which repos are in Snyk and which is not

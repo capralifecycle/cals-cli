@@ -1,6 +1,7 @@
 import yargs from 'yargs'
 import gettingStarted from './commands/getting-started'
 import github from './commands/github'
+import snyk from './commands/snyk'
 
 export async function main(): Promise<void> {
   // http://patorjk.com/software/taag/#p=display&f=Slant&t=CALS
@@ -23,6 +24,7 @@ Usage: cals <command>`
     .help('help')
     .command(github)
     .command(gettingStarted)
+    .command(snyk)
     .demandCommand()
     .option('non-interactive', {
       describe: 'Non-interactive mode',

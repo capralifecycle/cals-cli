@@ -12,6 +12,8 @@ export class Config {
     keepAlive: true,
   })
 
+  public snykAccount = '098205a8-b4f5-45f7-bd3b-16249d6c5942'
+
   private configCached?: Record<string, string> = undefined
   private get config() {
     const existingConfig = this.configCached
