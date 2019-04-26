@@ -1,7 +1,6 @@
 import yargs, { CommandModule } from 'yargs'
 import analyzeDirectory from './github/analyze-directory'
 import configure from './github/configure'
-import dumpSetup from './github/dump-setup'
 import generateCloneCommands from './github/generate-clone-commands'
 import listPullRequestsStats from './github/list-pull-requests-stats'
 import listRepos from './github/list-repos'
@@ -15,7 +14,6 @@ const command: CommandModule = {
     yargs
       .command(analyzeDirectory)
       .command(configure)
-      .command(dumpSetup)
       .command(generateCloneCommands)
       .command(listPullRequestsStats)
       .command(listRepos)

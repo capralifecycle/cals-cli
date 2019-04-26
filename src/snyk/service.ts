@@ -1,6 +1,7 @@
 import keytar from 'keytar'
 import fetch from 'node-fetch'
 import { Config } from '../config'
+import { getDefinition } from '../definition/definition'
 import { SnykProject } from './types'
 
 const keyringService = 'cals'

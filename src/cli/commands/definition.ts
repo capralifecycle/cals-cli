@@ -1,20 +1,20 @@
-/// <reference types="../../../yawn-yaml" />
+/// <reference types="../../yawn-yaml" />
 import {
   OrgsGetResponse,
   ReposGetResponse,
   ReposListTeamsResponseItem,
 } from '@octokit/rest'
 import fs from 'fs'
-import { CommandModule } from 'yargs'
+import yargs, { CommandModule } from 'yargs'
 import YAWN from 'yawn-yaml/cjs'
-import { provideCacheJson } from '../../../cache'
-import { Config } from '../../../config'
+import { provideCacheJson } from '../../cache'
+import { Config } from '../../config'
 import {
   getDefinition,
   getRawDefinition,
   getRepoId,
   getRepos,
-} from '../../../definition/definition'
+} from '../../definition/definition'
 import {
   Definition,
   DefinitionRepo,
@@ -22,11 +22,11 @@ import {
   RepoTeam,
   Team,
   User,
-} from '../../../definition/types'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Permission, Repo } from '../../../github/types'
-import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+} from '../../definition/types'
+import { createGitHubService, GitHubService } from '../../github/service'
+import { Permission, Repo } from '../../github/types'
+import { Reporter } from '../reporter'
+import { createConfig, createReporter } from '../util'
 
 interface DetailedProject {
   name: string
@@ -182,6 +182,7 @@ async function dumpSetup(
   const members = await github.getOrgMembersList(org.login)
 
   const generatedDefinition: Definition = {
+    snyk: definition.snyk,
     projects,
     teams: {
       // TODO: Other orgs
@@ -216,10 +217,10 @@ async function dumpSetup(
   reporter.info(`Saved to ${outfile}`)
 }
 
-const command: CommandModule = {
+const dumpSetupCommand: CommandModule = {
   command: 'dump-setup',
   describe:
-    'Dump active setup as YAML. Will be formated same as the GitHub definition file.',
+    'Dump active setup as YAML. Will be formated same as the definition file.',
   builder: yargs =>
     yargs
       .positional('outfile', {
@@ -231,6 +232,29 @@ const command: CommandModule = {
     const config = createConfig()
     const github = await createGitHubService(config)
     await dumpSetup(config, reporter, github, argv.outfile as string)
+  },
+}
+
+const command: CommandModule = {
+  command: 'definition',
+  describe: 'CALS definition file management',
+  builder: yargs =>
+    yargs.command(dumpSetupCommand).demandCommand().usage(`cals definition
+
+The definition file is currently located at
+https://github.com/capralifecycle/cals-tools/blob/master/github/capralifecycle.yml
+but will be moved to a more appropriate location later.
+
+The file ~/.cals-config.json must include a reference to the location of this
+file. For example by having this content:
+
+  {
+    "definitionFile": "/home/henrste/projects/capralifecycle/cals-tools/github/capralifecycle.yml"
+  }
+
+Also remember to fetch the cals-tools repository every time you use cals-cli.`),
+  handler: () => {
+    yargs.showHelp()
   },
 }
 

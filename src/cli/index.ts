@@ -1,5 +1,6 @@
 import yargs from 'yargs'
 import gettingStarted from './commands/getting-started'
+import definition from './commands/definition'
 import github from './commands/github'
 import snyk from './commands/snyk'
 
@@ -22,6 +23,7 @@ Usage: cals <command>`
     .scriptName('cals')
     .locale('en')
     .help('help')
+    .command(definition)
     .command(github)
     .command(gettingStarted)
     .command(snyk)
