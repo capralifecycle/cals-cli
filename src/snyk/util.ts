@@ -18,3 +18,7 @@ export function getGitHubRepo(
     file: match[3],
   }
 }
+
+export function getGitHubRepoId(repo: SnykGitHubRepo | undefined) {
+  return repo ? `${repo.owner}/${repo.name}` : undefined
+}

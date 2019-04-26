@@ -1,4 +1,5 @@
 import yargs, { CommandModule } from 'yargs'
+import report from './snyk/report'
 import setToken from './snyk/set-token'
 import sync from './snyk/sync'
 
@@ -8,6 +9,7 @@ const command: CommandModule = {
   builder: yargs =>
     yargs
       .command(setToken)
+      .command(report)
       .command(sync)
       .demandCommand().usage(`cals snyk
 

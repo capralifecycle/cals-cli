@@ -75,3 +75,5 @@ https://snyk.docs.apiary.io/reference/projects
 
 - [ ] Automatically set up project in Snyk
 - [x] Report of which repos are in Snyk and which is not
+- [ ] Detect active vs disabled projects in Snyk (no way through API now?)
+- [x] Report issues in Snyk grouped by our projects
