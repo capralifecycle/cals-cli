@@ -27,6 +27,9 @@ import { createGitHubService, GitHubService } from '../../github/service'
 import { Permission, Repo } from '../../github/types'
 import { Reporter } from '../reporter'
 import { createConfig, createReporter } from '../util'
+import { createSnykService, SnykService } from '../../snyk/service'
+import { getGitHubRepo } from '../../snyk/util'
+import { SnykGitHubRepo } from '../../snyk/types'
 
 interface DetailedProject {
   name: string
@@ -108,11 +111,17 @@ async function dumpSetup(
   config: Config,
   reporter: Reporter,
   github: GitHubService,
+  snyk: SnykService,
   outfile: string,
 ) {
   reporter.info('Fetching data. This might take some time')
   const org = await github.getOrg('capralifecycle')
   const definition = getDefinition(config)
+
+  const snykRepos = (await snyk.getProjects())
+    .map(it => getGitHubRepo(it))
+    .filter((it): it is SnykGitHubRepo => it !== undefined)
+    .map(it => getRepoId(it.owner, it.name))
 
   const projectMap = getRepos(definition).reduce<Record<string, string>>(
     (acc, cur) => ({
@@ -170,6 +179,11 @@ async function dumpSetup(
                 teams: getFormattedTeams(
                   getSpecificTeams(repo.teams, commonTeams),
                 ),
+                snyk: snykRepos.includes(
+                  getRepoId(repo.basic.owner.login, repo.basic.name),
+                )
+                  ? true
+                  : undefined,
               }))
               .sort((a, b) => a.name.localeCompare(b.name)),
           },
@@ -231,7 +245,8 @@ const dumpSetupCommand: CommandModule = {
     const reporter = createReporter()
     const config = createConfig()
     const github = await createGitHubService(config)
-    await dumpSetup(config, reporter, github, argv.outfile as string)
+    const snyk = await createSnykService(config)
+    await dumpSetup(config, reporter, github, snyk, argv.outfile as string)
   },
 }
 
