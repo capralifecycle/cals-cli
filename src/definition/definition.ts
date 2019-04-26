@@ -1,11 +1,12 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 import { uniq } from 'lodash'
-import { GitHubService } from './service'
+import { Config } from '../config'
 import { Definition } from './types'
+import { getDefinitionFile } from './util'
 
-export function getRawDefinition(github: GitHubService) {
-  return fs.readFileSync(github.getDefinitionFile(), 'utf-8')
+export function getRawDefinition(config: Config) {
+  return fs.readFileSync(getDefinitionFile(config), 'utf-8')
 }
 
 function getTeamId(org: string, teamName: string) {
@@ -95,8 +96,8 @@ function validateDefinition(definition: Definition) {
     }, [])
 }
 
-export function getDefinition(github: GitHubService) {
-  const definition = yaml.safeLoad(getRawDefinition(github)) as Definition
+export function getDefinition(config: Config) {
+  const definition = yaml.safeLoad(getRawDefinition(config)) as Definition
   validateDefinition(definition)
   return definition
 }

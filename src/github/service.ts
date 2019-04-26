@@ -25,10 +25,6 @@ export class GitHubService {
   private config: Config
   public octokit: Octokit
 
-  public getDefinitionFile() {
-    return this.config.requireConfig('githubDefinitionFile')
-  }
-
   private async removeToken() {
     await keytar.deletePassword(keyringService, keyringAccount)
   }

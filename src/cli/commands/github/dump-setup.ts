@@ -12,19 +12,19 @@ import { Config } from '../../../config'
 import {
   getDefinition,
   getRawDefinition,
+  getRepoId,
   getRepos,
-} from '../../../github/definition'
-import { createGitHubService, GitHubService } from '../../../github/service'
+} from '../../../definition/definition'
 import {
   Definition,
   DefinitionRepo,
-  Permission,
   Project,
-  Repo,
   RepoTeam,
   Team,
   User,
-} from '../../../github/types'
+} from '../../../definition/types'
+import { createGitHubService, GitHubService } from '../../../github/service'
+import { Permission, Repo } from '../../../github/types'
 import { Reporter } from '../../reporter'
 import { createConfig, createReporter } from '../../util'
 
@@ -112,7 +112,7 @@ async function dumpSetup(
 ) {
   reporter.info('Fetching data. This might take some time')
   const org = await github.getOrg('capralifecycle')
-  const definition = getDefinition(github)
+  const definition = getDefinition(config)
 
   const projectMap = getRepos(definition).reduce<Record<string, string>>(
     (acc, cur) => ({
@@ -135,7 +135,10 @@ async function dumpSetup(
         repos: typeof repos
       }
     }>((acc, cur) => {
-      const projectName = projectMap[cur.basic.name] || 'Unknown'
+      const projectName =
+        projectMap[
+          getRepoId(cur.repository.owner.login, cur.repository.name)
+        ] || 'Unknown'
       const project = acc[projectName] || {
         name: projectName,
         repos: [],
@@ -206,7 +209,7 @@ async function dumpSetup(
   }
 
   // Convert to/from plain JSON so that undefined elements are removed.
-  const yawn = new YAWN(getRawDefinition(github))
+  const yawn = new YAWN(getRawDefinition(config))
   yawn.json = JSON.parse(JSON.stringify(generatedDefinition))
 
   fs.writeFileSync(outfile, yawn.yaml)

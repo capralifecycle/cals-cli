@@ -1,9 +1,9 @@
 import { groupBy, repeat, sortBy, sumBy } from 'lodash'
 import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
-import { getDefinition, getRepos } from '../../../github/definition'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Project } from '../../../github/types'
+import { Config } from '../../../config'
+import { getDefinition, getRepos } from '../../../definition/definition'
+import { Project } from '../../../definition/types'
 import { createSnykService, SnykService } from '../../../snyk/service'
 import { SnykProject } from '../../../snyk/types'
 import { getGitHubRepo, getGitHubRepoId } from '../../../snyk/util'
@@ -34,17 +34,17 @@ function buildStatsLine(stats: SnykProject['issueCountsBySeverity']) {
 async function report({
   reporter,
   snyk,
-  github,
+  config,
 }: {
   reporter: Reporter
   snyk: SnykService
-  github: GitHubService
+  config: Config
 }) {
   const reposWithIssues = (await snyk.getProjects()).filter(
     it => totalSeverityCount(it) > 0,
   )
 
-  const definitionRepos = getRepos(getDefinition(github))
+  const definitionRepos = getRepos(getDefinition(config))
 
   function getProject(p: SnykProject) {
     const id = getGitHubRepoId(getGitHubRepo(p))
@@ -122,7 +122,7 @@ const command: CommandModule = {
     report({
       reporter: createReporter(),
       snyk: await createSnykService(createConfig()),
-      github: await createGitHubService(createConfig()),
+      config: createConfig(),
     }),
 }
 

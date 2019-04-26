@@ -1,6 +1,10 @@
 import { CommandModule } from 'yargs'
-import { getDefinition, getRepoId, getRepos } from '../../../github/definition'
-import { createGitHubService, GitHubService } from '../../../github/service'
+import { Config } from '../../../config'
+import {
+  getDefinition,
+  getRepoId,
+  getRepos,
+} from '../../../definition/definition'
 import { createSnykService, SnykService } from '../../../snyk/service'
 import { SnykGitHubRepo } from '../../../snyk/types'
 import { getGitHubRepo } from '../../../snyk/util'
@@ -10,17 +14,17 @@ import { createConfig, createReporter } from '../../util'
 const sync = async ({
   reporter,
   snyk,
-  github,
+  config,
 }: {
   reporter: Reporter
   snyk: SnykService
-  github: GitHubService
+  config: Config
 }) => {
   const knownRepos = (await snyk.getProjects())
     .map(it => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
 
-  const allReposWithSnyk = getRepos(getDefinition(github)).filter(
+  const allReposWithSnyk = getRepos(getDefinition(config)).filter(
     it => it.repo.snyk === true,
   )
 
@@ -56,7 +60,7 @@ const command: CommandModule = {
     sync({
       reporter: createReporter(),
       snyk: await createSnykService(createConfig()),
-      github: await createGitHubService(createConfig()),
+      config: createConfig(),
     }),
 }
 

@@ -11,9 +11,10 @@ import {
   getDefinition,
   getGitHubOrgs,
   getRepos,
-} from '../../../github/definition'
+} from '../../../definition/definition'
+import { Definition, User } from '../../../definition/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
-import { Definition, Repo, User } from '../../../github/types'
+import { Repo } from '../../../github/types'
 import { createConfig, createReporter } from '../../util'
 
 interface MembersDiff {
@@ -311,9 +312,10 @@ const projectsCommand: CommandModule = {
     }),
   handler: async argv => {
     const reporter = createReporter()
-    const github = await createGitHubService(createConfig())
+    const config = createConfig()
+    const github = await createGitHubService(config)
     await reportRateLimit(reporter, github, async () => {
-      const definition = getDefinition(github)
+      const definition = getDefinition(config)
       await processProjects(
         reporter,
         github,
@@ -330,10 +332,11 @@ const membersCommand: CommandModule = {
   describe: 'Configure members',
   handler: async () => {
     const reporter = createReporter()
-    const github = await createGitHubService(createConfig())
+    const config = createConfig()
+    const github = await createGitHubService(config)
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
-      const definition = getDefinition(github)
+      const definition = getDefinition(config)
       await processMembers(reporter, github, org, definition.users)
     })
   },
@@ -344,9 +347,10 @@ const teamsCommand: CommandModule = {
   describe: 'Configure teams',
   handler: async () => {
     const reporter = createReporter()
-    const github = await createGitHubService(createConfig())
+    const config = createConfig()
+    const github = await createGitHubService(config)
     await reportRateLimit(reporter, github, async () => {
-      const definition = getDefinition(github)
+      const definition = getDefinition(config)
       await processTeams(reporter, github, definition)
     })
   },
