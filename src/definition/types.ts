@@ -1,6 +1,9 @@
 import { Permission } from '../github/types'
 
 export interface Definition {
+  snyk: {
+    accountId: string
+  }
   users: User[]
   teams: {
     [githubOrg: string]: Team[]

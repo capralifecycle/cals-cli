@@ -38,9 +38,11 @@ export class SnykService {
   }
 
   public async getProjects(): Promise<SnykProject[]> {
+    const snykAccountId = getDefinition(this.config).snyk.accountId
+
     const response = await fetch(
       `https://snyk.io/api/v1/org/${encodeURIComponent(
-        this.config.snykAccount,
+        snykAccountId,
       )}/projects`,
       {
         method: 'GET',
