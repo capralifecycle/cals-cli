@@ -1,9 +1,9 @@
 import { groupBy, repeat, sortBy, sumBy } from 'lodash'
 import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
-import { getDefinition } from '../../../github/definition'
+import { getDefinition, getRepos } from '../../../github/definition'
 import { createGitHubService, GitHubService } from '../../../github/service'
-import { DefinitionRepo, Project } from '../../../github/types'
+import { Project } from '../../../github/types'
 import { createSnykService, SnykService } from '../../../snyk/service'
 import { SnykProject } from '../../../snyk/types'
 import { getGitHubRepo, getGitHubRepoId } from '../../../snyk/util'
@@ -16,10 +16,6 @@ function totalSeverityCount(project: SnykProject) {
     project.issueCountsBySeverity.medium +
     project.issueCountsBySeverity.low
   )
-}
-
-function getId(repo: DefinitionRepo) {
-  return `capralifecycle/${repo.name}`
 }
 
 function buildStatsLine(stats: SnykProject['issueCountsBySeverity']) {
@@ -48,13 +44,7 @@ async function report({
     it => totalSeverityCount(it) > 0,
   )
 
-  const definitionRepos = getDefinition(github).projects.flatMap(project =>
-    project.repos.map(repo => ({
-      id: getId(repo),
-      project,
-      repo,
-    })),
-  )
+  const definitionRepos = getRepos(getDefinition(github))
 
   function getProject(p: SnykProject) {
     const id = getGitHubRepoId(getGitHubRepo(p))

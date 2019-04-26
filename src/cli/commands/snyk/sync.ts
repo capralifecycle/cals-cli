@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs'
-import { getDefinition } from '../../../github/definition'
+import { getDefinition, getRepoId, getRepos } from '../../../github/definition'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { createSnykService, SnykService } from '../../../snyk/service'
 import { SnykGitHubRepo } from '../../../snyk/types'
@@ -20,29 +20,22 @@ const sync = async ({
     .map(it => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
 
-  const allReposWithSnyk = getDefinition(github)
-    .projects.flatMap(project =>
-      project.repos.map(repo => ({
-        project,
-        repo,
-      })),
-    )
-    .filter(it => it.repo.snyk === true)
+  const allReposWithSnyk = getRepos(getDefinition(github)).filter(
+    it => it.repo.snyk === true,
+  )
 
-  const allReposWithSnykStr = allReposWithSnyk.map(
-    it => `capralifecycle/${it.repo.name}`,
+  const allReposWithSnykStr = allReposWithSnyk.map(it =>
+    getRepoId(it.orgName, it.repo.name),
   )
 
   const missingInSnyk = allReposWithSnyk.filter(
     it =>
-      !knownRepos.some(
-        r => r.owner === 'capralifecycle' && r.name === it.repo.name,
-      ),
+      !knownRepos.some(r => r.owner === it.orgName && r.name === it.repo.name),
   )
 
-  const extraInSnyk = knownRepos
-    .filter(it => it.owner === 'capralifecycle')
-    .filter(it => !allReposWithSnykStr.includes(`${it.owner}/${it.name}`))
+  const extraInSnyk = knownRepos.filter(
+    it => !allReposWithSnykStr.includes(`${it.owner}/${it.name}`),
+  )
 
   if (missingInSnyk.length === 0) {
     reporter.info('All seems fine')

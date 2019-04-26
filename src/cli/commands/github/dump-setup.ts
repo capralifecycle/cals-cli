@@ -9,12 +9,17 @@ import { CommandModule } from 'yargs'
 import YAWN from 'yawn-yaml/cjs'
 import { provideCacheJson } from '../../../cache'
 import { Config } from '../../../config'
-import { getDefinition, getRawDefinition } from '../../../github/definition'
+import {
+  getDefinition,
+  getRawDefinition,
+  getRepos,
+} from '../../../github/definition'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import {
   Definition,
   DefinitionRepo,
   Permission,
+  Project,
   Repo,
   RepoTeam,
   Team,
@@ -32,7 +37,7 @@ interface DetailedProject {
   }[]
 }
 
-async function getRepos(
+async function getReposFromGitHub(
   github: GitHubService,
 ): Promise<DetailedProject['repos']> {
   const repos = await github.getRepoList({ owner: 'capralifecycle' })
@@ -109,25 +114,18 @@ async function dumpSetup(
   const org = await github.getOrg('capralifecycle')
   const definition = getDefinition(github)
 
-  const projectMap = definition.projects
-    .flatMap(project =>
-      project.repos.map(repo => ({
-        projectName: project.name,
-        repoName: repo.name,
-      })),
-    )
-    .reduce<{ [key: string]: string }>(
-      (acc, cur) => ({
-        ...acc,
-        [cur.repoName]: cur.projectName,
-      }),
-      {},
-    )
+  const projectMap = getRepos(definition).reduce<Record<string, string>>(
+    (acc, cur) => ({
+      ...acc,
+      [cur.id]: cur.project.name,
+    }),
+    {},
+  )
 
   const repos = await provideCacheJson(
     config,
     'dump-setup-repos',
-    async () => await getRepos(github),
+    async () => await getReposFromGitHub(github),
   )
 
   const projects = Object.values(
@@ -152,20 +150,27 @@ async function dumpSetup(
       }
     }, {}),
   )
-    .map<Definition['projects'][0]>(project => {
+    .map<Project>(project => {
       const commonTeams = getCommonTeams(project)
       return {
         name: project.name,
-        teams: getFormattedTeams(commonTeams),
-        repos: project.repos
-          .map<DefinitionRepo>(repo => ({
-            name: repo.basic.name,
-            archived: repo.repository.archived ? true : undefined,
-            issues: repo.repository.has_issues ? undefined : false,
-            wiki: repo.repository.has_wiki ? undefined : false,
-            teams: getFormattedTeams(getSpecificTeams(repo.teams, commonTeams)),
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name)),
+        github: {
+          // TODO: Other orgs
+          capralifecycle: {
+            teams: getFormattedTeams(commonTeams),
+            repos: project.repos
+              .map<DefinitionRepo>(repo => ({
+                name: repo.basic.name,
+                archived: repo.repository.archived ? true : undefined,
+                issues: repo.repository.has_issues ? undefined : false,
+                wiki: repo.repository.has_wiki ? undefined : false,
+                teams: getFormattedTeams(
+                  getSpecificTeams(repo.teams, commonTeams),
+                ),
+              }))
+              .sort((a, b) => a.name.localeCompare(b.name)),
+          },
+        },
       }
     })
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -175,15 +180,18 @@ async function dumpSetup(
 
   const generatedDefinition: Definition = {
     projects,
-    teams: teams
-      // TODO: Only exclude if not referenced?
-      .filter(it => it.members.length > 0)
-      .map<Team>(team => ({
-        name: team.team.name,
-        members: team.members
-          .map(it => it.login)
-          .sort((a, b) => a.localeCompare(b)),
-      })),
+    teams: {
+      // TODO: Other orgs
+      capralifecycle: teams
+        // TODO: Only exclude if not referenced?
+        .filter(it => it.members.length > 0)
+        .map<Team>(team => ({
+          name: team.team.name,
+          members: team.members
+            .map(it => it.login)
+            .sort((a, b) => a.localeCompare(b)),
+        })),
+    },
     users: members
       .map<User>(
         it =>

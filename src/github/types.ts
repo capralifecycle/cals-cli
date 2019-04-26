@@ -16,14 +16,20 @@ export type Permission = 'admin' | 'push' | 'pull'
 
 export interface Definition {
   users: User[]
-  teams: Team[]
+  teams: {
+    [githubOrg: string]: Team[]
+  }
   projects: Project[]
 }
 
 export interface Project {
   name: string
-  repos: DefinitionRepo[]
-  teams?: RepoTeam[]
+  github: {
+    [githubOrg: string]: {
+      repos: DefinitionRepo[]
+      teams?: RepoTeam[]
+    }
+  }
 }
 
 export type User = UserBot | UserEmployee | UserExternal
