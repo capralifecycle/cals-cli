@@ -20,7 +20,7 @@
     "js-yaml": "3.13.1",
     "keytar": "4.6.0",
     "lodash": "4.17.11",
-    "node-fetch": "2.4.0",
+    "node-fetch": "2.4.1",
     "read": "1.0.7",
     "sprintf-js": "1.1.2",
     "yargs": "13.2.2",
