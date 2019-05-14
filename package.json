@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@octokit/rest": "16.25.4",
-    "@types/lodash": "4.14.127",
+    "@types/lodash": "4.14.128",
     "cachedir": "2.2.0",
     "chalk": "2.4.2",
     "js-yaml": "3.13.1",
