@@ -13,7 +13,7 @@
     "cals": "lib/cals-cli.js"
   },
   "dependencies": {
-    "@octokit/rest": "16.25.5",
+    "@octokit/rest": "16.25.6",
     "@types/lodash": "4.14.129",
     "cachedir": "2.2.0",
     "chalk": "2.4.2",
