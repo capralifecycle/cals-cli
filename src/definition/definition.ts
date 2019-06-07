@@ -47,9 +47,7 @@ function validateDefinition(definition: Definition) {
       team.members.forEach(login => {
         if (!loginList.includes(login)) {
           throw new Error(
-            `Team member ${login} in team ${
-              team.name
-            } is not registered in user list`,
+            `Team member ${login} in team ${team.name} is not registered in user list`,
           )
         }
       })
@@ -70,9 +68,7 @@ function validateDefinition(definition: Definition) {
         const id = getTeamId(orgName, team.name)
         if (!teamIdList.includes(id)) {
           throw new Error(
-            `Project team ${id} in project ${
-              project.name
-            } is not registered in team list`,
+            `Project team ${id} in project ${project.name} is not registered in team list`,
           )
         }
       })
