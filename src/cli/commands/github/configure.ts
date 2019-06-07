@@ -102,9 +102,7 @@ async function processProjects(
           projectRepo.archived !== repo.archived
         ) {
           reporter.log(
-            `  Archive mismatch: wanted=${projectRepo.archived} actual=${
-              repo.archived
-            }`,
+            `  Archive mismatch: wanted=${projectRepo.archived} actual=${repo.archived}`,
           )
         }
 
@@ -114,9 +112,7 @@ async function processProjects(
           !repo.archived
         ) {
           reporter.log(
-            `  Issues mismatch: wanted=${projectRepo.issues} actual=${
-              repo.has_issues
-            }`,
+            `  Issues mismatch: wanted=${projectRepo.issues} actual=${repo.has_issues}`,
           )
         }
 
@@ -126,9 +122,7 @@ async function processProjects(
           !repo.archived
         ) {
           reporter.log(
-            `  Wiki mismatch: wanted=${projectRepo.wiki} actual=${
-              repo.has_wiki
-            }`,
+            `  Wiki mismatch: wanted=${projectRepo.wiki} actual=${repo.has_wiki}`,
           )
         }
 
