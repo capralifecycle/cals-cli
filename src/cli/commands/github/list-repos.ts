@@ -31,6 +31,7 @@ const listRepos = async ({
   includeAbandoned,
   topic = null,
   compact,
+  csv,
   owner,
 }: {
   reporter: Reporter
@@ -38,6 +39,7 @@ const listRepos = async ({
   includeAbandoned: boolean
   topic?: string | null
   compact: boolean
+  csv: boolean
   owner: string
 }) => {
   let repos = await github.getRepoList({ owner })
@@ -50,15 +52,27 @@ const listRepos = async ({
     repos = repos.filter(it => includesTopic(it, topic))
   }
 
+  // All CSV output is done using direct stdout to avoid extra chars.
+
+  if (csv) {
+    process.stdout.write('reponame,group\n')
+  }
+
   getGroupedRepos(repos).forEach(group => {
-    if (compact) {
+    if (!csv && compact) {
       reporter.log(`${group.name}`)
-    } else {
+    } else if (!csv) {
       reporter.log('')
       reporter.log(`======== ${group.name} ========`)
     }
 
     group.items.forEach(repo => {
+      if (csv) {
+        // We assume we have no repos or group names with a comma in its name.
+        process.stdout.write(`${repo.name},${group.name}\n`)
+        return
+      }
+
       if (compact) {
         reporter.log(`- ${repo.name}`)
         return
@@ -78,6 +92,10 @@ const listRepos = async ({
       }
     })
   })
+
+  if (csv) {
+    return
+  }
 
   reporter.log('')
   reporter.log(`Total number of repos: ${repos.length}`)
@@ -124,6 +142,10 @@ const command: CommandModule = {
         describe: 'Compact output list',
         type: 'boolean',
       })
+      .options('csv', {
+        describe: 'Output as a CSV list that can be used for automation',
+        type: 'boolean',
+      })
       .option('topic', {
         alias: 't',
         describe: 'Filter by specific topic',
@@ -136,6 +158,7 @@ const command: CommandModule = {
       includeAbandoned: !!argv['include-abandoned'],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
+      csv: !!argv.csv,
       owner: argv['org'] as string,
     }),
 }
