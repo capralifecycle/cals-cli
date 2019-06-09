@@ -296,6 +296,12 @@ async function reportRateLimit(
   )
 }
 
+function checkOwner(owner: string) {
+  if (owner !== 'capralifecycle') {
+    throw Error('Only owner==capralifecycle allowed for this command')
+  }
+}
+
 const projectsCommand: CommandModule = {
   command: 'projects',
   describe: 'Configure projects',
@@ -305,6 +311,8 @@ const projectsCommand: CommandModule = {
       type: 'boolean',
     }),
   handler: async argv => {
+    checkOwner(argv['org'] as string)
+
     const reporter = createReporter()
     const config = createConfig()
     const github = await createGitHubService(config)
@@ -324,7 +332,9 @@ const projectsCommand: CommandModule = {
 const membersCommand: CommandModule = {
   command: 'members',
   describe: 'Configure members',
-  handler: async () => {
+  handler: async argv => {
+    checkOwner(argv['org'] as string)
+
     const reporter = createReporter()
     const config = createConfig()
     const github = await createGitHubService(config)
@@ -339,7 +349,9 @@ const membersCommand: CommandModule = {
 const teamsCommand: CommandModule = {
   command: 'teams',
   describe: 'Configure teams',
-  handler: async () => {
+  handler: async argv => {
+    checkOwner(argv['org'] as string)
+
     const reporter = createReporter()
     const config = createConfig()
     const github = await createGitHubService(config)

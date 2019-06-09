@@ -31,14 +31,16 @@ const listRepos = async ({
   includeAbandoned,
   topic = null,
   compact,
+  owner,
 }: {
   reporter: Reporter
   github: GitHubService
   includeAbandoned: boolean
   topic?: string | null
   compact: boolean
+  owner: string
 }) => {
-  let repos = await github.getRepoList({ owner: 'capralifecycle' })
+  let repos = await github.getRepoList({ owner })
 
   if (!includeAbandoned) {
     repos = repos.filter(it => !isAbandoned(it))
@@ -134,6 +136,7 @@ const command: CommandModule = {
       includeAbandoned: !!argv['include-abandoned'],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
+      owner: argv['org'] as string,
     }),
 }
 

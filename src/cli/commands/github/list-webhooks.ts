@@ -28,8 +28,9 @@ const listWebhooks = async (
   reporter: Reporter,
   config: Config,
   github: GitHubService,
+  owner: string,
 ) => {
-  const repos = (await github.getRepoList({ owner: 'capralifecycle' })).filter(
+  const repos = (await github.getRepoList({ owner })).filter(
     it => !isAbandoned(it),
   )
 
@@ -101,12 +102,13 @@ const listWebhooks = async (
 const command: CommandModule = {
   command: 'list-webhooks',
   describe: 'List CALS Git repos web hooks',
-  handler: async () => {
+  handler: async argv => {
     const config = createConfig()
     await listWebhooks(
       createReporter(),
       config,
       await createGitHubService(config),
+      argv['org'] as string,
     )
   },
 }

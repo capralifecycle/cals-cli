@@ -19,6 +19,11 @@ const command: CommandModule = {
       .command(listRepos)
       .command(listWebhooks)
       .command(setToken)
+      .options('org', {
+        default: 'capralifecycle',
+        describe: 'Specify GitHub organization',
+        type: 'string',
+      })
       .demandCommand().usage(`cals github
 
 Notes:

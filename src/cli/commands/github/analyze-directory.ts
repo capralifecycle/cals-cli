@@ -13,8 +13,9 @@ const analyzeDirectory = async (
   reporter: Reporter,
   config: Config,
   github: GitHubService,
+  owner: string,
 ) => {
-  const repos = await github.getRepoList({ owner: 'capralifecycle' })
+  const repos = await github.getRepoList({ owner })
 
   const reposDict = repos.reduce<{
     [key: string]: Repo
@@ -71,11 +72,11 @@ const analyzeDirectory = async (
 const command: CommandModule = {
   command: 'analyze-directory',
   describe: 'Analyze directory for git repos',
-  handler: async () => {
+  handler: async argv => {
     const config = createConfig()
     const github = await createGitHubService(config)
     const reporter = createReporter()
-    return analyzeDirectory(reporter, config, github)
+    return analyzeDirectory(reporter, config, github, argv['org'] as string)
   },
 }
 

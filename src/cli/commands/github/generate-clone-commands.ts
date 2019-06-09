@@ -16,6 +16,7 @@ const generateCloneCommands = async ({
   reporter,
   config,
   github,
+  owner,
   ...opt
 }: {
   reporter: Reporter
@@ -27,15 +28,11 @@ const generateCloneCommands = async ({
   includeAbandoned: boolean
   listGroups: boolean
   topic: string | undefined
+  owner: string
 }) => {
   if (!opt.listGroups && !opt.all && opt.group === undefined) {
     yargs.showHelp()
     return
-  }
-
-  let owner = 'capralifecycle'
-  if (process.env.GITHUB_OWNER !== undefined) {
-    owner = process.env.GITHUB_OWNER
   }
 
   const repos = await github.getRepoList({ owner })
@@ -116,6 +113,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       excludeExisting: !!argv['exclude-existing'],
       group: argv.group as string | undefined,
+      owner: argv['org'] as string,
     })
   },
 }
