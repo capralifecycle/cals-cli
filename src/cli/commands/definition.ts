@@ -258,18 +258,17 @@ const command: CommandModule = {
   builder: yargs =>
     yargs.command(dumpSetupCommand).demandCommand().usage(`cals definition
 
-The definition file is currently located at
-https://github.com/capralifecycle/cals-tools/blob/master/github/capralifecycle.yml
-but will be moved to a more appropriate location later.
+The definition file is located at
+https://github.com/capralifecycle/resources-definition/blob/master/resources.yaml
 
 The file ~/.cals-config.json must include a reference to the location of this
 file. For example by having this content:
 
   {
-    "definitionFile": "/home/henrste/projects/capralifecycle/cals-tools/github/capralifecycle.yml"
+    "definitionFile": "/home/henrste/projects/capralifecycle/resources-definition/resources.yaml"
   }
 
-Also remember to fetch the cals-tools repository every time you use cals-cli.`),
+Also remember to fetch the resources-definition repository every time you use cals-cli.`),
   handler: () => {
     yargs.showHelp()
   },
