@@ -2,11 +2,12 @@ import {
   OrgsGetResponse,
   ReposGetResponse,
   ReposListTeamsResponseItem,
+  TeamsListMembersResponseItem,
+  TeamsListResponseItem,
 } from '@octokit/rest'
 import fs from 'fs'
 import yaml from 'js-yaml'
 import yargs, { CommandModule } from 'yargs'
-import { provideCacheJson } from '../../cache'
 import { Config } from '../../config'
 import {
   getDefinition,
@@ -24,61 +25,80 @@ import {
 } from '../../definition/types'
 import { createGitHubService, GitHubService } from '../../github/service'
 import { Permission, Repo } from '../../github/types'
+import { createSnykService, SnykService } from '../../snyk/service'
+import { SnykGitHubRepo } from '../../snyk/types'
+import { getGitHubRepo } from '../../snyk/util'
 import { Reporter } from '../reporter'
 import { createConfig, createReporter } from '../util'
-import { createSnykService, SnykService } from '../../snyk/service'
-import { getGitHubRepo } from '../../snyk/util'
-import { SnykGitHubRepo } from '../../snyk/types'
 
 interface DetailedProject {
   name: string
   repos: {
-    basic: Repo
-    repository: ReposGetResponse
-    teams: ReposListTeamsResponseItem[]
-  }[]
+    [org: string]: {
+      basic: Repo
+      repository: ReposGetResponse
+      teams: ReposListTeamsResponseItem[]
+    }[]
+  }
 }
 
 async function getReposFromGitHub(
   github: GitHubService,
-): Promise<DetailedProject['repos']> {
-  const repos = await github.getRepoList({ owner: 'capralifecycle' })
+  orgs: OrgsGetResponse[],
+): Promise<DetailedProject['repos'][0]> {
   const result = []
-  for (const repo of repos) {
-    const detailedRepo = await github.getRepository(repo.owner.login, repo.name)
-    if (detailedRepo === undefined) {
-      throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
+
+  for (const org of orgs) {
+    const repos = await github.getRepoList({ owner: org.login })
+    for (const repo of repos) {
+      const detailedRepo = await github.getRepository(
+        repo.owner.login,
+        repo.name,
+      )
+      if (detailedRepo === undefined) {
+        throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
+      }
+
+      result.push({
+        basic: repo,
+        repository: detailedRepo,
+        teams: await github.getRepositoryTeamsList(detailedRepo),
+      })
     }
-
-    result.push({
-      basic: repo,
-      repository: detailedRepo,
-      teams: await github.getRepositoryTeamsList(detailedRepo),
-    })
   }
 
   return result
 }
 
-async function getTeams(github: GitHubService, org: OrgsGetResponse) {
-  const result = []
-  const teams = await github.getTeamList(org)
-  for (const team of teams) {
-    const members = await github.getTeamMemberList(team)
-    result.push({
-      team,
-      members,
-    })
+async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
+  const result: {
+    [org: string]: {
+      team: TeamsListResponseItem
+      members: TeamsListMembersResponseItem[]
+    }[]
+  } = {}
+
+  for (const org of orgs) {
+    const inner = []
+    const teams = await github.getTeamList(org)
+    for (const team of teams) {
+      const members = await github.getTeamMemberList(team)
+      inner.push({
+        team,
+        members,
+      })
+    }
+    result[org.login] = inner
   }
 
   return result
 }
 
-function getCommonTeams(project: DetailedProject) {
-  return project.repos.length === 0
+function getCommonTeams(ownerRepos: DetailedProject['repos'][0]) {
+  return ownerRepos.length === 0
     ? []
-    : project.repos[0].teams.filter(team =>
-        project.repos.every(repo =>
+    : ownerRepos[0].teams.filter(team =>
+        ownerRepos.every(repo =>
           repo.teams.some(
             otherTeam =>
               otherTeam.name === team.name &&
@@ -106,6 +126,31 @@ function getFormattedTeams(teams: ReposListTeamsResponseItem[]) {
         .sort((a, b) => a.name.localeCompare(b.name))
 }
 
+async function getOrgs(github: GitHubService, orgs: string[]) {
+  let result = []
+  for (const org of orgs) {
+    result.push(await github.getOrg(org))
+  }
+  return result
+}
+
+async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
+  const membersAll = []
+  for (const org of orgs) {
+    membersAll.push(...(await github.getOrgMembersList(org.login)))
+  }
+
+  const members = membersAll.reduce<typeof membersAll>((acc, cur) => {
+    if (acc.some(it => it.id == cur.id)) {
+      return acc
+    } else {
+      return [...acc, cur]
+    }
+  }, [])
+
+  return members
+}
+
 async function dumpSetup(
   config: Config,
   reporter: Reporter,
@@ -114,7 +159,9 @@ async function dumpSetup(
   outfile: string,
 ) {
   reporter.info('Fetching data. This might take some time')
-  const org = await github.getOrg('capralifecycle')
+
+  const orgs = await getOrgs(github, ['capralifecycle', 'capraconsulting'])
+
   const definition = getDefinition(config)
 
   const snykRepos = (await snyk.getProjects())
@@ -130,23 +177,20 @@ async function dumpSetup(
     {},
   )
 
-  const repos = await provideCacheJson(
-    config,
-    'dump-setup-repos',
-    async () => await getReposFromGitHub(github),
-  )
+  const repos = await getReposFromGitHub(github, orgs)
 
   const projects = Object.values(
     repos.reduce<{
       [project: string]: {
         name: string
-        repos: typeof repos
+        repos: {
+          [owner: string]: typeof repos | undefined
+        }
       }
     }>((acc, cur) => {
+      const org = cur.repository.owner.login
       const projectName =
-        projectMap[
-          getRepoId(cur.repository.owner.login, cur.repository.name)
-        ] || 'Unknown'
+        projectMap[getRepoId(org, cur.repository.name)] || 'Unknown'
       const project = acc[projectName] || {
         name: projectName,
         repos: [],
@@ -156,20 +200,21 @@ async function dumpSetup(
         ...acc,
         [projectName]: {
           ...project,
-          repos: [...project.repos, cur],
+          repos: {
+            [org]: [...(project.repos[org] || []), cur],
+          },
         },
       }
     }, {}),
   )
-    .map<Project>(project => {
-      const commonTeams = getCommonTeams(project)
-      return {
-        name: project.name,
-        github: {
-          // TODO: Other orgs
-          capralifecycle: {
+    .map<Project>(project => ({
+      name: project.name,
+      github: Object.entries(project.repos).reduce<Project['github']>(
+        (acc, [org, list]) => {
+          const commonTeams = getCommonTeams(list!)
+          acc[org] = {
             teams: getFormattedTeams(commonTeams),
-            repos: project.repos
+            repos: list!
               .map<DefinitionRepo>(repo => ({
                 name: repo.basic.name,
                 archived: repo.repository.archived ? true : undefined,
@@ -185,31 +230,34 @@ async function dumpSetup(
                   : undefined,
               }))
               .sort((a, b) => a.name.localeCompare(b.name)),
-          },
+          }
+          return acc
         },
-      }
-    })
+        {},
+      ),
+    }))
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  const teams = await getTeams(github, org)
-  const members = await github.getOrgMembersList(org.login)
+  const teams = await getTeams(github, orgs)
+  const members = await getMembers(github, orgs)
+
+  function buildTeamsList(list: typeof teams[0]) {
+    return (
+      list
+        // TODO: Only exclude if not referenced?
+        .filter(it => it.members.length > 0)
+        .map<Team>(team => ({
+          name: team.team.name,
+          members: team.members
+            .map(it => it.login)
+            .sort((a, b) => a.localeCompare(b)),
+        }))
+    )
+  }
 
   const generatedDefinition: Definition = {
     snyk: definition.snyk,
-    projects,
     github: {
-      teams: {
-        // TODO: Other orgs
-        capralifecycle: teams
-          // TODO: Only exclude if not referenced?
-          .filter(it => it.members.length > 0)
-          .map<Team>(team => ({
-            name: team.team.name,
-            members: team.members
-              .map(it => it.login)
-              .sort((a, b) => a.localeCompare(b)),
-          })),
-      },
       users: members
         .map<User>(
           it =>
@@ -221,7 +269,12 @@ async function dumpSetup(
             },
         )
         .sort((a, b) => a.login.localeCompare(b.login)),
+      teams: {
+        capraconsulting: buildTeamsList(teams.capraconsulting),
+        capralifecycle: buildTeamsList(teams.capralifecycle),
+      },
     },
+    projects,
   }
 
   // TODO: An earlier version we had preserved comments by using yawn-yaml
