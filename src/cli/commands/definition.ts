@@ -157,6 +157,30 @@ async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   )
 }
 
+function buildTeamsList(
+  list: Record<
+    string,
+    {
+      team: TeamsListResponseItem
+      members: TeamsListMembersResponseItem[]
+    }[]
+  >,
+) {
+  const result: Record<string, Team[]> = {}
+  for (const [org, teams] of Object.entries(list)) {
+    result[org] = teams
+      // TODO: Only exclude if not referenced?
+      .filter(it => it.members.length > 0)
+      .map<Team>(team => ({
+        name: team.team.name,
+        members: team.members
+          .map(it => it.login)
+          .sort((a, b) => a.localeCompare(b)),
+      }))
+  }
+  return result
+}
+
 async function dumpSetup(
   config: Config,
   reporter: Reporter,
@@ -242,20 +266,6 @@ async function dumpSetup(
   const teams = await getTeams(github, orgs)
   const members = await getMembers(github, orgs)
 
-  function buildTeamsList(list: typeof teams[0]) {
-    return (
-      list
-        // TODO: Only exclude if not referenced?
-        .filter(it => it.members.length > 0)
-        .map<Team>(team => ({
-          name: team.team.name,
-          members: team.members
-            .map(it => it.login)
-            .sort((a, b) => a.localeCompare(b)),
-        }))
-    )
-  }
-
   const generatedDefinition: Definition = {
     snyk: definition.snyk,
     github: {
@@ -270,10 +280,7 @@ async function dumpSetup(
             },
         )
         .sort((a, b) => a.login.localeCompare(b.login)),
-      teams: {
-        capraconsulting: buildTeamsList(teams.capraconsulting),
-        capralifecycle: buildTeamsList(teams.capralifecycle),
-      },
+      teams: buildTeamsList(teams),
     },
     projects,
   }
