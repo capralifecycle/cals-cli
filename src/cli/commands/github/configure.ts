@@ -89,7 +89,7 @@ async function processProjects(
     for (const [orgName, orgDesc] of Object.entries(project.github)) {
       const { teams } = await getOrg(orgName)
 
-      for (const projectRepo of orgDesc.repos) {
+      for (const projectRepo of orgDesc.repos || []) {
         reporter.log(`Repo: ${projectRepo.name}`)
         const repo = await github.getRepository(orgName, projectRepo.name)
         if (repo === undefined) {

@@ -80,7 +80,7 @@ function validateDefinition(definition: Definition) {
     .flatMap(project =>
       Object.entries(project.github)
         .map(([orgName, orgDesc]) =>
-          orgDesc.repos.map(repo => getRepoId(orgName, repo.name)),
+          (orgDesc.repos || []).map(repo => getRepoId(orgName, repo.name)),
         )
         .flat(),
     )
@@ -102,7 +102,7 @@ export function getRepos(definition: Definition) {
   return definition.projects.flatMap(project =>
     Object.entries(project.github)
       .map(([orgName, orgDesc]) =>
-        orgDesc.repos.map(repo => ({
+        (orgDesc.repos || []).map(repo => ({
           id: getRepoId(orgName, repo.name),
           orgName,
           project,

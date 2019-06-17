@@ -15,7 +15,7 @@ export interface Project {
   name: string
   github: {
     [githubOrg: string]: {
-      repos: DefinitionRepo[]
+      repos?: DefinitionRepo[]
       teams?: RepoTeam[]
     }
   }
