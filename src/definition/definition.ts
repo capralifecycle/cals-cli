@@ -19,7 +19,7 @@ export function getRepoId(orgName: string, repoName: string) {
 
 function validateDefinition(definition: Definition) {
   // Verify no duplicates in users and extract known logins.
-  const loginList = definition.users.reduce<string[]>((acc, user) => {
+  const loginList = definition.github.users.reduce<string[]>((acc, user) => {
     if (acc.includes(user.login)) {
       throw new Error(`Duplicate login: ${user.login}`)
     }
@@ -27,7 +27,7 @@ function validateDefinition(definition: Definition) {
   }, [])
 
   // Verify no duplicates in teams and extract team names.
-  const teamIdList = Object.entries(definition.teams).reduce<string[]>(
+  const teamIdList = Object.entries(definition.github.teams).reduce<string[]>(
     (acc, [githubOrg, teams]) => {
       return teams.reduce<string[]>((acc1, team) => {
         const id = getTeamId(githubOrg, team.name)
@@ -41,7 +41,7 @@ function validateDefinition(definition: Definition) {
   )
 
   // Verify team members exists as users.
-  Object.values(definition.teams)
+  Object.values(definition.github.teams)
     .flat()
     .forEach(team => {
       team.members.forEach(login => {

@@ -198,29 +198,31 @@ async function dumpSetup(
   const generatedDefinition: Definition = {
     snyk: definition.snyk,
     projects,
-    teams: {
-      // TODO: Other orgs
-      capralifecycle: teams
-        // TODO: Only exclude if not referenced?
-        .filter(it => it.members.length > 0)
-        .map<Team>(team => ({
-          name: team.team.name,
-          members: team.members
-            .map(it => it.login)
-            .sort((a, b) => a.localeCompare(b)),
-        })),
+    github: {
+      teams: {
+        // TODO: Other orgs
+        capralifecycle: teams
+          // TODO: Only exclude if not referenced?
+          .filter(it => it.members.length > 0)
+          .map<Team>(team => ({
+            name: team.team.name,
+            members: team.members
+              .map(it => it.login)
+              .sort((a, b) => a.localeCompare(b)),
+          })),
+      },
+      users: members
+        .map<User>(
+          it =>
+            definition.github.users.find(user => user.login === it.login) || {
+              type: 'external',
+              login: it.login,
+              // TODO: Fetch name from GitHub?
+              name: '*Unknown*',
+            },
+        )
+        .sort((a, b) => a.login.localeCompare(b.login)),
     },
-    users: members
-      .map<User>(
-        it =>
-          definition.users.find(user => user.login === it.login) || {
-            type: 'external',
-            login: it.login,
-            // TODO: Fetch name from GitHub?
-            name: '*Unknown*',
-          },
-      )
-      .sort((a, b) => a.login.localeCompare(b.login)),
   }
 
   // Convert to/from plain JSON so that undefined elements are removed.

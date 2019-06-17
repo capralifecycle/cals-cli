@@ -236,7 +236,7 @@ async function processTeams(
 ) {
   for (const orgName of getGitHubOrgs(definition)) {
     const org = await github.getOrg(orgName)
-    const teams = definition.teams[orgName] || []
+    const teams = definition.github.teams[orgName] || []
 
     const actualTeams = await github.getTeamList(org)
     const actualTeamNames = actualTeams.map(it => it.name)
@@ -341,7 +341,7 @@ const membersCommand: CommandModule = {
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
       const definition = getDefinition(config)
-      await processMembers(reporter, github, org, definition.users)
+      await processMembers(reporter, github, org, definition.github.users)
     })
   },
 }

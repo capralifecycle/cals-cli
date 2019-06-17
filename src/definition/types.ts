@@ -4,9 +4,11 @@ export interface Definition {
   snyk: {
     accountId: string
   }
-  users: User[]
-  teams: {
-    [githubOrg: string]: Team[]
+  github: {
+    users: User[]
+    teams: {
+      [githubOrg: string]: Team[]
+    }
   }
   projects: Project[]
 }
