@@ -7,8 +7,9 @@ export interface Definition {
   github: {
     users: User[]
     teams: {
-      [githubOrg: string]: Team[]
-    }
+      organization: string
+      teams: Team[]
+    }[]
   }
   projects: Project[]
 }
@@ -16,11 +17,10 @@ export interface Definition {
 export interface Project {
   name: string
   github: {
-    [githubOrg: string]: {
-      repos?: DefinitionRepo[]
-      teams?: RepoTeam[]
-    }
-  }
+    organization: string
+    repos?: DefinitionRepo[]
+    teams?: RepoTeam[]
+  }[]
 }
 
 export type User = UserBot | UserEmployee | UserExternal

@@ -12,7 +12,7 @@ import {
   getGitHubOrgs,
   getRepos,
 } from '../../../definition/definition'
-import { Definition, User } from '../../../definition/types'
+import { Definition, Team, User } from '../../../definition/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
 import { createCacheProvider, createConfig, createReporter } from '../../util'
@@ -86,12 +86,15 @@ async function processProjects(
       `Processing project: ${project.name}${dryRun ? ' (dry run)' : ''}`,
     )
 
-    for (const [orgName, orgDesc] of Object.entries(project.github)) {
-      const { teams } = await getOrg(orgName)
+    for (const org of project.github) {
+      const { teams } = await getOrg(org.organization)
 
-      for (const projectRepo of orgDesc.repos || []) {
+      for (const projectRepo of org.repos || []) {
         reporter.log(`Repo: ${projectRepo.name}`)
-        const repo = await github.getRepository(orgName, projectRepo.name)
+        const repo = await github.getRepository(
+          org.organization,
+          projectRepo.name,
+        )
         if (repo === undefined) {
           reporter.log("  Failed to fetch repo - maybe it's moved?")
           continue
@@ -127,7 +130,7 @@ async function processProjects(
         }
 
         const expectedTeams = [
-          ...(orgDesc.teams || []),
+          ...(org.teams || []),
           ...(projectRepo.teams || []),
         ]
         const existingTeams = await github.getRepositoryTeamsList(repo)
@@ -236,7 +239,11 @@ async function processTeams(
 ) {
   for (const orgName of getGitHubOrgs(definition)) {
     const org = await github.getOrg(orgName)
-    const teams = definition.github.teams[orgName] || []
+    const teams = (
+      definition.github.teams.find(it => it.organization === orgName) || {
+        teams: [] as Team[],
+      }
+    ).teams
 
     const actualTeams = await github.getTeamList(org)
     const actualTeamNames = actualTeams.map(it => it.name)

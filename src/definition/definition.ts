@@ -27,10 +27,10 @@ function validateDefinition(definition: Definition) {
   }, [])
 
   // Verify no duplicates in teams and extract team names.
-  const teamIdList = Object.entries(definition.github.teams).reduce<string[]>(
-    (acc, [githubOrg, teams]) => {
-      return teams.reduce<string[]>((acc1, team) => {
-        const id = getTeamId(githubOrg, team.name)
+  const teamIdList = definition.github.teams.reduce<string[]>(
+    (acc, orgTeams) => {
+      return orgTeams.teams.reduce<string[]>((acc1, team) => {
+        const id = getTeamId(orgTeams.organization, team.name)
         if (acc1.includes(id)) {
           throw new Error(`Duplicate team: ${id}`)
         }
@@ -41,7 +41,8 @@ function validateDefinition(definition: Definition) {
   )
 
   // Verify team members exists as users.
-  Object.values(definition.github.teams)
+  definition.github.teams
+    .map(it => it.teams)
     .flat()
     .forEach(team => {
       team.members.forEach(login => {
@@ -63,9 +64,9 @@ function validateDefinition(definition: Definition) {
 
   // Verify project teams exists as teams.
   definition.projects.forEach(project => {
-    Object.entries(project.github).forEach(([orgName, orgDesc]) => {
-      ;(orgDesc.teams || []).forEach(team => {
-        const id = getTeamId(orgName, team.name)
+    project.github.forEach(org => {
+      ;(org.teams || []).forEach(team => {
+        const id = getTeamId(org.organization, team.name)
         if (!teamIdList.includes(id)) {
           throw new Error(
             `Project team ${id} in project ${project.name} is not registered in team list`,
@@ -78,9 +79,9 @@ function validateDefinition(definition: Definition) {
   // Verify no duplicates in repos.
   definition.projects
     .flatMap(project =>
-      Object.entries(project.github)
-        .map(([orgName, orgDesc]) =>
-          (orgDesc.repos || []).map(repo => getRepoId(orgName, repo.name)),
+      project.github
+        .map(org =>
+          (org.repos || []).map(repo => getRepoId(org.organization, repo.name)),
         )
         .flat(),
     )
@@ -100,11 +101,11 @@ export function getDefinition(config: Config) {
 
 export function getRepos(definition: Definition) {
   return definition.projects.flatMap(project =>
-    Object.entries(project.github)
-      .map(([orgName, orgDesc]) =>
-        (orgDesc.repos || []).map(repo => ({
-          id: getRepoId(orgName, repo.name),
-          orgName,
+    project.github
+      .map(org =>
+        (org.repos || []).map(repo => ({
+          id: getRepoId(org.organization, repo.name),
+          orgName: org.organization,
           project,
           repo,
         })),
@@ -115,6 +116,8 @@ export function getRepos(definition: Definition) {
 
 export function getGitHubOrgs(definition: Definition) {
   return uniq(
-    definition.projects.flatMap(project => Object.keys(project.github)),
+    definition.projects.flatMap(project =>
+      project.github.map(it => it.organization),
+    ),
   )
 }

@@ -166,19 +166,20 @@ function buildTeamsList(
     }[]
   >,
 ) {
-  const result: Record<string, Team[]> = {}
-  for (const [org, teams] of Object.entries(list)) {
-    result[org] = teams
-      // TODO: Only exclude if not referenced?
-      .filter(it => it.members.length > 0)
-      .map<Team>(team => ({
-        name: team.team.name,
-        members: team.members
-          .map(it => it.login)
-          .sort((a, b) => a.localeCompare(b)),
-      }))
-  }
-  return result
+  return Object.entries(list)
+    .map(([org, teams]) => ({
+      organization: org,
+      teams: teams
+        // TODO: Only exclude if not referenced?
+        .filter(it => it.members.length > 0)
+        .map<Team>(team => ({
+          name: team.team.name,
+          members: team.members
+            .map(it => it.login)
+            .sort((a, b) => a.localeCompare(b)),
+        })),
+    }))
+    .sort((a, b) => a.organization.localeCompare(b.organization))
 }
 
 async function dumpSetup(
@@ -235,10 +236,11 @@ async function dumpSetup(
   )
     .map<Project>(project => ({
       name: project.name,
-      github: Object.entries(project.repos).reduce<Project['github']>(
-        (acc, [org, list]) => {
+      github: Object.entries(project.repos)
+        .map(([org, list]) => {
           const commonTeams = getCommonTeams(list!)
-          acc[org] = {
+          return {
+            organization: org,
             teams: getFormattedTeams(commonTeams),
             repos: list!
               .map<DefinitionRepo>(repo => ({
@@ -257,10 +259,8 @@ async function dumpSetup(
               }))
               .sort((a, b) => a.name.localeCompare(b.name)),
           }
-          return acc
-        },
-        {},
-      ),
+        })
+        .sort((a, b) => a.organization.localeCompare(b.organization)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name))
 
