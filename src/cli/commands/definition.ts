@@ -7,6 +7,8 @@ import {
 } from '@octokit/rest'
 import fs from 'fs'
 import yaml from 'js-yaml'
+import pAll from 'p-all'
+import pMap from 'p-map'
 import yargs, { CommandModule } from 'yargs'
 import { Config } from '../../config'
 import {
@@ -29,7 +31,7 @@ import { createSnykService, SnykService } from '../../snyk/service'
 import { SnykGitHubRepo } from '../../snyk/types'
 import { getGitHubRepo } from '../../snyk/util'
 import { Reporter } from '../reporter'
-import { createConfig, createReporter, createCacheProvider } from '../util'
+import { createCacheProvider, createConfig, createReporter } from '../util'
 
 interface DetailedProject {
   name: string
@@ -46,28 +48,30 @@ async function getReposFromGitHub(
   github: GitHubService,
   orgs: OrgsGetResponse[],
 ): Promise<DetailedProject['repos'][0]> {
-  const result = []
+  const queries = []
 
   for (const org of orgs) {
     const repos = await github.getRepoList({ owner: org.login })
     for (const repo of repos) {
-      const detailedRepo = await github.getRepository(
-        repo.owner.login,
-        repo.name,
-      )
-      if (detailedRepo === undefined) {
-        throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
-      }
+      queries.push(async () => {
+        const detailedRepo = await github.getRepository(
+          repo.owner.login,
+          repo.name,
+        )
+        if (detailedRepo === undefined) {
+          throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
+        }
 
-      result.push({
-        basic: repo,
-        repository: detailedRepo,
-        teams: await github.getRepositoryTeamsList(detailedRepo),
+        return {
+          basic: repo,
+          repository: detailedRepo,
+          teams: await github.getRepositoryTeamsList(detailedRepo),
+        }
       })
     }
   }
 
-  return result
+  return await pAll(queries, { concurrency: 10 })
 }
 
 async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
@@ -79,16 +83,17 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
   } = {}
 
   for (const org of orgs) {
-    const inner = []
+    const queries = []
     const teams = await github.getTeamList(org)
     for (const team of teams) {
-      const members = await github.getTeamMemberList(team)
-      inner.push({
-        team,
-        members,
+      queries.push(async () => {
+        return {
+          team,
+          members: await github.getTeamMemberList(team),
+        }
       })
     }
-    result[org.login] = inner
+    result[org.login] = await pAll(queries, { concurrency: 5 })
   }
 
   return result
@@ -127,28 +132,29 @@ function getFormattedTeams(teams: ReposListTeamsResponseItem[]) {
 }
 
 async function getOrgs(github: GitHubService, orgs: string[]) {
-  let result = []
-  for (const org of orgs) {
-    result.push(await github.getOrg(org))
+  return pMap(orgs, it => github.getOrg(it), { concurrency: 5 })
+}
+
+function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
+  const ids: R[] = []
+  const result: T[] = []
+  for (const item of items) {
+    const id = selector(item)
+    if (!ids.includes(id)) {
+      result.push(item)
+      ids.push(id)
+    }
   }
   return result
 }
 
 async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
-  const membersAll = []
-  for (const org of orgs) {
-    membersAll.push(...(await github.getOrgMembersList(org.login)))
-  }
-
-  const members = membersAll.reduce<typeof membersAll>((acc, cur) => {
-    if (acc.some(it => it.id == cur.id)) {
-      return acc
-    } else {
-      return [...acc, cur]
-    }
-  }, [])
-
-  return members
+  return removeDuplicates(
+    (await pMap(orgs, it => github.getOrgMembersList(it.login), {
+      concurrency: 5,
+    })).flat(),
+    it => it.id,
+  )
 }
 
 async function dumpSetup(
@@ -159,16 +165,12 @@ async function dumpSetup(
   outfile: string,
 ) {
   reporter.info('Fetching data. This might take some time')
-
   const orgs = await getOrgs(github, ['capralifecycle', 'capraconsulting'])
-
   const definition = getDefinition(config)
-
   const snykRepos = (await snyk.getProjects())
     .map(it => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
     .map(it => getRepoId(it.owner, it.name))
-
   const projectMap = getRepos(definition).reduce<Record<string, string>>(
     (acc, cur) => ({
       ...acc,
@@ -176,7 +178,6 @@ async function dumpSetup(
     }),
     {},
   )
-
   const repos = await getReposFromGitHub(github, orgs)
 
   const projects = Object.values(
