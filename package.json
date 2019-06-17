@@ -22,8 +22,7 @@
     "node-fetch": "2.6.0",
     "read": "1.0.7",
     "sprintf-js": "1.1.2",
-    "yargs": "13.2.4",
-    "yawn-yaml": "1.4.0"
+    "yargs": "13.2.4"
   },
   "devDependencies": {
     "@types/jest": "24.0.15",

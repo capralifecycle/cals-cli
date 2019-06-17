@@ -1,12 +1,11 @@
-/// <reference types="../../yawn-yaml" />
 import {
   OrgsGetResponse,
   ReposGetResponse,
   ReposListTeamsResponseItem,
 } from '@octokit/rest'
 import fs from 'fs'
+import yaml from 'js-yaml'
 import yargs, { CommandModule } from 'yargs'
-import YAWN from 'yawn-yaml/cjs'
 import { provideCacheJson } from '../../cache'
 import { Config } from '../../config'
 import {
@@ -225,11 +224,17 @@ async function dumpSetup(
     },
   }
 
-  // Convert to/from plain JSON so that undefined elements are removed.
-  const yawn = new YAWN(getRawDefinition(config))
-  yawn.json = JSON.parse(JSON.stringify(generatedDefinition))
+  // TODO: An earlier version we had preserved comments by using yawn-yaml
+  //  package. However it often produced invalid yaml, so we have removed
+  //  it. We might want to revisit it to preserve comments.
 
-  fs.writeFileSync(outfile, yawn.yaml)
+  const doc = yaml.safeLoad(getRawDefinition(config))
+  doc.snyk = generatedDefinition.snyk
+  doc.projects = generatedDefinition.projects
+  doc.github = generatedDefinition.github
+
+  // Convert to/from plain JSON so that undefined elements are removed.
+  fs.writeFileSync(outfile, yaml.safeDump(JSON.parse(JSON.stringify(doc))))
   reporter.info(`Saved to ${outfile}`)
 }
 
