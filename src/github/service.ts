@@ -203,25 +203,37 @@ export class GitHubService {
   }
 
   public async getRepository(owner: string, repo: string) {
-    const response = await undefinedForNotFound(
-      this.octokit.repos.get({
-        owner,
-        repo,
-      }),
-    )
+    return provideCacheJson(
+      this.config,
+      `get-repository-${owner}-${repo}`,
+      async () => {
+        const response = await undefinedForNotFound(
+          this.octokit.repos.get({
+            owner,
+            repo,
+          }),
+        )
 
-    return response === undefined ? undefined : response.data
+        return response === undefined ? undefined : response.data
+      },
+    )
   }
 
   public async getRepositoryTeamsList(repo: ReposGetResponse) {
-    const options = this.octokit.repos.listTeams.endpoint.merge({
-      owner: repo.owner.login,
-      repo: repo.name,
-    })
-    return (
-      (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
-        this.octokit.paginate(options),
-      )) || []
+    return provideCacheJson(
+      this.config,
+      `repository-teams-list-${repo.id}`,
+      async () => {
+        const options = this.octokit.repos.listTeams.endpoint.merge({
+          owner: repo.owner.login,
+          repo: repo.name,
+        })
+        return (
+          (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
+            this.octokit.paginate(options),
+          )) || []
+        )
+      },
     )
   }
 
@@ -233,20 +245,28 @@ export class GitHubService {
   }
 
   public async getTeamList(org: OrgsGetResponse) {
-    const options = this.octokit.teams.list.endpoint.merge({
-      org: org.login,
+    return provideCacheJson(this.config, `team-list-${org.login}`, async () => {
+      const options = this.octokit.teams.list.endpoint.merge({
+        org: org.login,
+      })
+      return (await this.octokit.paginate(options)) as TeamsListResponseItem[]
     })
-    return (await this.octokit.paginate(options)) as TeamsListResponseItem[]
   }
 
   public async getTeamMemberList(team: TeamsListResponseItem) {
-    const options = this.octokit.teams.listMembers.endpoint.merge({
-      // eslint-disable-next-line
-      team_id: team.id,
-    })
-    return (await this.octokit.paginate(
-      options,
-    )) as TeamsListMembersResponseItem[]
+    return provideCacheJson(
+      this.config,
+      `team-member-list-${team.id}`,
+      async () => {
+        const options = this.octokit.teams.listMembers.endpoint.merge({
+          // eslint-disable-next-line
+          team_id: team.id,
+        })
+        return (await this.octokit.paginate(
+          options,
+        )) as TeamsListMembersResponseItem[]
+      },
+    )
   }
 
   public async setTeamPermission(
