@@ -8,7 +8,7 @@ import Octokit, {
 } from '@octokit/rest'
 import keytar from 'keytar'
 import fetch from 'node-fetch'
-import { provideCacheJson } from '../cache'
+import { CacheProvider } from '../cache'
 import { Config } from '../config'
 import { Permission, Repo } from './types'
 import { undefinedForNotFound } from './util'
@@ -17,13 +17,15 @@ const keyringService = 'cals'
 const keyringAccount = 'github-token'
 
 export class GitHubService {
-  public constructor(config: Config, octokit: Octokit) {
+  public constructor(config: Config, octokit: Octokit, cache: CacheProvider) {
     this.config = config
     this.octokit = octokit
+    this.cache = cache
   }
 
   private config: Config
   public octokit: Octokit
+  private cache: CacheProvider
 
   private async removeToken() {
     await keytar.deletePassword(keyringService, keyringAccount)
@@ -169,7 +171,7 @@ export class GitHubService {
   }
 }`
 
-    return provideCacheJson(this.config, `repos-${owner}`, async () => {
+    return this.cache.json(`repos-${owner}`, async () => {
       const repos: Repo[] = []
       let after = null
 
@@ -203,38 +205,30 @@ export class GitHubService {
   }
 
   public async getRepository(owner: string, repo: string) {
-    return provideCacheJson(
-      this.config,
-      `get-repository-${owner}-${repo}`,
-      async () => {
-        const response = await undefinedForNotFound(
-          this.octokit.repos.get({
-            owner,
-            repo,
-          }),
-        )
+    return this.cache.json(`get-repository-${owner}-${repo}`, async () => {
+      const response = await undefinedForNotFound(
+        this.octokit.repos.get({
+          owner,
+          repo,
+        }),
+      )
 
-        return response === undefined ? undefined : response.data
-      },
-    )
+      return response === undefined ? undefined : response.data
+    })
   }
 
   public async getRepositoryTeamsList(repo: ReposGetResponse) {
-    return provideCacheJson(
-      this.config,
-      `repository-teams-list-${repo.id}`,
-      async () => {
-        const options = this.octokit.repos.listTeams.endpoint.merge({
-          owner: repo.owner.login,
-          repo: repo.name,
-        })
-        return (
-          (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
-            this.octokit.paginate(options),
-          )) || []
-        )
-      },
-    )
+    return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
+      const options = this.octokit.repos.listTeams.endpoint.merge({
+        owner: repo.owner.login,
+        repo: repo.name,
+      })
+      return (
+        (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
+          this.octokit.paginate(options),
+        )) || []
+      )
+    })
   }
 
   public async getOrg(org: string) {
@@ -245,7 +239,7 @@ export class GitHubService {
   }
 
   public async getTeamList(org: OrgsGetResponse) {
-    return provideCacheJson(this.config, `team-list-${org.login}`, async () => {
+    return this.cache.json(`team-list-${org.login}`, async () => {
       const options = this.octokit.teams.list.endpoint.merge({
         org: org.login,
       })
@@ -254,19 +248,15 @@ export class GitHubService {
   }
 
   public async getTeamMemberList(team: TeamsListResponseItem) {
-    return provideCacheJson(
-      this.config,
-      `team-member-list-${team.id}`,
-      async () => {
-        const options = this.octokit.teams.listMembers.endpoint.merge({
-          // eslint-disable-next-line
-          team_id: team.id,
-        })
-        return (await this.octokit.paginate(
-          options,
-        )) as TeamsListMembersResponseItem[]
-      },
-    )
+    return this.cache.json(`team-member-list-${team.id}`, async () => {
+      const options = this.octokit.teams.listMembers.endpoint.merge({
+        // eslint-disable-next-line
+        team_id: team.id,
+      })
+      return (await this.octokit.paginate(
+        options,
+      )) as TeamsListMembersResponseItem[]
+    })
   }
 
   public async setTeamPermission(
@@ -399,6 +389,9 @@ async function createOctokit(config: Config) {
   })
 }
 
-export async function createGitHubService(config: Config) {
-  return new GitHubService(config, await createOctokit(config))
+export async function createGitHubService(
+  config: Config,
+  cache: CacheProvider,
+) {
+  return new GitHubService(config, await createOctokit(config), cache)
 }

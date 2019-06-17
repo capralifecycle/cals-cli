@@ -1,5 +1,6 @@
 import readline from 'readline'
 import yargs from 'yargs'
+import { CacheProvider } from '../cache'
 import { Config } from '../config'
 import { Reporter } from './reporter'
 
@@ -15,6 +16,16 @@ export function createReporter() {
     verbose: !!yargs.argv.verbose,
     nonInteractive: !!yargs.argv.nonInteractive,
   })
+}
+
+export function createCacheProvider(config: Config) {
+  const cache = new CacheProvider(config)
+
+  // --no-cache
+  if (yargs.argv.cache === false) {
+    cache.enabled = false
+  }
+  return cache
 }
 
 export function createConfig() {

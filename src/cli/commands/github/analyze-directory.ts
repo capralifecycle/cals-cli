@@ -3,9 +3,13 @@ import path from 'path'
 import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
-import { createConfig, createReporter } from '../../../cli/util'
+import {
+  createCacheProvider,
+  createConfig,
+  createReporter,
+} from '../../../cli/util'
 import { Config } from '../../../config'
-import { GitHubService, createGitHubService } from '../../../github/service'
+import { createGitHubService, GitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
 import { isAbandoned } from '../../../github/util'
 
@@ -74,7 +78,10 @@ const command: CommandModule = {
   describe: 'Analyze directory for git repos',
   handler: async argv => {
     const config = createConfig()
-    const github = await createGitHubService(config)
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
     const reporter = createReporter()
     return analyzeDirectory(reporter, config, github, argv['org'] as string)
   },

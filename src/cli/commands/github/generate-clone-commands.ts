@@ -2,9 +2,13 @@ import fs from 'fs'
 import path from 'path'
 import { sprintf } from 'sprintf-js'
 import yargs, { CommandModule } from 'yargs'
-import { createConfig, createReporter } from '../../../cli/util'
+import {
+  createCacheProvider,
+  createConfig,
+  createReporter,
+} from '../../../cli/util'
 import { Config } from '../../../config'
-import { GitHubService, createGitHubService } from '../../../github/service'
+import { createGitHubService, GitHubService } from '../../../github/service'
 import {
   getGroupedRepos,
   includesTopic,
@@ -106,7 +110,7 @@ const command: CommandModule = {
     return generateCloneCommands({
       reporter: createReporter(),
       config,
-      github: await createGitHubService(config),
+      github: await createGitHubService(config, createCacheProvider(config)),
       all: !!argv.all,
       listGroups: !!argv['list-groups'],
       includeAbandoned: !!argv['include-abandoned'],

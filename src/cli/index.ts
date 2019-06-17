@@ -38,6 +38,10 @@ Usage: cals <command>`
       describe: 'Verbose output',
       type: 'boolean',
     })
+    .option('no-cache', {
+      describe: 'Disable cache of requests to services',
+      type: 'boolean',
+    })
     .parse()
 }
 

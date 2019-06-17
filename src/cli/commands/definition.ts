@@ -29,7 +29,7 @@ import { createSnykService, SnykService } from '../../snyk/service'
 import { SnykGitHubRepo } from '../../snyk/types'
 import { getGitHubRepo } from '../../snyk/util'
 import { Reporter } from '../reporter'
-import { createConfig, createReporter } from '../util'
+import { createConfig, createReporter, createCacheProvider } from '../util'
 
 interface DetailedProject {
   name: string
@@ -304,7 +304,10 @@ const dumpSetupCommand: CommandModule = {
   handler: async argv => {
     const reporter = createReporter()
     const config = createConfig()
-    const github = await createGitHubService(config)
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
     const snyk = await createSnykService(config)
     await dumpSetup(config, reporter, github, snyk, argv.outfile as string)
   },

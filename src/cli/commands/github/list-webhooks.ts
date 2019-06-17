@@ -1,11 +1,10 @@
 import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
-import { provideCacheJson } from '../../../cache'
-import { Config } from '../../../config'
+import { CacheProvider } from '../../../cache'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { isAbandoned } from '../../../github/util'
 import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+import { createCacheProvider, createConfig, createReporter } from '../../util'
 
 const e = encodeURIComponent
 
@@ -26,7 +25,7 @@ interface Hook {
 
 const listWebhooks = async (
   reporter: Reporter,
-  config: Config,
+  cache: CacheProvider,
   github: GitHubService,
   owner: string,
 ) => {
@@ -42,8 +41,7 @@ const listWebhooks = async (
       )}/settings/hooks`,
     )
 
-    const hooks = await provideCacheJson(
-      config,
+    const hooks = await cache.json(
       `${repo.owner.login}-${repo.name}-hooks`,
       async () =>
         github.runRestGet<Hook[]>(
@@ -106,8 +104,8 @@ const command: CommandModule = {
     const config = createConfig()
     await listWebhooks(
       createReporter(),
-      config,
-      await createGitHubService(config),
+      createCacheProvider(config),
+      await createGitHubService(config, createCacheProvider(config)),
       argv['org'] as string,
     )
   },

@@ -15,7 +15,7 @@ import {
 import { Definition, User } from '../../../definition/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
-import { createConfig, createReporter } from '../../util'
+import { createCacheProvider, createConfig, createReporter } from '../../util'
 
 interface MembersDiff {
   unknownMembers: OrgsListMembersResponseItem[]
@@ -315,7 +315,10 @@ const projectsCommand: CommandModule = {
 
     const reporter = createReporter()
     const config = createConfig()
-    const github = await createGitHubService(config)
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
     await reportRateLimit(reporter, github, async () => {
       const definition = getDefinition(config)
       await processProjects(
@@ -337,7 +340,10 @@ const membersCommand: CommandModule = {
 
     const reporter = createReporter()
     const config = createConfig()
-    const github = await createGitHubService(config)
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
       const definition = getDefinition(config)
@@ -354,7 +360,10 @@ const teamsCommand: CommandModule = {
 
     const reporter = createReporter()
     const config = createConfig()
-    const github = await createGitHubService(config)
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
     await reportRateLimit(reporter, github, async () => {
       const definition = getDefinition(config)
       await processTeams(reporter, github, definition)

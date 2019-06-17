@@ -2,7 +2,7 @@ import read from 'read'
 import { CommandModule } from 'yargs'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+import { createCacheProvider, createConfig, createReporter } from '../../util'
 
 const setToken = async ({
   reporter,
@@ -47,12 +47,14 @@ const command: CommandModule = {
       describe:
         'Token. If not provided it will be requested as input. Can be generated at https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook',
     }),
-  handler: async argv =>
+  handler: async argv => {
+    const config = createConfig()
     setToken({
       reporter: createReporter(),
-      github: await createGitHubService(createConfig()),
+      github: await createGitHubService(config, createCacheProvider(config)),
       token: argv.token as string | undefined,
-    }),
+    })
+  },
 }
 
 export default command

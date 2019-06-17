@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js'
 import { CommandModule } from 'yargs'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+import { createCacheProvider, createConfig, createReporter } from '../../util'
 
 const listPullRequestsStats = async ({
   reporter,
@@ -89,11 +89,13 @@ const listPullRequestsStats = async ({
 const command: CommandModule = {
   command: 'list-pull-requests-stats',
   describe: 'List stats for pull requests with special filter',
-  handler: async () =>
+  handler: async () => {
+    const config = createConfig()
     listPullRequestsStats({
       reporter: createReporter(),
-      github: await createGitHubService(createConfig()),
-    }),
+      github: await createGitHubService(config, createCacheProvider(config)),
+    })
+  },
 }
 
 export default command

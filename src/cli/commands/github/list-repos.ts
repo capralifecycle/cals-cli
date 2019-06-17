@@ -8,7 +8,7 @@ import {
   isAbandoned,
 } from '../../../github/util'
 import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+import { createCacheProvider, createConfig, createReporter } from '../../util'
 
 const getReposMissingGroup = (repos: Repo[]) =>
   repos.filter(it => getGroup(it) === null)
@@ -151,16 +151,18 @@ const command: CommandModule = {
         describe: 'Filter by specific topic',
         type: 'string',
       }),
-  handler: async argv =>
+  handler: async argv => {
+    const config = createConfig()
     listRepos({
       reporter: createReporter(),
-      github: await createGitHubService(createConfig()),
+      github: await createGitHubService(config, createCacheProvider(config)),
       includeAbandoned: !!argv['include-abandoned'],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,
       owner: argv['org'] as string,
-    }),
+    })
+  },
 }
 
 export default command
