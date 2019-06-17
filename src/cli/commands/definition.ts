@@ -226,6 +226,7 @@ async function dumpSetup(
         [projectName]: {
           ...project,
           repos: {
+            ...project.repos,
             [org]: [...(project.repos[org] || []), cur],
           },
         },
