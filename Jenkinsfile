@@ -35,6 +35,14 @@ buildConfig([
       stage('Test CLI') {
         sh 'node lib/cals-cli.js --help'
       }
+
+      if (env.BRANCH_NAME == 'master') {
+        stage('Semantic release') {
+          withSemanticReleaseEnv {
+            sh 'npm run semantic-release'
+          }
+        }
+      }
     }
   }
 }
