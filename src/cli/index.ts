@@ -1,3 +1,4 @@
+import { version } from 'package.json'
 import yargs from 'yargs'
 import definition from './commands/definition'
 import detectify from './commands/detectify'
@@ -13,7 +14,7 @@ export async function main(): Promise<void> {
     / /   / /| | / /   \\__ \\
    / /___/ ___ |/ /______/ /
    \\____/_/  |_/_____/____/
-     cli
+     cli ${version}
 
 https://github.com/capralifecycle/cals-cli/
 
@@ -29,6 +30,7 @@ Usage: cals <command>`
     .command(github)
     .command(gettingStarted)
     .command(snyk)
+    .version(version)
     .demandCommand()
     .option('non-interactive', {
       describe: 'Non-interactive mode',

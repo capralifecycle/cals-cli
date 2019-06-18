@@ -1,3 +1,6 @@
+import path from 'path'
+import alias from 'rollup-plugin-alias'
+import json from 'rollup-plugin-json'
 import typescript from 'rollup-plugin-typescript2'
 import pkg from './package.json'
 
@@ -11,7 +14,14 @@ const external = [
   ...Object.keys(pkg.peerDependencies || {}),
 ]
 
-const plugins = [typescript()]
+const plugins = [
+  alias({
+    resolve: ['.js', '.json'],
+    'package.json': path.resolve('package.json'),
+  }),
+  typescript(),
+  json(),
+]
 
 export default [
   // CommonJS
