@@ -15,18 +15,18 @@
     "cals": "lib/cals-cli.js"
   },
   "dependencies": {
-    "@octokit/rest": "16.28.2",
-    "cachedir": "2.2.0",
-    "chalk": "2.4.2",
-    "js-yaml": "3.13.1",
-    "keytar": "4.9.0",
-    "lodash": "4.17.11",
-    "node-fetch": "2.6.0",
-    "p-all": "2.1.0",
-    "p-map": "2.1.0",
-    "read": "1.0.7",
-    "sprintf-js": "1.1.2",
-    "yargs": "13.2.4"
+    "@octokit/rest": "^16.28.2",
+    "cachedir": "^2.2.0",
+    "chalk": "^2.4.2",
+    "js-yaml": "^3.13.1",
+    "keytar": "^4.9.0",
+    "lodash": "^4.17.11",
+    "node-fetch": "^2.6.0",
+    "p-all": "^2.1.0",
+    "p-map": "^2.1.0",
+    "read": "^1.0.7",
+    "sprintf-js": "^1.1.2",
+    "yargs": "^13.2.4"
   },
   "devDependencies": {
     "@types/jest": "24.0.15",
