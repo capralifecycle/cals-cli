@@ -1,20 +1,13 @@
 {
   "compilerOptions": {
-    "alwaysStrict": true,
     "baseUrl": "./src",
     "declaration": true,
     "esModuleInterop": true,
     "lib": ["esnext"],
     "module": "es6",
-    "noImplicitAny": true,
     "moduleResolution": "node",
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "strict": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
     "target": "esnext"
   }
 }
