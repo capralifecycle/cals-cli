@@ -5,16 +5,16 @@
     "declaration": true,
     "esModuleInterop": true,
     "lib": ["esnext"],
-    "module": "commonjs",
+    "module": "es6",
     "noImplicitAny": true,
+    "moduleResolution": "node",
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "outDir": "lib",
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
-    "target": "es5"
+    "target": "esnext"
   }
 }
