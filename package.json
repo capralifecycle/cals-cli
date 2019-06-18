@@ -7,7 +7,7 @@
     "test": "jest src",
     "lint": "eslint --ext ts src",
     "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
-    "prepare": "npm run build"
+    "semantic-release": "semantic-release"
   },
   "bin": {
     "cals": "lib/cals-cli.js"
@@ -42,6 +42,7 @@
     "eslint-plugin-prettier": "3.1.0",
     "jest": "24.8.0",
     "prettier": "1.18.2",
+    "semantic-release": "^15.13.16",
     "ts-jest": "24.0.2",
     "ts-node": "8.3.0",
     "typescript": "3.5.2"
