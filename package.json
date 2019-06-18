@@ -9,6 +9,8 @@
     "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
     "semantic-release": "semantic-release"
   },
+  "main": "lib/index.js",
+  "module": "lib/index.es.js",
   "bin": {
     "cals": "lib/cals-cli.js"
   },
