@@ -1,6 +1,6 @@
 {
-  "name": "cals-cli",
-  "version": "0.0.1",
+  "name": "@capraconsulting/cals-cli",
+  "version": "0.0.0-development",
   "description": "CLI for repeatable tasks in CALS",
   "scripts": {
     "build": "tsc",
