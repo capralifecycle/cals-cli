@@ -6,6 +6,7 @@
     "build": "rollup -c",
     "test": "jest src",
     "lint": "eslint --ext ts src",
+    "prepack": "./scripts/build-and-verify.sh",
     "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
     "semantic-release": "semantic-release"
   },

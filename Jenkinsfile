@@ -28,19 +28,25 @@ buildConfig([
         sh 'npm test'
       }
 
-      stage('Build') {
-        sh 'npm run build'
-      }
-
-      stage('Test CLI') {
-        sh 'node lib/cals-cli.js --help'
-      }
+      // We only run semantic-release on the master branch,
+      // as we do not want credentials to be exposed to the job
+      // on other branches or in PRs.
+      //
+      // To have the correct version applied to the build we need
+      // to use a hook that is run during semantic-release execution.
+      // For this we use the 'prepack' hook. This also ensures
+      // that 'npm link' and alike builds the code, and we can
+      // trigger the same hook on other branches.
 
       if (env.BRANCH_NAME == 'master') {
-        stage('Semantic release') {
+        stage('Build, verify and possibly release') {
           withSemanticReleaseEnv {
             sh 'npm run semantic-release'
           }
+        }
+      } else {
+        stage('Build and verify') {
+          sh 'npm pack'
         }
       }
     }
