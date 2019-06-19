@@ -1,4 +1,5 @@
 .rpt2_cache/
 .vscode
+/capraconsulting-*.tgz
 lib/
 node_modules/
