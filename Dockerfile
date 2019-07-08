@@ -9,3 +9,8 @@ RUN apk add --no-cache \
       libsecret-dev \
       make \
       python
+
+# Needed to analyze to SonarCloud
+RUN set -ex; \
+    wget https://raw.githubusercontent.com/capralifecycle/buildtools-snippets/master/tools/sonar-scanner/install.sh -O- | sh; \
+    sonar-scanner --version

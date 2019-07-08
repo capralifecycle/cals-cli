@@ -4,7 +4,7 @@
   "description": "CLI for repeatable tasks in CALS",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest src",
+    "test": "jest --coverage src",
     "lint": "eslint --ext ts src",
     "prepack": "./scripts/build-and-verify.sh",
     "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
@@ -44,6 +44,7 @@
     "eslint-config-prettier": "6.0.0",
     "eslint-plugin-prettier": "3.1.0",
     "jest": "24.8.0",
+    "jest-sonar-reporter": "2.0.0",
     "prettier": "1.18.2",
     "rollup": "1.16.6",
     "rollup-plugin-alias": "1.5.2",

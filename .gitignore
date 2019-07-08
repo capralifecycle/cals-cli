@@ -1,5 +1,7 @@
 .rpt2_cache/
 .vscode
 /capraconsulting-*.tgz
-lib/
-node_modules/
+/coverage/
+/lib/
+/node_modules/
+/test-report.xml

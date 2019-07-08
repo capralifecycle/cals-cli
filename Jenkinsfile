@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 // See https://github.com/capralifecycle/jenkins-pipeline-library
-@Library('cals') _
+@Library('cals@sonarcloud') _ // TODO: Remove branch override
 
 buildConfig([
   slack: [
@@ -27,6 +27,11 @@ buildConfig([
       stage('Tests') {
         sh 'npm test'
       }
+
+      analyzeSonarCloudForNodejs([
+        'sonar.organization': 'capralifecycle',
+        'sonar.projectKey': 'capralifecycle_cals-cli',
+      ])
 
       // We only run semantic-release on the master branch,
       // as we do not want credentials to be exposed to the job
