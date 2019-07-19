@@ -322,11 +322,27 @@ const dumpSetupCommand: CommandModule = {
   },
 }
 
+const validate: CommandModule = {
+  command: 'validate',
+  describe: 'Validate definition file.',
+  handler: async () => {
+    const reporter = createReporter()
+    const config = createConfig()
+
+    getDefinition(config)
+
+    reporter.info('Valid!')
+  },
+}
+
 const command: CommandModule = {
   command: 'definition',
   describe: 'CALS definition file management',
   builder: yargs =>
-    yargs.command(dumpSetupCommand).demandCommand().usage(`cals definition
+    yargs
+      .command(dumpSetupCommand)
+      .command(validate)
+      .demandCommand().usage(`cals definition
 
 The definition file is located at
 https://github.com/capralifecycle/resources-definition/blob/master/resources.yaml
