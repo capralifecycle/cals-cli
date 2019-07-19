@@ -6,6 +6,8 @@ import gettingStarted from './commands/getting-started'
 import github from './commands/github'
 import snyk from './commands/snyk'
 
+declare var BUILD_TIMESTAMP: string
+
 export async function main(): Promise<void> {
   // http://patorjk.com/software/taag/#p=display&f=Slant&t=CALS
   const header = `
@@ -15,6 +17,7 @@ export async function main(): Promise<void> {
    / /___/ ___ |/ /______/ /
    \\____/_/  |_/_____/____/
      cli ${version}
+     built ${BUILD_TIMESTAMP}
 
 https://github.com/capralifecycle/cals-cli/
 
