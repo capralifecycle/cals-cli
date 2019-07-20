@@ -4,6 +4,7 @@ import Octokit, {
   OrgsListPendingInvitationsResponseItem,
   ReposGetResponse,
   ReposListTeamsResponseItem,
+  Response,
   TeamsListMembersResponseItem,
   TeamsListPendingInvitationsResponseItem,
   TeamsListResponseItem,
@@ -61,13 +62,21 @@ export class GitHubService {
         options.headers['If-None-Match'] = cacheItem.data.etag
       }
 
-      const getResponse = async () => {
+      const getResponse = async (
+        allowRetry: boolean = true,
+      ): Promise<Response<unknown> | undefined> => {
         try {
           return await request(options)
         } catch (e) {
           // Handle no change in ETag.
           if (e.status === 304) {
             return undefined
+          }
+          // GitHub seems to throw a lot of 502 errors.
+          // Let's give it a few seconds and retry one time.
+          if (e.status === 502 && allowRetry) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            return await getResponse(false)
           }
           throw e
         }
