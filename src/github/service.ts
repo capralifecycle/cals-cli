@@ -1,16 +1,23 @@
 import Octokit, {
   OrgsGetResponse,
   OrgsListMembersResponseItem,
+  OrgsListPendingInvitationsResponseItem,
   ReposGetResponse,
   ReposListTeamsResponseItem,
   TeamsListMembersResponseItem,
+  TeamsListPendingInvitationsResponseItem,
   TeamsListResponseItem,
 } from '@octokit/rest'
 import keytar from 'keytar'
 import fetch from 'node-fetch'
 import { CacheProvider } from '../cache'
 import { Config } from '../config'
-import { Permission, Repo } from './types'
+import {
+  OrgMemberOrInvited,
+  Permission,
+  Repo,
+  TeamMemberOrInvited,
+} from './types'
 import { undefinedForNotFound } from './util'
 
 const keyringService = 'cals'
@@ -266,6 +273,36 @@ export class GitHubService {
     )
   }
 
+  public async getOrgMembersInvitedList(org: string) {
+    const options = this.octokit.orgs.listPendingInvitations.endpoint.merge({
+      org,
+    })
+    return (
+      (await undefinedForNotFound<OrgsListPendingInvitationsResponseItem[]>(
+        this.octokit.paginate(options),
+      )) || []
+    )
+  }
+
+  public async getOrgMembersListIncludingInvited(
+    org: string,
+  ): Promise<OrgMemberOrInvited[]> {
+    return [
+      ...(await this.getOrgMembersList(org)).map<OrgMemberOrInvited>(it => ({
+        type: 'member',
+        login: it.login,
+        data: it,
+      })),
+      ...(await this.getOrgMembersInvitedList(org)).map<OrgMemberOrInvited>(
+        it => ({
+          type: 'invited',
+          login: it.login,
+          data: it,
+        }),
+      ),
+    ]
+  }
+
   public async getRepository(owner: string, repo: string) {
     return this.cache.json(`get-repository-${owner}-${repo}`, async () => {
       const response = await undefinedForNotFound(
@@ -319,6 +356,37 @@ export class GitHubService {
         options,
       )) as TeamsListMembersResponseItem[]
     })
+  }
+
+  public async getTeamMemberInvitedList(team: TeamsListResponseItem) {
+    return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
+      const options = this.octokit.teams.listPendingInvitations.endpoint.merge({
+        // eslint-disable-next-line
+        team_id: team.id,
+      })
+      return (await this.octokit.paginate(
+        options,
+      )) as TeamsListPendingInvitationsResponseItem[]
+    })
+  }
+
+  public async getTeamMemberListIncludingInvited(
+    team: TeamsListResponseItem,
+  ): Promise<TeamMemberOrInvited[]> {
+    return [
+      ...(await this.getTeamMemberList(team)).map<TeamMemberOrInvited>(it => ({
+        type: 'member',
+        login: it.login,
+        data: it,
+      })),
+      ...(await this.getTeamMemberInvitedList(team)).map<TeamMemberOrInvited>(
+        it => ({
+          type: 'invited',
+          login: it.login,
+          data: it,
+        }),
+      ),
+    ]
   }
 
   public async setTeamPermission(

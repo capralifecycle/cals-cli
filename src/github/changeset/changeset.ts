@@ -199,7 +199,7 @@ export async function createChangeSetItemsForMembers(
   const usersLogins = users.map(it => it.login)
   const foundLogins: string[] = []
 
-  const members = await github.getOrgMembersList(org.login)
+  const members = await github.getOrgMembersListIncludingInvited(org.login)
   members.forEach(user => {
     if (usersLogins.includes(user.login)) {
       foundLogins.push(user.login)
@@ -277,7 +277,9 @@ export async function createChangeSetItemsForTeams(
   )
   for (const actualTeam of overlappingTeams) {
     const wantedTeam = teams.find(it => it.name === actualTeam.name)!
-    const actualMembers = await github.getTeamMemberList(actualTeam)
+    const actualMembers = await github.getTeamMemberListIncludingInvited(
+      actualTeam,
+    )
 
     actualMembers
       .filter(it => !wantedTeam.members.includes(it.login))

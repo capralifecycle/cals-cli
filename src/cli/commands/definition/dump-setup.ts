@@ -2,7 +2,6 @@ import {
   OrgsGetResponse,
   ReposGetResponse,
   ReposListTeamsResponseItem,
-  TeamsListMembersResponseItem,
   TeamsListResponseItem,
 } from '@octokit/rest'
 import fs from 'fs'
@@ -26,7 +25,7 @@ import {
   User,
 } from '../../../definition/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
-import { Permission, Repo } from '../../../github/types'
+import { Permission, Repo, TeamMemberOrInvited } from '../../../github/types'
 import { createSnykService, SnykService } from '../../../snyk/service'
 import { SnykGitHubRepo } from '../../../snyk/types'
 import { getGitHubRepo } from '../../../snyk/util'
@@ -79,7 +78,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
   const result: {
     [org: string]: {
       team: TeamsListResponseItem
-      members: TeamsListMembersResponseItem[]
+      users: TeamMemberOrInvited[]
     }[]
   } = {}
 
@@ -90,7 +89,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
       queries.push(async () => {
         return {
           team,
-          members: await github.getTeamMemberList(team),
+          users: await github.getTeamMemberListIncludingInvited(team),
         }
       })
     }
@@ -151,10 +150,17 @@ function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
 
 async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   return removeDuplicates(
-    (await pMap(orgs, it => github.getOrgMembersList(it.login), {
-      concurrency: 5,
-    })).flat(),
-    it => it.id,
+    (await pMap(
+      orgs,
+      async org =>
+        (await github.getOrgMembersListIncludingInvited(org.login)).map(
+          it => it.login,
+        ),
+      {
+        concurrency: 5,
+      },
+    )).flat(),
+    it => it,
   )
 }
 
@@ -163,7 +169,7 @@ function buildTeamsList(
     string,
     {
       team: TeamsListResponseItem
-      members: TeamsListMembersResponseItem[]
+      users: TeamMemberOrInvited[]
     }[]
   >,
 ) {
@@ -172,7 +178,7 @@ function buildTeamsList(
       organization: org,
       teams: teams.map<Team>(team => ({
         name: team.team.name,
-        members: team.members
+        members: team.users
           .map(it => it.login)
           .sort((a, b) => a.localeCompare(b)),
       })),
@@ -271,10 +277,12 @@ async function dumpSetup(
     github: {
       users: members
         .map<User>(
-          it =>
-            definition.github.users.find(user => user.login === it.login) || {
+          memberLogin =>
+            definition.github.users.find(
+              user => user.login === memberLogin,
+            ) || {
               type: 'external',
-              login: it.login,
+              login: memberLogin,
               // TODO: Fetch name from GitHub?
               name: '*Unknown*',
             },
