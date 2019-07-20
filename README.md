@@ -35,6 +35,13 @@ cals
 
 Rebuild using `npm run build`.
 
+## Contributing
+
+This project uses [semantic release](https://semantic-release.gitbook.io/semantic-release/)
+to automate releases and follows
+[Git commit guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
+from the Angular project.
+
 ## Goals of CLI
 
 * Provide an uniform way of consistently doing repeatable CALS tasks
@@ -44,7 +51,6 @@ Rebuild using `npm run build`.
 
 ## Ideas and future work
 
-* Release as package on NPM
 * Automate onboarding of people
   * Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
 * Automate offboarding of people
@@ -60,7 +66,7 @@ Rebuild using `npm run build`.
 
 https://snyk.docs.apiary.io/reference/projects
 
-- [ ] Automatically set up project in Snyk
-- [x] Report of which repos are in Snyk and which is not
-- [ ] Detect active vs disabled projects in Snyk (no way through API now?)
-- [x] Report issues in Snyk grouped by our projects
+* [ ] Automatically set up project in Snyk
+* [x] Report of which repos are in Snyk and which is not
+* [ ] Detect active vs disabled projects in Snyk (no way through API now?)
+* [x] Report issues in Snyk grouped by our projects
