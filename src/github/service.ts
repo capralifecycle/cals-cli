@@ -254,7 +254,6 @@ export class GitHubService {
           break
         }
 
-        process.stderr.write('Requesting next page...\n')
         after = res.organization!.repositories.pageInfo.endCursor
       }
 
@@ -502,7 +501,6 @@ export class GitHubService {
         break
       }
 
-      process.stderr.write('Requesting next page...\n')
       after = res.search.pageInfo.endCursor
     }
 
