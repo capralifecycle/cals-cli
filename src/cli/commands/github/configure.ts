@@ -1,28 +1,17 @@
-import {
-  OrgsGetResponse,
-  OrgsListMembersResponseItem,
-  TeamsListResponseItem,
-} from '@octokit/rest'
-import { sortBy } from 'lodash'
-import { sprintf } from 'sprintf-js'
+import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
 import yargs, { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
+import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
+import { Definition } from '../../../definition/types'
 import {
-  getDefinition,
-  getGitHubOrgs,
-  getRepos,
-} from '../../../definition/definition'
-import { Definition, Team, User } from '../../../definition/types'
+  createChangeSetItemsForMembers,
+  createChangeSetItemsForProjects,
+  createChangeSetItemsForTeams,
+} from '../../../github/changeset/changeset'
+import { ChangeSetItem } from '../../../github/changeset/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
-import { Repo } from '../../../github/types'
 import { createCacheProvider, createConfig, createReporter } from '../../util'
 import { reportRateLimit } from './util'
-
-interface MembersDiff {
-  unknownMembers: OrgsListMembersResponseItem[]
-  missingMembers: User[]
-  memberCount: number
-}
 
 function createOrgGetter(github: GitHubService) {
   const orgs: {
@@ -44,33 +33,18 @@ function createOrgGetter(github: GitHubService) {
   }
 }
 
-async function getMembersDiff(
-  githubService: GitHubService,
-  org: OrgsGetResponse,
-  users: User[],
-): Promise<MembersDiff> {
-  const unknownMembers: OrgsListMembersResponseItem[] = []
-
-  const usersLogins = users.map(it => it.login)
-  const foundLogins: string[] = []
-  let memberCount = 0
-
-  const members = await githubService.getOrgMembersList(org.login)
-  members.forEach(user => {
-    memberCount++
-    if (usersLogins.includes(user.login)) {
-      foundLogins.push(user.login)
-    } else {
-      unknownMembers.push(user)
+function reportChanges(
+  reporter: Reporter,
+  title: string,
+  changes: ChangeSetItem[],
+) {
+  if (changes.length === 0) {
+    reporter.info(`No changes in ${title}`)
+  } else {
+    reporter.info(`Changes in ${title}:`)
+    for (const change of changes) {
+      reporter.info('  - ' + JSON.stringify(change))
     }
-  })
-
-  const missingMembers = users.filter(it => !foundLogins.includes(it.login))
-
-  return {
-    unknownMembers,
-    missingMembers,
-    memberCount,
   }
 }
 
@@ -81,163 +55,28 @@ async function processProjects(
   getOrg: ReturnType<typeof createOrgGetter>,
   dryRun: boolean,
 ) {
-  for (const project of definition.projects) {
-    reporter.log('-----------------------------------')
-    reporter.log(
-      `Processing project: ${project.name}${dryRun ? ' (dry run)' : ''}`,
-    )
-
-    for (const org of project.github) {
-      const { teams } = await getOrg(org.organization)
-
-      for (const projectRepo of org.repos || []) {
-        reporter.log(`Repo: ${projectRepo.name}`)
-        const repo = await github.getRepository(
-          org.organization,
-          projectRepo.name,
-        )
-        if (repo === undefined) {
-          reporter.log("  Failed to fetch repo - maybe it's moved?")
-          continue
-        }
-
-        if (
-          projectRepo.archived !== undefined &&
-          projectRepo.archived !== repo.archived
-        ) {
-          reporter.log(
-            `  Archive mismatch: wanted=${projectRepo.archived} actual=${repo.archived}`,
-          )
-        }
-
-        if (
-          projectRepo.issues !== undefined &&
-          projectRepo.issues !== repo.has_issues &&
-          !repo.archived
-        ) {
-          reporter.log(
-            `  Issues mismatch: wanted=${projectRepo.issues} actual=${repo.has_issues}`,
-          )
-        }
-
-        if (
-          projectRepo.wiki !== undefined &&
-          projectRepo.wiki !== repo.has_wiki &&
-          !repo.archived
-        ) {
-          reporter.log(
-            `  Wiki mismatch: wanted=${projectRepo.wiki} actual=${repo.has_wiki}`,
-          )
-        }
-
-        const isPrivate = projectRepo.public !== true
-        if (isPrivate !== repo.private) {
-          reporter.log(
-            `  Private mismatch: wanted=${isPrivate} actual=${repo.private}`,
-          )
-        }
-
-        const expectedTeams = [
-          ...(org.teams || []),
-          ...(projectRepo.teams || []),
-        ]
-        const existingTeams = await github.getRepositoryTeamsList(repo)
-
-        // Check for teams to be added / modified.
-        for (const repoteam of expectedTeams) {
-          const found = existingTeams.find(it => repoteam.name === it.name)
-          if (found !== undefined) {
-            if (found.permission !== repoteam.permission) {
-              reporter.log(
-                sprintf(
-                  '  Updating team %s from permission %s to %s',
-                  found.name,
-                  found.permission,
-                  repoteam.permission,
-                ),
-              )
-              if (!dryRun) {
-                github.setTeamPermission(repo, found, repoteam.permission)
-              }
-            }
-          } else {
-            const team = teams.find(it => repoteam.name === it.name)
-            if (team === undefined) {
-              throw Error(`Unknown team: ${repoteam.name}`)
-            }
-
-            reporter.log(
-              sprintf('  Adding team %s (%s)', team.name, repoteam.permission),
-            )
-            if (!dryRun) {
-              github.setTeamPermission(repo, team, repoteam.permission)
-            }
-          }
-        }
-
-        // Check for teams that should not be registered.
-        for (const team of existingTeams) {
-          if (!expectedTeams.some(it => team.name === it.name)) {
-            reporter.log(
-              sprintf(
-                '  Team not expected: %s (%s) - manual modification needed',
-                team.name,
-                team.permission,
-              ),
-            )
-          }
-        }
-      }
-    }
-  }
-
-  const knownRepos = getRepos(definition).map(it => it.id)
-
-  const allRepos: Repo[] = []
-  for (const orgName of getGitHubOrgs(definition)) {
-    const repos = await github.getRepoList({ owner: orgName })
-    allRepos.push(...repos)
-  }
-
-  const unknownRepos = sortBy(
-    allRepos.filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
-    it => `${it.owner.login}/${it.name}`,
+  const changes = await createChangeSetItemsForProjects(
+    github,
+    definition,
+    getOrg,
   )
+  reportChanges(reporter, 'project', changes)
 
-  if (unknownRepos.length > 0) {
-    reporter.log('-----------------------------------')
-    reporter.log('Listing unknown repos:')
-    for (const it of unknownRepos) {
-      reporter.log(`Repo: ${it.owner.login}/${it.name}`)
-    }
+  /*
+  if (!dryRun) {
+    github.setTeamPermission(repo, found, repoteam.permission)
   }
+  */
 }
 
 async function processMembers(
   reporter: Reporter,
   github: GitHubService,
+  definition: Definition,
   org: OrgsGetResponse,
-  users: User[],
 ) {
-  reporter.log('Checking member list')
-  const membersDiff = await getMembersDiff(github, org, users)
-
-  reporter.log(`Found ${membersDiff.memberCount} members`)
-
-  membersDiff.missingMembers.forEach(it => {
-    reporter.log(`User not member any more: ${it.login}`)
-  })
-
-  membersDiff.unknownMembers.forEach(it => {
-    reporter.log(`Unknown member: ${it.login}`)
-  })
-
-  if (
-    membersDiff.missingMembers.length === 0 &&
-    membersDiff.unknownMembers.length === 0
-  ) {
-    reporter.log('All OK!')
-  }
+  const changes = await createChangeSetItemsForMembers(github, definition, org)
+  reportChanges(reporter, 'members', changes)
 }
 
 async function processTeams(
@@ -245,54 +84,17 @@ async function processTeams(
   github: GitHubService,
   definition: Definition,
 ) {
+  let changes: ChangeSetItem[] = []
+
   for (const orgName of getGitHubOrgs(definition)) {
     const org = await github.getOrg(orgName)
-    const teams = (
-      definition.github.teams.find(it => it.organization === orgName) || {
-        teams: [] as Team[],
-      }
-    ).teams
-
-    const actualTeams = await github.getTeamList(org)
-    const actualTeamNames = actualTeams.map(it => it.name)
-    const wantedTeamNames = teams.map(it => it.name)
-
-    actualTeams
-      .filter(it => !wantedTeamNames.includes(it.name))
-      .forEach(it => {
-        reporter.log(`Team not saved in file: ${it.name}`)
-      })
-
-    teams
-      .filter(it => !actualTeamNames.includes(it.name))
-      .forEach(it => {
-        reporter.log(`Team missing in GitHub: ${it.name}`)
-      })
-
-    const overlappingTeams = actualTeams.filter(it =>
-      wantedTeamNames.includes(it.name),
-    )
-    for (const actualTeam of overlappingTeams) {
-      const wantedTeam = teams.find(it => it.name === actualTeam.name)!
-      reporter.log(`Team: ${actualTeam.name}`)
-
-      const actualMembers = await github.getTeamMemberList(actualTeam)
-
-      actualMembers
-        .filter(it => !wantedTeam.members.includes(it.login))
-        .forEach(it => {
-          reporter.log(`  Extra member: ${it.login}`)
-        })
-
-      const actualMembersNames = actualMembers.map(it => it.login)
-
-      wantedTeam.members
-        .filter(it => !actualMembersNames.includes(it))
-        .forEach(it => {
-          reporter.log(`  Add member: ${it}`)
-        })
-    }
+    changes = [
+      ...changes,
+      ...(await createChangeSetItemsForTeams(github, definition, org)),
+    ]
   }
+
+  reportChanges(reporter, 'teams', changes)
 }
 
 function checkOwner(owner: string) {
@@ -346,7 +148,7 @@ const membersCommand: CommandModule = {
     await reportRateLimit(reporter, github, async () => {
       const org = await github.getOrg('capralifecycle')
       const definition = getDefinition(config)
-      await processMembers(reporter, github, org, definition.github.users)
+      await processMembers(reporter, github, definition, org)
     })
   },
 }
