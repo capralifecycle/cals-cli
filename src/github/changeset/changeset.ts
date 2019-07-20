@@ -18,11 +18,16 @@ export async function createChangeSetItemsForProjects(
     org: OrgsGetResponse
     teams: TeamsListResponseItem[]
   }>,
+  limitToOrg: string | null,
 ) {
   const changes: ChangeSetItem[] = []
 
   for (const project of definition.projects) {
     for (const org of project.github) {
+      if (limitToOrg !== null && limitToOrg !== org.organization) {
+        continue
+      }
+
       const { teams } = await getOrg(org.organization)
 
       for (const projectRepo of org.repos || []) {
@@ -145,6 +150,10 @@ export async function createChangeSetItemsForProjects(
 
   const allRepos: Repo[] = []
   for (const orgName of getGitHubOrgs(definition)) {
+    if (limitToOrg !== null && limitToOrg !== orgName) {
+      continue
+    }
+
     const repos = await github.getRepoList({ owner: orgName })
     allRepos.push(...repos)
   }

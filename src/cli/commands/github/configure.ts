@@ -1,5 +1,5 @@
 import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
-import yargs, { CommandModule } from 'yargs'
+import { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
 import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
 import { Definition } from '../../../definition/types'
@@ -23,7 +23,7 @@ function createOrgGetter(github: GitHubService) {
 
   return async function(orgName: string) {
     if (!(orgName in orgs)) {
-      const org = await github.getOrg('capralifecycle')
+      const org = await github.getOrg(orgName)
       orgs[orgName] = {
         org,
         teams: await github.getTeamList(org),
@@ -33,143 +33,57 @@ function createOrgGetter(github: GitHubService) {
   }
 }
 
-function reportChanges(
-  reporter: Reporter,
-  title: string,
-  changes: ChangeSetItem[],
-) {
-  if (changes.length === 0) {
-    reporter.info(`No changes in ${title}`)
-  } else {
-    reporter.info(`Changes in ${title}:`)
-    for (const change of changes) {
-      reporter.info('  - ' + JSON.stringify(change))
-    }
-  }
-}
-
-async function processProjects(
+async function process(
   reporter: Reporter,
   github: GitHubService,
   definition: Definition,
   getOrg: ReturnType<typeof createOrgGetter>,
-  dryRun: boolean,
-) {
-  const changes = await createChangeSetItemsForProjects(
-    github,
-    definition,
-    getOrg,
-  )
-  reportChanges(reporter, 'project', changes)
-
-  /*
-  if (!dryRun) {
-    github.setTeamPermission(repo, found, repoteam.permission)
-  }
-  */
-}
-
-async function processMembers(
-  reporter: Reporter,
-  github: GitHubService,
-  definition: Definition,
-  org: OrgsGetResponse,
-) {
-  const changes = await createChangeSetItemsForMembers(github, definition, org)
-  reportChanges(reporter, 'members', changes)
-}
-
-async function processTeams(
-  reporter: Reporter,
-  github: GitHubService,
-  definition: Definition,
+  execute: boolean,
+  limitToOrg: string | null,
 ) {
   let changes: ChangeSetItem[] = []
 
+  changes = [
+    ...changes,
+    ...(await createChangeSetItemsForProjects(
+      github,
+      definition,
+      getOrg,
+      limitToOrg,
+    )),
+  ]
+
   for (const orgName of getGitHubOrgs(definition)) {
-    const org = await github.getOrg(orgName)
+    if (limitToOrg !== null && limitToOrg !== orgName) {
+      continue
+    }
+
+    const org = (await getOrg(orgName)).org
+
+    changes = [
+      ...changes,
+      ...(await createChangeSetItemsForMembers(github, definition, org)),
+    ]
+
     changes = [
       ...changes,
       ...(await createChangeSetItemsForTeams(github, definition, org)),
     ]
   }
 
-  reportChanges(reporter, 'teams', changes)
-}
-
-function checkOwner(owner: string) {
-  if (owner !== 'capralifecycle') {
-    throw Error('Only owner==capralifecycle allowed for this command')
+  if (changes.length === 0) {
+    reporter.info(`No changes`)
+  } else {
+    reporter.info(`Changes:`)
+    for (const change of changes) {
+      reporter.info('  - ' + JSON.stringify(change))
+    }
   }
-}
 
-const projectsCommand: CommandModule = {
-  command: 'projects',
-  describe: 'Configure projects',
-  builder: yargs =>
-    yargs.options('dry-run', {
-      describe: 'Run in dry run mode',
-      type: 'boolean',
-    }),
-  handler: async argv => {
-    checkOwner(argv['org'] as string)
-
-    const reporter = createReporter()
-    const config = createConfig()
-    const github = await createGitHubService(
-      config,
-      createCacheProvider(config),
-    )
-    await reportRateLimit(reporter, github, async () => {
-      const definition = getDefinition(config)
-      await processProjects(
-        reporter,
-        github,
-        definition,
-        createOrgGetter(github),
-        !!argv['dry-run'],
-      )
-    })
-  },
-}
-
-const membersCommand: CommandModule = {
-  command: 'members',
-  describe: 'Configure members',
-  handler: async argv => {
-    checkOwner(argv['org'] as string)
-
-    const reporter = createReporter()
-    const config = createConfig()
-    const github = await createGitHubService(
-      config,
-      createCacheProvider(config),
-    )
-    await reportRateLimit(reporter, github, async () => {
-      const org = await github.getOrg('capralifecycle')
-      const definition = getDefinition(config)
-      await processMembers(reporter, github, definition, org)
-    })
-  },
-}
-
-const teamsCommand: CommandModule = {
-  command: 'teams',
-  describe: 'Configure teams',
-  handler: async argv => {
-    checkOwner(argv['org'] as string)
-
-    const reporter = createReporter()
-    const config = createConfig()
-    const github = await createGitHubService(
-      config,
-      createCacheProvider(config),
-    )
-    await reportRateLimit(reporter, github, async () => {
-      const definition = getDefinition(config)
-      await processTeams(reporter, github, definition)
-    })
-  },
+  if (execute) {
+    reporter.warn('Execution not yet supported')
+    // github.setTeamPermission(repo, found, repoteam.permission)
+  }
 }
 
 const command: CommandModule = {
@@ -177,11 +91,37 @@ const command: CommandModule = {
   describe: 'Configure CALS GitHub resources',
   builder: yargs =>
     yargs
-      .command(projectsCommand)
-      .command(membersCommand)
-      .command(teamsCommand),
-  handler: () => {
-    yargs.showHelp()
+      .options('execute', {
+        describe: 'Execute the detected changes',
+        type: 'boolean',
+      })
+      .options('all-orgs', {
+        describe: 'Ignore organization filter',
+        type: 'boolean',
+      }),
+  handler: async argv => {
+    const org = !!argv['all-orgs'] ? null : (argv['org'] as string)
+
+    const reporter = createReporter()
+    const config = createConfig()
+    const github = await createGitHubService(
+      config,
+      createCacheProvider(config),
+    )
+    const definition = getDefinition(config)
+
+    await reportRateLimit(reporter, github, async () => {
+      const orgGetter = createOrgGetter(github)
+
+      await process(
+        reporter,
+        github,
+        definition,
+        orgGetter,
+        !!argv['execute'],
+        org,
+      )
+    })
   },
 }
 
