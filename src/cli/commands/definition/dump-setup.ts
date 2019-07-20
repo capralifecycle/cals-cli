@@ -71,7 +71,7 @@ async function getReposFromGitHub(
     }
   }
 
-  return await pAll(queries, { concurrency: 10 })
+  return pAll(queries)
 }
 
 async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
@@ -93,7 +93,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
         }
       })
     }
-    result[org.login] = await pAll(queries, { concurrency: 5 })
+    result[org.login] = await pAll(queries)
   }
 
   return result
@@ -132,7 +132,7 @@ function getFormattedTeams(teams: ReposListTeamsResponseItem[]) {
 }
 
 async function getOrgs(github: GitHubService, orgs: string[]) {
-  return pMap(orgs, it => github.getOrg(it), { concurrency: 5 })
+  return pMap(orgs, it => github.getOrg(it))
 }
 
 function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
@@ -150,16 +150,11 @@ function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
 
 async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   return removeDuplicates(
-    (await pMap(
-      orgs,
-      async org =>
-        (await github.getOrgMembersListIncludingInvited(org.login)).map(
-          it => it.login,
-        ),
-      {
-        concurrency: 5,
-      },
-    )).flat(),
+    (await pMap(orgs, org =>
+      github.getOrgMembersListIncludingInvited(org.login),
+    ))
+      .flat()
+      .map(it => it.login),
     it => it,
   )
 }

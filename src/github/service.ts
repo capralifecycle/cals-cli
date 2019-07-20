@@ -11,6 +11,7 @@ import Octokit, {
 } from '@octokit/rest'
 import keytar from 'keytar'
 import fetch from 'node-fetch'
+import pLimit, { Limit } from 'p-limit'
 import { CacheProvider } from '../cache'
 import { Config } from '../config'
 import {
@@ -35,9 +36,13 @@ export class GitHubService {
     this.octokit = octokit
     this.cache = cache
 
+    // Control concurrency to GitHub API at service level so we
+    // can maximize concurrency all other places.
+    this.semaphore = pLimit(10)
+
     this.octokit.hook.wrap('request', async (request, options) => {
       if (options.method !== 'GET') {
-        return request(options)
+        return this.semaphore(() => request(options))
       }
 
       // Try to cache ETag for GET requests to save on rate limiting.
@@ -82,7 +87,9 @@ export class GitHubService {
         }
       }
 
-      const response = await getResponse()
+      const response = await this.semaphore(async () => {
+        return getResponse()
+      })
 
       if (response === undefined) {
         // Use previous value.
@@ -104,6 +111,7 @@ export class GitHubService {
   private config: Config
   public octokit: Octokit
   private cache: CacheProvider
+  private semaphore: Limit
 
   private async removeToken() {
     await keytar.deletePassword(keyringService, keyringAccount)
@@ -135,12 +143,14 @@ export class GitHubService {
       Authorization: `Bearer ${await GitHubService.getToken()}`,
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ query }),
-      agent: this.config.agent,
-    })
+    const response = await this.semaphore(() =>
+      fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query }),
+        agent: this.config.agent,
+      }),
+    )
 
     if (response.status === 401) {
       process.stderr.write('Unauthorized - removing token\n')
@@ -177,14 +187,16 @@ export class GitHubService {
   }
 
   public async runRestGet<T>(subpath: string) {
-    const response = await fetch(`https://api.github.com${subpath}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        Authorization: `Bearer ${await GitHubService.getToken()}`,
-      },
-      agent: this.config.agent,
-    })
+    const response = await this.semaphore(async () =>
+      fetch(`https://api.github.com${subpath}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${await GitHubService.getToken()}`,
+        },
+        agent: this.config.agent,
+      }),
+    )
 
     if (response.status === 401) {
       process.stderr.write('Unauthorized - removing token\n')
