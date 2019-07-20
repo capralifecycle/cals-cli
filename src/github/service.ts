@@ -16,11 +16,73 @@ import { undefinedForNotFound } from './util'
 const keyringService = 'cals'
 const keyringAccount = 'github-token'
 
+interface EtagCacheItem<T> {
+  etag: string
+  data: T
+}
+
 export class GitHubService {
   public constructor(config: Config, octokit: Octokit, cache: CacheProvider) {
     this.config = config
     this.octokit = octokit
     this.cache = cache
+
+    this.octokit.hook.wrap('request', async (request, options) => {
+      if (options.method !== 'GET') {
+        return request(options)
+      }
+
+      // Try to cache ETag for GET requests to save on rate limiting.
+      // Hits on ETag does not count towards rate limiting.
+
+      const rest = {
+        ...options,
+      }
+      delete rest.method
+      delete rest.baseUrl
+      delete rest.headers
+      delete rest.mediaType
+      delete rest.request
+
+      // Build a key that is used to identify this request.
+      const key = Buffer.from(JSON.stringify(rest)).toString('base64')
+
+      const cacheItem = this.cache.retrieveJson<EtagCacheItem<unknown>>(key)
+
+      if (cacheItem !== undefined) {
+        // Copying doesn't work, seems we need to mutate this.
+        options.headers['If-None-Match'] = cacheItem.data.etag
+      }
+
+      const getResponse = async () => {
+        try {
+          return await request(options)
+        } catch (e) {
+          // Handle no change in ETag.
+          if (e.status === 304) {
+            return undefined
+          }
+          throw e
+        }
+      }
+
+      const response = await getResponse()
+
+      if (response === undefined) {
+        // Use previous value.
+        return cacheItem!!.data.data
+      }
+
+      // New value. Store Etag.
+      if (response.headers.etag) {
+        this.cache.storeJson<EtagCacheItem<unknown>>(key, {
+          etag: response.headers.etag,
+          data: response,
+        })
+      }
+
+      return response
+    })
   }
 
   private config: Config

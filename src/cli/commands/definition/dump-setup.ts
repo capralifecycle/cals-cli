@@ -32,6 +32,7 @@ import { SnykGitHubRepo } from '../../../snyk/types'
 import { getGitHubRepo } from '../../../snyk/util'
 import { Reporter } from '../../reporter'
 import { createCacheProvider, createConfig, createReporter } from '../../util'
+import { reportRateLimit } from '../github/util'
 
 interface DetailedProject {
   name: string
@@ -318,7 +319,9 @@ const command: CommandModule = {
       createCacheProvider(config),
     )
     const snyk = await createSnykService(config)
-    await dumpSetup(config, reporter, github, snyk, argv.outfile as string)
+    await reportRateLimit(reporter, github, () =>
+      dumpSetup(config, reporter, github, snyk, argv.outfile as string),
+    )
   },
 }
 

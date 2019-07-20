@@ -16,6 +16,7 @@ import { Definition, Team, User } from '../../../definition/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { Repo } from '../../../github/types'
 import { createCacheProvider, createConfig, createReporter } from '../../util'
+import { reportRateLimit } from './util'
 
 interface MembersDiff {
   unknownMembers: OrgsListMembersResponseItem[]
@@ -285,22 +286,6 @@ async function processTeams(
         })
     }
   }
-}
-
-async function reportRateLimit(
-  reporter: Reporter,
-  github: GitHubService,
-  block: () => Promise<void>,
-) {
-  reporter.log(
-    `Rate limit: ${(await github.octokit.rateLimit.get()).data.rate.remaining}`,
-  )
-
-  await block()
-
-  reporter.log(
-    `Rate limit: ${(await github.octokit.rateLimit.get()).data.rate.remaining}`,
-  )
 }
 
 function checkOwner(owner: string) {
