@@ -170,15 +170,12 @@ function buildTeamsList(
   return Object.entries(list)
     .map(([org, teams]) => ({
       organization: org,
-      teams: teams
-        // TODO: Only exclude if not referenced?
-        .filter(it => it.members.length > 0)
-        .map<Team>(team => ({
-          name: team.team.name,
-          members: team.members
-            .map(it => it.login)
-            .sort((a, b) => a.localeCompare(b)),
-        })),
+      teams: teams.map<Team>(team => ({
+        name: team.team.name,
+        members: team.members
+          .map(it => it.login)
+          .sort((a, b) => a.localeCompare(b)),
+      })),
     }))
     .sort((a, b) => a.organization.localeCompare(b.organization))
 }
