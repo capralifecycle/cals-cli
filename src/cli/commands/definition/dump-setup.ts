@@ -257,6 +257,7 @@ async function dumpSetup(
                 )
                   ? true
                   : undefined,
+                public: repo.repository.private ? undefined : true,
               }))
               .sort((a, b) => a.name.localeCompare(b.name)),
           }

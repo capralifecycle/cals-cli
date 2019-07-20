@@ -130,6 +130,13 @@ async function processProjects(
           )
         }
 
+        const isPrivate = projectRepo.public !== true
+        if (isPrivate !== repo.private) {
+          reporter.log(
+            `  Private mismatch: wanted=${isPrivate} actual=${repo.private}`,
+          )
+        }
+
         const expectedTeams = [
           ...(org.teams || []),
           ...(projectRepo.teams || []),
