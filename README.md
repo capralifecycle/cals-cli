@@ -4,8 +4,18 @@
 
 ## Getting started
 
-Make sure you have a recent version of node. E.g. by following
+Make sure you have a recent version of Node.js. E.g. by using
 https://github.com/creationix/nvm
+
+```bash
+npx @capraconsulting/cals-cli --help
+```
+
+It is recommended to use `npx` over global install to ensure you
+always run the latest version. If you install it globally remember
+to update it before running.
+
+## Building locally
 
 Clone this repo.
 
@@ -13,42 +23,17 @@ Use NPM to link this repo as a global package:
 
 ```bash
 npm install
+npm run build
 npm link
 ```
 
-Run the cli from any folder (as it is linked by NPM it will also
-work in other terminals):
+Run the cli from any terminal/folder:
 
 ```bash
 cals
 ```
 
-### Updating
-
-The `npm link` command will also build the application. When
-changing the code, a rebuild must be done.
-
-```bash
-git pull
-npm run build
-```
-
-### Development
-
-Source the version that uses the source files directly.
-
-```bash
-source alias-dev.sh
-```
-
-Run the cli:
-
-```bash
-cals
-```
-
-This is slower than using the build with `npm link` due to running
-through the TypeScript compiler.
+Rebuild using `npm run build`.
 
 ## Goals of CLI
 
