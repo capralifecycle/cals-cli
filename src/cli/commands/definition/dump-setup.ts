@@ -6,7 +6,6 @@ import {
 } from '@octokit/rest'
 import fs from 'fs'
 import yaml from 'js-yaml'
-import pAll from 'p-all'
 import pMap from 'p-map'
 import { CommandModule } from 'yargs'
 import { Config } from '../../../config'
@@ -48,55 +47,48 @@ async function getReposFromGitHub(
   github: GitHubService,
   orgs: OrgsGetResponse[],
 ): Promise<DetailedProject['repos'][0]> {
-  const queries = []
-
-  for (const org of orgs) {
+  return (await pMap(orgs, async org => {
     const repos = await github.getRepoList({ owner: org.login })
-    for (const repo of repos) {
-      queries.push(async () => {
-        const detailedRepo = await github.getRepository(
-          repo.owner.login,
-          repo.name,
-        )
-        if (detailedRepo === undefined) {
-          throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
-        }
+    return pMap(repos, async repo => {
+      const detailedRepo = await github.getRepository(
+        repo.owner.login,
+        repo.name,
+      )
+      if (detailedRepo === undefined) {
+        throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
+      }
 
-        return {
-          basic: repo,
-          repository: detailedRepo,
-          teams: await github.getRepositoryTeamsList(detailedRepo),
-        }
-      })
-    }
-  }
-
-  return pAll(queries)
+      return {
+        basic: repo,
+        repository: detailedRepo,
+        teams: await github.getRepositoryTeamsList(detailedRepo),
+      }
+    })
+  })).flat()
 }
 
 async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
-  const result: {
+  const intermediate = await pMap(orgs, async org => {
+    const teams = await github.getTeamList(org)
+    return {
+      org,
+      teams: await pMap(teams, async team => ({
+        team,
+        users: await github.getTeamMemberListIncludingInvited(team),
+      })),
+    }
+  })
+
+  // Transform output.
+  return intermediate.reduce<{
     [org: string]: {
       team: TeamsListResponseItem
       users: TeamMemberOrInvited[]
     }[]
-  } = {}
-
-  for (const org of orgs) {
-    const queries = []
-    const teams = await github.getTeamList(org)
-    for (const team of teams) {
-      queries.push(async () => {
-        return {
-          team,
-          users: await github.getTeamMemberListIncludingInvited(team),
-        }
-      })
-    }
-    result[org.login] = await pAll(queries)
-  }
-
-  return result
+  }>((prev, cur) => {
+    prev[cur.org.login] = cur.teams
+    return prev
+  }, {})
 }
 
 function getCommonTeams(ownerRepos: DetailedProject['repos'][0]) {
@@ -159,42 +151,21 @@ async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   )
 }
 
-function buildTeamsList(
-  list: Record<
-    string,
-    {
-      team: TeamsListResponseItem
-      users: TeamMemberOrInvited[]
-    }[]
-  >,
-) {
-  return Object.entries(list)
-    .map(([org, teams]) => ({
-      organization: org,
-      teams: teams.map<Team>(team => ({
-        name: team.team.name,
-        members: team.users
-          .map(it => it.login)
-          .sort((a, b) => a.localeCompare(b)),
-      })),
-    }))
-    .sort((a, b) => a.organization.localeCompare(b.organization))
-}
-
-async function dumpSetup(
-  config: Config,
-  reporter: Reporter,
-  github: GitHubService,
-  snyk: SnykService,
-  outfile: string,
-) {
-  reporter.info('Fetching data. This might take some time')
-  const orgs = await getOrgs(github, ['capralifecycle', 'capraconsulting'])
-  const definition = getDefinition(config)
-  const snykRepos = (await snyk.getProjects())
+async function getSnykRepos(snyk: SnykService) {
+  return (await snyk.getProjects())
     .map(it => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
     .map(it => getRepoId(it.owner, it.name))
+}
+
+async function getProjects(
+  github: GitHubService,
+  orgs: OrgsGetResponse[],
+  definition: Definition,
+  snyk: SnykService,
+) {
+  const snykReposPromise = getSnykRepos(snyk)
+
   const projectMap = getRepos(definition).reduce<Record<string, string>>(
     (acc, cur) => ({
       ...acc,
@@ -202,7 +173,9 @@ async function dumpSetup(
     }),
     {},
   )
+
   const repos = await getReposFromGitHub(github, orgs)
+  const snykRepos = await snykReposPromise
 
   const projects = Object.values(
     repos.reduce<{
@@ -264,13 +237,50 @@ async function dumpSetup(
     }))
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  const teams = await getTeams(github, orgs)
-  const members = await getMembers(github, orgs)
+  return projects
+}
+
+function buildTeamsList(
+  list: Record<
+    string,
+    {
+      team: TeamsListResponseItem
+      users: TeamMemberOrInvited[]
+    }[]
+  >,
+) {
+  return Object.entries(list)
+    .map(([org, teams]) => ({
+      organization: org,
+      teams: teams.map<Team>(team => ({
+        name: team.team.name,
+        members: team.users
+          .map(it => it.login)
+          .sort((a, b) => a.localeCompare(b)),
+      })),
+    }))
+    .sort((a, b) => a.organization.localeCompare(b.organization))
+}
+
+async function dumpSetup(
+  config: Config,
+  reporter: Reporter,
+  github: GitHubService,
+  snyk: SnykService,
+  outfile: string,
+) {
+  reporter.info('Fetching data. This might take some time')
+  const orgs = await getOrgs(github, ['capralifecycle', 'capraconsulting'])
+  const definition = getDefinition(config)
+
+  const teams = getTeams(github, orgs)
+  const members = getMembers(github, orgs)
+  const projects = getProjects(github, orgs, definition, snyk)
 
   const generatedDefinition: Definition = {
     snyk: definition.snyk,
     github: {
-      users: members
+      users: (await members)
         .map<User>(
           memberLogin =>
             definition.github.users.find(
@@ -283,9 +293,9 @@ async function dumpSetup(
             },
         )
         .sort((a, b) => a.login.localeCompare(b.login)),
-      teams: buildTeamsList(teams),
+      teams: buildTeamsList(await teams),
     },
-    projects,
+    projects: await projects,
   }
 
   // TODO: An earlier version we had preserved comments by using yawn-yaml
