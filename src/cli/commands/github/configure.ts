@@ -1,4 +1,5 @@
 import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
+import pLimit, { Limit } from 'p-limit'
 import { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
 import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
@@ -21,15 +22,27 @@ function createOrgGetter(github: GitHubService) {
     }
   } = {}
 
-  return async function(orgName: string) {
-    if (!(orgName in orgs)) {
-      const org = await github.getOrg(orgName)
-      orgs[orgName] = {
-        org,
-        teams: await github.getTeamList(org),
-      }
+  // Use a semaphore for each orgName to restrict multiple
+  // concurrent requests of the same org.
+  const semaphores: { [orgName: string]: Limit } = {}
+  function getSemaphore(orgName: string) {
+    if (!(orgName in semaphores)) {
+      semaphores[orgName] = pLimit(1)
     }
-    return orgs[orgName]
+    return semaphores[orgName]
+  }
+
+  return async function(orgName: string) {
+    return await getSemaphore(orgName)(async () => {
+      if (!(orgName in orgs)) {
+        const org = await github.getOrg(orgName)
+        orgs[orgName] = {
+          org,
+          teams: await github.getTeamList(org),
+        }
+      }
+      return orgs[orgName]
+    })
   }
 }
 

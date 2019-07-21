@@ -4,6 +4,7 @@ import {
   TeamsListResponseItem,
 } from '@octokit/rest'
 import { sortBy } from 'lodash'
+import pMap from 'p-map'
 import { getGitHubOrgs, getRepos } from '../../definition/definition'
 import {
   Definition,
@@ -12,8 +13,15 @@ import {
   Team,
 } from '../../definition/types'
 import { GitHubService } from '../service'
-import { Permission, Repo } from '../types'
+import { Permission } from '../types'
 import { ChangeSetItem, RepoAttribUpdateItem } from './types'
+
+type GetOrg = (
+  orgName: string,
+) => Promise<{
+  org: OrgsGetResponse
+  teams: TeamsListResponseItem[]
+}>
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
@@ -66,19 +74,14 @@ async function getUnknownRepos(
   limitToOrg: string | null,
 ) {
   const knownRepos = getRepos(definition).map(it => it.id)
-
-  const allRepos: Repo[] = []
-  for (const orgName of getGitHubOrgs(definition)) {
-    if (limitToOrg !== null && limitToOrg !== orgName) {
-      continue
-    }
-
-    const repos = await github.getRepoList({ owner: orgName })
-    allRepos.push(...repos)
-  }
+  const orgs = getGitHubOrgs(definition).filter(
+    orgName => limitToOrg === null || limitToOrg === orgName,
+  )
 
   return sortBy(
-    allRepos.filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
+    (await pMap(orgs, orgName => github.getRepoList({ owner: orgName })))
+      .flat()
+      .filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
     it => `${it.owner.login}/${it.name}`,
   )
 }
@@ -147,65 +150,82 @@ async function getRepoTeamChanges({
   return changes
 }
 
+async function getProjectRepoChanges({
+  github,
+  org,
+  projectRepo,
+  getOrg,
+}: {
+  github: GitHubService
+  org: Project['github'][0]
+  projectRepo: DefinitionRepo
+  getOrg: GetOrg
+}) {
+  const changes: ChangeSetItem[] = []
+
+  const repo = await github.getRepository(org.organization, projectRepo.name)
+  if (repo === undefined) {
+    changes.push({
+      type: 'repo-create',
+      org: org.organization,
+      repo: projectRepo.name,
+    })
+    return changes
+  }
+
+  const attribs = getChangedRepoAttribs(projectRepo, repo)
+  if (attribs.length > 0) {
+    changes.push({
+      type: 'repo-update',
+      org: org.organization,
+      repo: repo.name,
+      attribs,
+    })
+  }
+
+  const { teams } = await getOrg(org.organization)
+  changes.push(
+    ...(await getRepoTeamChanges({
+      github,
+      org,
+      projectRepo,
+      repo,
+      teams,
+    })),
+  )
+
+  return changes
+}
+
 /**
  * Generate change set items for projects.
  */
 export async function createChangeSetItemsForProjects(
   github: GitHubService,
   definition: Definition,
-  getOrg: (
-    orgName: string,
-  ) => Promise<{
-    org: OrgsGetResponse
-    teams: TeamsListResponseItem[]
-  }>,
+  getOrg: GetOrg,
   limitToOrg: string | null,
 ) {
   const changes: ChangeSetItem[] = []
 
-  for (const project of definition.projects) {
-    for (const org of project.github) {
-      if (limitToOrg !== null && limitToOrg !== org.organization) {
-        continue
-      }
+  const orgs = definition.projects
+    .flatMap(it => it.github)
+    .filter(org => limitToOrg === null || limitToOrg === org.organization)
 
-      for (const projectRepo of org.repos || []) {
-        const repo = await github.getRepository(
-          org.organization,
-          projectRepo.name,
-        )
-        if (repo === undefined) {
-          changes.push({
-            type: 'repo-create',
-            org: org.organization,
-            repo: projectRepo.name,
-          })
-          continue
-        }
-
-        const attribs = getChangedRepoAttribs(projectRepo, repo)
-        if (attribs.length > 0) {
-          changes.push({
-            type: 'repo-update',
-            org: org.organization,
-            repo: repo.name,
-            attribs,
-          })
-        }
-
-        const { teams } = await getOrg(org.organization)
-        changes.push(
-          ...(await getRepoTeamChanges({
-            github,
-            org,
-            projectRepo,
-            repo,
-            teams,
-          })),
-        )
-      }
-    }
-  }
+  changes.push(
+    ...(await pMap(orgs, async org =>
+      pMap(org.repos || [], projectRepo =>
+        getProjectRepoChanges({
+          github,
+          org,
+          projectRepo,
+          getOrg,
+        }),
+      ),
+    ))
+      .flat()
+      .flat(),
+  )
 
   const unknownRepos = await getUnknownRepos(github, definition, limitToOrg)
   for (const it of unknownRepos) {
@@ -320,7 +340,8 @@ export async function createChangeSetItemsForTeams(
   const overlappingTeams = actualTeams.filter(it =>
     wantedTeamNames.includes(it.name),
   )
-  for (const actualTeam of overlappingTeams) {
+
+  await pMap(overlappingTeams, async actualTeam => {
     const wantedTeam = teams.find(it => it.name === actualTeam.name)!
     const actualMembers = await github.getTeamMemberListIncludingInvited(
       actualTeam,
@@ -349,7 +370,7 @@ export async function createChangeSetItemsForTeams(
           user: it,
         })
       })
-  }
+  })
 
   return changes
 }
