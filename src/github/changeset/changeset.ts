@@ -1,10 +1,151 @@
-import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
+import {
+  OrgsGetResponse,
+  ReposGetResponse,
+  TeamsListResponseItem,
+} from '@octokit/rest'
 import { sortBy } from 'lodash'
 import { getGitHubOrgs, getRepos } from '../../definition/definition'
-import { Definition, Team } from '../../definition/types'
+import {
+  Definition,
+  DefinitionRepo,
+  Project,
+  Team,
+} from '../../definition/types'
 import { GitHubService } from '../service'
 import { Permission, Repo } from '../types'
 import { ChangeSetItem, RepoAttribUpdateItem } from './types'
+
+function getChangedRepoAttribs(
+  definitionRepo: DefinitionRepo,
+  actualRepo: ReposGetResponse,
+) {
+  const attribs: RepoAttribUpdateItem['attribs'] = []
+
+  if (
+    definitionRepo.archived !== undefined &&
+    definitionRepo.archived !== actualRepo.archived
+  ) {
+    attribs.push({
+      archived: definitionRepo.archived,
+    })
+  }
+
+  if (
+    definitionRepo.issues !== undefined &&
+    definitionRepo.issues !== actualRepo.has_issues &&
+    !actualRepo.archived
+  ) {
+    attribs.push({
+      issues: definitionRepo.issues,
+    })
+  }
+
+  if (
+    definitionRepo.wiki !== undefined &&
+    definitionRepo.wiki !== actualRepo.has_wiki &&
+    !actualRepo.archived
+  ) {
+    attribs.push({
+      wiki: definitionRepo.wiki,
+    })
+  }
+
+  const isPrivate = definitionRepo.public !== true
+  if (isPrivate !== actualRepo.private) {
+    attribs.push({
+      private: isPrivate,
+    })
+  }
+
+  return attribs
+}
+
+async function getUnknownRepos(
+  github: GitHubService,
+  definition: Definition,
+  limitToOrg: string | null,
+) {
+  const knownRepos = getRepos(definition).map(it => it.id)
+
+  const allRepos: Repo[] = []
+  for (const orgName of getGitHubOrgs(definition)) {
+    if (limitToOrg !== null && limitToOrg !== orgName) {
+      continue
+    }
+
+    const repos = await github.getRepoList({ owner: orgName })
+    allRepos.push(...repos)
+  }
+
+  return sortBy(
+    allRepos.filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
+    it => `${it.owner.login}/${it.name}`,
+  )
+}
+
+async function getRepoTeamChanges({
+  github,
+  org,
+  projectRepo,
+  repo,
+  teams,
+}: {
+  github: GitHubService
+  org: Project['github'][0]
+  projectRepo: DefinitionRepo
+  repo: ReposGetResponse
+  teams: TeamsListResponseItem[]
+}) {
+  let changes: ChangeSetItem[] = []
+  const expectedTeams = [...(org.teams || []), ...(projectRepo.teams || [])]
+  const existingTeams = await github.getRepositoryTeamsList(repo)
+
+  // Check for teams to be added / modified.
+  for (const repoteam of expectedTeams) {
+    const found = existingTeams.find(it => repoteam.name === it.name)
+    if (found !== undefined) {
+      if (found.permission !== repoteam.permission) {
+        changes.push({
+          type: 'repo-team-permission',
+          org: org.organization,
+          repo: repo.name,
+          team: found.name,
+          permission: repoteam.permission,
+          current: {
+            permission: found.permission as Permission,
+          },
+        })
+      }
+    } else {
+      const team = teams.find(it => repoteam.name === it.name)
+      if (team === undefined) {
+        throw Error(`Unknown team: ${repoteam.name}`)
+      }
+
+      changes.push({
+        type: 'repo-team-add',
+        org: org.organization,
+        repo: repo.name,
+        team: team.name,
+        permission: repoteam.permission,
+      })
+    }
+  }
+
+  // Check for teams that should not be registered.
+  for (const team of existingTeams) {
+    if (!expectedTeams.some(it => team.name === it.name)) {
+      changes.push({
+        type: 'repo-team-remove',
+        org: org.organization,
+        repo: repo.name,
+        team: team.name,
+      })
+    }
+  }
+
+  return changes
+}
 
 /**
  * Generate change set items for projects.
@@ -28,8 +169,6 @@ export async function createChangeSetItemsForProjects(
         continue
       }
 
-      const { teams } = await getOrg(org.organization)
-
       for (const projectRepo of org.repos || []) {
         const repo = await github.getRepository(
           org.organization,
@@ -44,46 +183,7 @@ export async function createChangeSetItemsForProjects(
           continue
         }
 
-        // Check for changed attributes on repo.
-
-        const attribs: RepoAttribUpdateItem['attribs'] = []
-
-        if (
-          projectRepo.archived !== undefined &&
-          projectRepo.archived !== repo.archived
-        ) {
-          attribs.push({
-            archived: projectRepo.archived,
-          })
-        }
-
-        if (
-          projectRepo.issues !== undefined &&
-          projectRepo.issues !== repo.has_issues &&
-          !repo.archived
-        ) {
-          attribs.push({
-            issues: projectRepo.issues,
-          })
-        }
-
-        if (
-          projectRepo.wiki !== undefined &&
-          projectRepo.wiki !== repo.has_wiki &&
-          !repo.archived
-        ) {
-          attribs.push({
-            wiki: projectRepo.wiki,
-          })
-        }
-
-        const isPrivate = projectRepo.public !== true
-        if (isPrivate !== repo.private) {
-          attribs.push({
-            private: isPrivate,
-          })
-        }
-
+        const attribs = getChangedRepoAttribs(projectRepo, repo)
         if (attribs.length > 0) {
           changes.push({
             type: 'repo-update',
@@ -93,76 +193,21 @@ export async function createChangeSetItemsForProjects(
           })
         }
 
-        const expectedTeams = [
-          ...(org.teams || []),
-          ...(projectRepo.teams || []),
-        ]
-        const existingTeams = await github.getRepositoryTeamsList(repo)
-
-        // Check for teams to be added / modified.
-        for (const repoteam of expectedTeams) {
-          const found = existingTeams.find(it => repoteam.name === it.name)
-          if (found !== undefined) {
-            if (found.permission !== repoteam.permission) {
-              changes.push({
-                type: 'repo-team-permission',
-                org: org.organization,
-                repo: repo.name,
-                team: found.name,
-                permission: repoteam.permission,
-                current: {
-                  permission: found.permission as Permission,
-                },
-              })
-            }
-          } else {
-            const team = teams.find(it => repoteam.name === it.name)
-            if (team === undefined) {
-              throw Error(`Unknown team: ${repoteam.name}`)
-            }
-
-            changes.push({
-              type: 'repo-team-add',
-              org: org.organization,
-              repo: repo.name,
-              team: team.name,
-              permission: repoteam.permission,
-            })
-          }
-        }
-
-        // Check for teams that should not be registered.
-        for (const team of existingTeams) {
-          if (!expectedTeams.some(it => team.name === it.name)) {
-            changes.push({
-              type: 'repo-team-remove',
-              org: org.organization,
-              repo: repo.name,
-              team: team.name,
-            })
-          }
-        }
+        const { teams } = await getOrg(org.organization)
+        changes.push(
+          ...(await getRepoTeamChanges({
+            github,
+            org,
+            projectRepo,
+            repo,
+            teams,
+          })),
+        )
       }
     }
   }
 
-  const knownRepos = getRepos(definition).map(it => it.id)
-
-  const allRepos: Repo[] = []
-  for (const orgName of getGitHubOrgs(definition)) {
-    if (limitToOrg !== null && limitToOrg !== orgName) {
-      continue
-    }
-
-    const repos = await github.getRepoList({ owner: orgName })
-    allRepos.push(...repos)
-  }
-
-  const unknownRepos = sortBy(
-    allRepos.filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
-    it => `${it.owner.login}/${it.name}`,
-  )
-
+  const unknownRepos = await getUnknownRepos(github, definition, limitToOrg)
   for (const it of unknownRepos) {
     changes.push({
       type: 'repo-delete',
