@@ -310,6 +310,7 @@ async function dumpSetup(
   // Convert to/from plain JSON so that undefined elements are removed.
   fs.writeFileSync(outfile, yaml.safeDump(JSON.parse(JSON.stringify(doc))))
   reporter.info(`Saved to ${outfile}`)
+  reporter.info(`Number of GitHub requests: ${github.requestCount}`)
 }
 
 const command: CommandModule = {

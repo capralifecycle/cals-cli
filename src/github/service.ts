@@ -41,6 +41,8 @@ export class GitHubService {
     this.semaphore = pLimit(10)
 
     this.octokit.hook.wrap('request', async (request, options) => {
+      this._requestCount++
+
       if (options.method !== 'GET') {
         return this.semaphore(() => request(options))
       }
@@ -112,6 +114,12 @@ export class GitHubService {
   public octokit: Octokit
   private cache: CacheProvider
   private semaphore: Limit
+
+  private _requestCount: number = 0
+
+  public get requestCount(): number {
+    return this._requestCount
+  }
 
   private async removeToken() {
     await keytar.deletePassword(keyringService, keyringAccount)

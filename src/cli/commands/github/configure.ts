@@ -84,6 +84,8 @@ async function process(
     reporter.warn('Execution not yet supported')
     // github.setTeamPermission(repo, found, repoteam.permission)
   }
+
+  reporter.info(`Number of GitHub requests: ${github.requestCount}`)
 }
 
 const command: CommandModule = {
