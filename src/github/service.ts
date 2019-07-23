@@ -38,7 +38,7 @@ export class GitHubService {
 
     // Control concurrency to GitHub API at service level so we
     // can maximize concurrency all other places.
-    this.semaphore = pLimit(10)
+    this.semaphore = pLimit(7)
 
     this.octokit.hook.wrap('request', async (request, options) => {
       this._requestCount++
