@@ -56,11 +56,6 @@ async function process(
 ) {
   let changes: ChangeSetItem[] = []
 
-  changes = [
-    ...changes,
-    ...(await createChangeSetItemsForProjects(github, definition, limitToOrg)),
-  ]
-
   for (const orgName of getGitHubOrgs(definition)) {
     if (limitToOrg !== null && limitToOrg !== orgName) {
       continue
@@ -78,6 +73,11 @@ async function process(
       ...(await createChangeSetItemsForTeams(github, definition, org)),
     ]
   }
+
+  changes = [
+    ...changes,
+    ...(await createChangeSetItemsForProjects(github, definition, limitToOrg)),
+  ]
 
   if (changes.length === 0) {
     reporter.info(`No changes`)
