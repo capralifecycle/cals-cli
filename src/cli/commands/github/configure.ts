@@ -1,5 +1,6 @@
 import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
 import pLimit, { Limit } from 'p-limit'
+import read from 'read'
 import { CommandModule } from 'yargs'
 import { Reporter } from '../../../cli/reporter'
 import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
@@ -9,6 +10,7 @@ import {
   createChangeSetItemsForProjects,
   createChangeSetItemsForTeams,
 } from '../../../github/changeset/changeset'
+import { executeChangeSet } from '../../../github/changeset/execute'
 import { ChangeSetItem } from '../../../github/changeset/types'
 import { createGitHubService, GitHubService } from '../../../github/service'
 import { createCacheProvider, createConfig, createReporter } from '../../util'
@@ -88,9 +90,28 @@ async function process(
     }
   }
 
-  if (execute) {
-    reporter.warn('Execution not yet supported')
-    // github.setTeamPermission(repo, found, repoteam.permission)
+  if (execute && changes.length > 0) {
+    const cont = await new Promise<string>((resolve, reject) => {
+      read(
+        {
+          prompt: 'Confirm you want to execute the changes [y/N]: ',
+          timeout: 60000,
+        },
+        (err, answer) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(answer)
+        },
+      )
+    })
+
+    if (cont === 'y' || cont === 'Y') {
+      reporter.info('Executing changes')
+      await executeChangeSet(github, changes, reporter)
+    } else {
+      reporter.info('Skipping')
+    }
   }
 
   reporter.info(`Number of GitHub requests: ${github.requestCount}`)
