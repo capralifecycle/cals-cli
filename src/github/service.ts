@@ -254,6 +254,7 @@ export class GitHubService {
         }
         createdAt
         updatedAt
+        isArchived
         sshUrl
         repositoryTopics(first: 100) {
           edges {

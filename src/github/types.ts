@@ -15,6 +15,7 @@ export interface Repo {
   }
   createdAt: string
   updatedAt: string
+  isArchived: boolean
   sshUrl: string
   repositoryTopics: { edges: { node: { topic: { name: string } } }[] }
 }
