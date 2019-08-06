@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 // See https://github.com/capralifecycle/jenkins-pipeline-library
-@Library('cals@sonarcloud') _ // TODO: Remove branch override
+@Library('cals') _
 
 buildConfig([
   slack: [
@@ -28,7 +28,7 @@ buildConfig([
         sh 'npm test'
       }
 
-      analyzeSonarCloudForNodejs([
+      analyzeSonarCloudForJs([
         'sonar.organization': 'capralifecycle',
         'sonar.projectKey': 'capralifecycle_cals-cli',
       ])
