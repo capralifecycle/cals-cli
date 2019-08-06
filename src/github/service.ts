@@ -417,20 +417,6 @@ export class GitHubService {
     ]
   }
 
-  public async setTeamPermission(
-    repo: ReposGetResponse,
-    team: TeamsListResponseItem,
-    permission: Permission,
-  ) {
-    await this.octokit.teams.addOrUpdateRepo({
-      owner: repo.owner.login,
-      repo: repo.name,
-      // eslint-disable-next-line
-      team_id: team.id,
-      permission,
-    })
-  }
-
   public async getSearchedPullRequestList() {
     interface QueryResult {
       search: {
