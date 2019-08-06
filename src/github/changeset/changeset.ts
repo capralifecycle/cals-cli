@@ -314,12 +314,15 @@ export async function createChangeSetItemsForTeams(
         team: team.name,
       })
 
+      // Must add all members when creating new team.
       for (const member of team.members) {
         changes.push({
           type: 'team-member-add',
           org: org.login,
           team: team.name,
           user: member,
+          // TODO: Allow to specify maintainers?
+          role: 'member',
         })
       }
     })
@@ -355,8 +358,12 @@ export async function createChangeSetItemsForTeams(
           org: org.login,
           team: actualTeam.name,
           user: it,
+          // TODO: Allow to specify maintainers?
+          role: 'member',
         })
       })
+
+    // TODO: team-member-permission (member/maintainer)
   })
 
   return changes

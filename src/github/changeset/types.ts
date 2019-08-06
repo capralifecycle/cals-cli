@@ -91,7 +91,7 @@ interface TeamMemberAddItem {
   org: string
   team: string
   user: string
-  // TODO: maintainer
+  role: 'member' | 'maintainer'
 }
 
 interface TeamMemberPermissionItem {
@@ -99,7 +99,7 @@ interface TeamMemberPermissionItem {
   org: string
   team: string
   user: string
-  // TODO: maintainer
+  role: 'member' | 'maintainer'
 }
 
 /**
