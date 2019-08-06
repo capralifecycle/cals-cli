@@ -91,13 +91,11 @@ async function getRepoTeamChanges({
   org,
   projectRepo,
   repo,
-  teams,
 }: {
   github: GitHubService
   org: Project['github'][0]
   projectRepo: DefinitionRepo
   repo: ReposGetResponse
-  teams: TeamsListResponseItem[]
 }) {
   let changes: ChangeSetItem[] = []
   const expectedTeams = [...(org.teams || []), ...(projectRepo.teams || [])]
@@ -120,16 +118,11 @@ async function getRepoTeamChanges({
         })
       }
     } else {
-      const team = teams.find(it => repoteam.name === it.name)
-      if (team === undefined) {
-        throw Error(`Unknown team: ${repoteam.name}`)
-      }
-
       changes.push({
         type: 'repo-team-add',
         org: org.organization,
         repo: repo.name,
-        team: team.name,
+        team: repoteam.name,
         permission: repoteam.permission,
       })
     }
@@ -154,12 +147,10 @@ async function getProjectRepoChanges({
   github,
   org,
   projectRepo,
-  getOrg,
 }: {
   github: GitHubService
   org: Project['github'][0]
   projectRepo: DefinitionRepo
-  getOrg: GetOrg
 }) {
   const changes: ChangeSetItem[] = []
 
@@ -183,14 +174,12 @@ async function getProjectRepoChanges({
     })
   }
 
-  const { teams } = await getOrg(org.organization)
   changes.push(
     ...(await getRepoTeamChanges({
       github,
       org,
       projectRepo,
       repo,
-      teams,
     })),
   )
 
@@ -203,7 +192,6 @@ async function getProjectRepoChanges({
 export async function createChangeSetItemsForProjects(
   github: GitHubService,
   definition: Definition,
-  getOrg: GetOrg,
   limitToOrg: string | null,
 ) {
   const changes: ChangeSetItem[] = []
@@ -219,7 +207,6 @@ export async function createChangeSetItemsForProjects(
           github,
           org,
           projectRepo,
-          getOrg,
         }),
       ),
     ))

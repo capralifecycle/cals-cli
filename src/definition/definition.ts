@@ -62,9 +62,9 @@ function validateDefinition(definition: Definition) {
     return [...acc, project.name]
   }, [])
 
-  // Verify project teams exists as teams.
   definition.projects.forEach(project => {
     project.github.forEach(org => {
+      // Verify project teams exists as teams.
       ;(org.teams || []).forEach(team => {
         const id = getTeamId(org.organization, team.name)
         if (!teamIdList.includes(id)) {
@@ -72,6 +72,18 @@ function validateDefinition(definition: Definition) {
             `Project team ${id} in project ${project.name} is not registered in team list`,
           )
         }
+      })
+
+      // Verify repo teams exists as teams.
+      ;(org.repos || []).forEach(repo => {
+        ;(repo.teams || []).forEach(team => {
+          const id = getTeamId(org.organization, team.name)
+          if (!teamIdList.includes(id)) {
+            throw new Error(
+              `Repo team ${id} for repo ${repo.name} in project ${project.name} is not registered in team list`,
+            )
+          }
+        })
       })
     })
   })

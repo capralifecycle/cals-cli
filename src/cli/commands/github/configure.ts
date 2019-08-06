@@ -58,12 +58,7 @@ async function process(
 
   changes = [
     ...changes,
-    ...(await createChangeSetItemsForProjects(
-      github,
-      definition,
-      getOrg,
-      limitToOrg,
-    )),
+    ...(await createChangeSetItemsForProjects(github, definition, limitToOrg)),
   ]
 
   for (const orgName of getGitHubOrgs(definition)) {
