@@ -15,6 +15,22 @@ It is recommended to use `npx` over global install to ensure you
 always run the latest version. If you install it globally remember
 to update it before running.
 
+### Configuration
+
+You need to create `~/.cals-config.json` and you can use this as a template:
+
+```json
+{
+  "definitionFile": "/path/to/resources-definition/resources.yaml"
+}
+```
+
+The `definitionFile` should point to `resources.yaml` where you have locally
+checked out https://github.com/capralifecycle/resources-definition.
+
+As the CLI uses that file for lots of its operations, you must remember
+to keep it up to date with the remote before using the CLI.
+
 ## Building locally
 
 Clone this repo.
