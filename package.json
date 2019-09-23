@@ -32,7 +32,7 @@
   "devDependencies": {
     "@types/jest": "24.0.18",
     "@types/js-yaml": "3.12.1",
-    "@types/lodash": "4.14.138",
+    "@types/lodash": "4.14.139",
     "@types/node": "11.13.20",
     "@types/node-fetch": "2.5.2",
     "@types/read": "0.0.28",
