@@ -19,7 +19,12 @@ const external = [
 const plugins = [
   alias({
     resolve: ['.js', '.json'],
-    'package.json': path.resolve('package.json'),
+    entries: [
+      {
+        find: 'package.json',
+        replacement: path.resolve('package.json'),
+      },
+    ],
   }),
   typescript(),
   json(),
