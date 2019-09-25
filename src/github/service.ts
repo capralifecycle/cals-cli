@@ -14,12 +14,7 @@ import fetch from 'node-fetch'
 import pLimit, { Limit } from 'p-limit'
 import { CacheProvider } from '../cache'
 import { Config } from '../config'
-import {
-  OrgMemberOrInvited,
-  Permission,
-  Repo,
-  TeamMemberOrInvited,
-} from './types'
+import { OrgMemberOrInvited, Repo, TeamMemberOrInvited } from './types'
 import { undefinedForNotFound } from './util'
 
 const keyringService = 'cals'
@@ -70,7 +65,7 @@ export class GitHubService {
       }
 
       const getResponse = async (
-        allowRetry: boolean = true,
+        allowRetry = true,
       ): Promise<Response<unknown> | undefined> => {
         try {
           return await request(options)
@@ -115,7 +110,7 @@ export class GitHubService {
   private cache: CacheProvider
   private semaphore: Limit
 
-  private _requestCount: number = 0
+  private _requestCount = 0
 
   public get requestCount(): number {
     return this._requestCount

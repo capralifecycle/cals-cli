@@ -97,7 +97,7 @@ async function getRepoTeamChanges({
   projectRepo: DefinitionRepo
   repo: ReposGetResponse
 }) {
-  let changes: ChangeSetItem[] = []
+  const changes: ChangeSetItem[] = []
   const expectedTeams = [...(org.teams || []), ...(projectRepo.teams || [])]
   const existingTeams = await github.getRepositoryTeamsList(repo)
 
