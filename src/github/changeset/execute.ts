@@ -119,7 +119,7 @@ async function executeChangeSetItem(
       return true
 
     case 'repo-update':
-      let upd: ReposUpdateParams = {
+      const upd: ReposUpdateParams = {
         owner: changeItem.org,
         repo: changeItem.repo,
       }
