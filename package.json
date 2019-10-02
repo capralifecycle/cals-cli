@@ -63,5 +63,5 @@
     "type": "git",
     "url": "https://github.com/capralifecycle/cals-cli.git"
   },
-  "types": "index.d.ts"
+  "types": "lib/index.d.ts"
 }
