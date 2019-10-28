@@ -1,6 +1,6 @@
 # Build image.
 
-FROM node:11-alpine
+FROM node:12-alpine
 
 # Needed for `npm install keytar`
 RUN apk add --no-cache \
