@@ -51,7 +51,7 @@
     "rollup-plugin-alias": "2.2.0",
     "rollup-plugin-json": "4.0.0",
     "rollup-plugin-replace": "2.2.0",
-    "rollup-plugin-typescript2": "0.24.3",
+    "rollup-plugin-typescript2": "0.25.2",
     "semantic-release": "15.13.30",
     "ts-jest": "24.1.0",
     "typescript": "3.7.2"
