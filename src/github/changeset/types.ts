@@ -22,7 +22,8 @@ export interface RepoAttribUpdateItem {
     | { archived: boolean }
     | { issues: boolean }
     | { wiki: boolean }
-    | { private: boolean })[]
+    | { private: boolean }
+  )[]
 }
 
 interface RepoTeamAddItem {

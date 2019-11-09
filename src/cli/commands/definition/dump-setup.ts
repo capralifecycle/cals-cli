@@ -47,24 +47,26 @@ async function getReposFromGitHub(
   github: GitHubService,
   orgs: OrgsGetResponse[],
 ): Promise<DetailedProject['repos'][0]> {
-  return (await pMap(orgs, async org => {
-    const repos = await github.getRepoList({ owner: org.login })
-    return pMap(repos, async repo => {
-      const detailedRepo = await github.getRepository(
-        repo.owner.login,
-        repo.name,
-      )
-      if (detailedRepo === undefined) {
-        throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
-      }
+  return (
+    await pMap(orgs, async org => {
+      const repos = await github.getRepoList({ owner: org.login })
+      return pMap(repos, async repo => {
+        const detailedRepo = await github.getRepository(
+          repo.owner.login,
+          repo.name,
+        )
+        if (detailedRepo === undefined) {
+          throw Error(`Repo not found: ${repo.owner.login}/${repo.name}`)
+        }
 
-      return {
-        basic: repo,
-        repository: detailedRepo,
-        teams: await github.getRepositoryTeamsList(detailedRepo),
-      }
+        return {
+          basic: repo,
+          repository: detailedRepo,
+          teams: await github.getRepositoryTeamsList(detailedRepo),
+        }
+      })
     })
-  })).flat()
+  ).flat()
 }
 
 async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
@@ -142,9 +144,11 @@ function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
 
 async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   return removeDuplicates(
-    (await pMap(orgs, org =>
-      github.getOrgMembersListIncludingInvited(org.login),
-    ))
+    (
+      await pMap(orgs, org =>
+        github.getOrgMembersListIncludingInvited(org.login),
+      )
+    )
       .flat()
       .map(it => it.login),
     it => it,
