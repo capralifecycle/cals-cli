@@ -18,7 +18,7 @@ export class Reporter {
   public isTTY = this.stdout.isTTY
   public nonInteractive: boolean
   public isVerbose: boolean
-  public format = chalk
+  public format: typeof chalk = chalk
   public startTime = Date.now()
 
   public error(msg: string) {
