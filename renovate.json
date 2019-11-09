@@ -10,5 +10,6 @@
   },
   "pin": {
     "automerge": true
-  }
+  },
+  "schedule": "every weekend"
 }
