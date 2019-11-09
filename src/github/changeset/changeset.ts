@@ -201,15 +201,17 @@ export async function createChangeSetItemsForProjects(
     .filter(org => limitToOrg === null || limitToOrg === org.organization)
 
   changes.push(
-    ...(await pMap(orgs, async org =>
-      pMap(org.repos || [], projectRepo =>
-        getProjectRepoChanges({
-          github,
-          org,
-          projectRepo,
-        }),
-      ),
-    ))
+    ...(
+      await pMap(orgs, async org =>
+        pMap(org.repos || [], projectRepo =>
+          getProjectRepoChanges({
+            github,
+            org,
+            projectRepo,
+          }),
+        ),
+      )
+    )
       .flat()
       .flat(),
   )
