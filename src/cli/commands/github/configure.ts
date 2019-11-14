@@ -82,9 +82,9 @@ async function process(
   ]
 
   if (changes.length === 0) {
-    reporter.info(`No changes`)
+    reporter.info(`No actions to be performed`)
   } else {
-    reporter.info(`Changes:`)
+    reporter.info(`To be performed:`)
     for (const change of changes) {
       reporter.info('  - ' + JSON.stringify(change))
     }
