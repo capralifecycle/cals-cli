@@ -20,7 +20,7 @@
     "cachedir": "^2.2.0",
     "chalk": "^3.0.0",
     "js-yaml": "^3.13.1",
-    "keytar": "^4.9.0",
+    "keytar": "^5.0.0",
     "lodash": "^4.17.11",
     "node-fetch": "^2.6.0",
     "p-limit": "2.2.1",
