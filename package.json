@@ -34,7 +34,7 @@
     "@types/js-yaml": "3.12.1",
     "@types/lodash": "4.14.149",
     "@types/node": "11.15.2",
-    "@types/node-fetch": "2.5.3",
+    "@types/node-fetch": "2.5.4",
     "@types/read": "0.0.28",
     "@types/sprintf-js": "1.1.2",
     "@types/yargs": "13.0.3",
