@@ -108,9 +108,12 @@ const command: CommandModule = {
     const config = createConfig()
 
     return generateCloneCommands({
-      reporter: createReporter(),
+      reporter: createReporter(argv),
       config,
-      github: await createGitHubService(config, createCacheProvider(config)),
+      github: await createGitHubService(
+        config,
+        createCacheProvider(config, argv),
+      ),
       all: !!argv.all,
       listGroups: !!argv['list-groups'],
       includeAbandoned: !!argv['include-abandoned'],

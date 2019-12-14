@@ -154,8 +154,11 @@ const command: CommandModule = {
   handler: async argv => {
     const config = createConfig()
     listRepos({
-      reporter: createReporter(),
-      github: await createGitHubService(config, createCacheProvider(config)),
+      reporter: createReporter(argv),
+      github: await createGitHubService(
+        config,
+        createCacheProvider(config, argv),
+      ),
       includeAbandoned: !!argv['include-abandoned'],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,

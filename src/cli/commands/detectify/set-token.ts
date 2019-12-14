@@ -49,7 +49,7 @@ const command: CommandModule = {
     }),
   handler: async argv =>
     setToken({
-      reporter: createReporter(),
+      reporter: createReporter(argv),
       detectify: await createDetectifyService(createConfig()),
       token: argv.token as string | undefined,
     }),

@@ -102,10 +102,11 @@ const command: CommandModule = {
   describe: 'List CALS Git repos web hooks',
   handler: async argv => {
     const config = createConfig()
+    const cacheProvider = createCacheProvider(config, argv)
     await listWebhooks(
-      createReporter(),
-      createCacheProvider(config),
-      await createGitHubService(config, createCacheProvider(config)),
+      createReporter(argv),
+      cacheProvider,
+      await createGitHubService(config, cacheProvider),
       argv['org'] as string,
     )
   },

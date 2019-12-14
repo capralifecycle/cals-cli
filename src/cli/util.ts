@@ -1,5 +1,5 @@
 import readline from 'readline'
-import yargs from 'yargs'
+import { Arguments } from 'yargs'
 import { CacheProvider } from '../cache'
 import { Config } from '../config'
 import { Reporter } from './reporter'
@@ -11,18 +11,18 @@ export function clearLine(stdout: NodeJS.WriteStream) {
   readline.cursorTo(stdout, 0)
 }
 
-export function createReporter() {
+export function createReporter(argv: Arguments) {
   return new Reporter({
-    verbose: !!yargs.argv.verbose,
-    nonInteractive: !!yargs.argv.nonInteractive,
+    verbose: !!argv.verbose,
+    nonInteractive: !!argv.nonInteractive,
   })
 }
 
-export function createCacheProvider(config: Config) {
+export function createCacheProvider(config: Config, argv: Arguments) {
   const cache = new CacheProvider(config)
 
   // --no-cache
-  if (yargs.argv.cache === false) {
+  if (argv.cache === false) {
     cache.enabled = false
   }
   return cache

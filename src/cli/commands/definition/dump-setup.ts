@@ -328,11 +328,11 @@ const command: CommandModule = {
       })
       .demandOption('outfile'),
   handler: async argv => {
-    const reporter = createReporter()
+    const reporter = createReporter(argv)
     const config = createConfig()
     const github = await createGitHubService(
       config,
-      createCacheProvider(config),
+      createCacheProvider(config, argv),
     )
     const snyk = await createSnykService(config)
     await reportRateLimit(reporter, github, () =>

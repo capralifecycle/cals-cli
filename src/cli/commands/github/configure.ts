@@ -133,11 +133,11 @@ const command: CommandModule = {
   handler: async argv => {
     const org = !!argv['all-orgs'] ? null : (argv['org'] as string)
 
-    const reporter = createReporter()
+    const reporter = createReporter(argv)
     const config = createConfig()
     const github = await createGitHubService(
       config,
-      createCacheProvider(config),
+      createCacheProvider(config, argv),
     )
     const definition = getDefinition(config)
 

@@ -50,8 +50,11 @@ const command: CommandModule = {
   handler: async argv => {
     const config = createConfig()
     setToken({
-      reporter: createReporter(),
-      github: await createGitHubService(config, createCacheProvider(config)),
+      reporter: createReporter(argv),
+      github: await createGitHubService(
+        config,
+        createCacheProvider(config, argv),
+      ),
       token: argv.token as string | undefined,
     })
   },

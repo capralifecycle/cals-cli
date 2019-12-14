@@ -118,9 +118,9 @@ async function report({
 const command: CommandModule = {
   command: 'report',
   describe: 'Report Snyk projects status',
-  handler: async () =>
+  handler: async argv =>
     report({
-      reporter: createReporter(),
+      reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),
       config: createConfig(),
     }),

@@ -80,9 +80,9 @@ const command: CommandModule = {
     const config = createConfig()
     const github = await createGitHubService(
       config,
-      createCacheProvider(config),
+      createCacheProvider(config, argv),
     )
-    const reporter = createReporter()
+    const reporter = createReporter(argv)
     return analyzeDirectory(reporter, config, github, argv['org'] as string)
   },
 }

@@ -56,9 +56,9 @@ const sync = async ({
 const command: CommandModule = {
   command: 'sync',
   describe: 'Sync Snyk projects (currently only reports, no automation)',
-  handler: async () =>
+  handler: async argv =>
     sync({
-      reporter: createReporter(),
+      reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),
       config: createConfig(),
     }),
