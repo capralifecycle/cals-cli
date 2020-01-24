@@ -80,7 +80,6 @@ async function executeChangeSetItem(
 
     case 'team-remove':
       await github.octokit.teams.delete({
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
       })
       return true
@@ -95,7 +94,6 @@ async function executeChangeSetItem(
 
     case 'team-member-permission':
       await github.octokit.teams.addOrUpdateMembership({
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
         username: changeItem.user,
         role: changeItem.role,
@@ -104,7 +102,6 @@ async function executeChangeSetItem(
 
     case 'team-member-remove':
       await github.octokit.teams.removeMembership({
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
         username: changeItem.user,
       })
@@ -112,7 +109,6 @@ async function executeChangeSetItem(
 
     case 'team-member-add':
       await github.octokit.teams.addOrUpdateMembership({
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
         username: changeItem.user,
       })
@@ -128,10 +124,8 @@ async function executeChangeSetItem(
         if ('archived' in attrib) {
           upd.archived = attrib['archived']
         } else if ('issues' in attrib) {
-          // eslint-disable-next-line
           upd.has_issues = attrib['issues']
         } else if ('wiki' in attrib) {
-          // eslint-disable-next-line
           upd.has_wiki = attrib['wiki']
         } else if ('private' in attrib) {
           upd.private = attrib['private']
@@ -145,7 +139,6 @@ async function executeChangeSetItem(
       await github.octokit.teams.removeRepo({
         owner: changeItem.org,
         repo: changeItem.repo,
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
       })
       return true
@@ -155,7 +148,6 @@ async function executeChangeSetItem(
       await github.octokit.teams.addOrUpdateRepo({
         owner: changeItem.org,
         repo: changeItem.repo,
-        // eslint-disable-next-line
         team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
         permission: changeItem.permission,
       })

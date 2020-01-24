@@ -170,7 +170,7 @@ export class GitHubService {
 
     const json = (await response.json()) as {
       data?: T | null
-      // eslint-disable-next-line
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errors?: any
     }
 
@@ -373,7 +373,6 @@ export class GitHubService {
   public async getTeamMemberList(team: TeamsListResponseItem) {
     return this.cache.json(`team-member-list-${team.id}`, async () => {
       const options = this.octokit.teams.listMembers.endpoint.merge({
-        // eslint-disable-next-line
         team_id: team.id,
       })
       return (await this.octokit.paginate(
@@ -385,7 +384,6 @@ export class GitHubService {
   public async getTeamMemberInvitedList(team: TeamsListResponseItem) {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
       const options = this.octokit.teams.listPendingInvitations.endpoint.merge({
-        // eslint-disable-next-line
         team_id: team.id,
       })
       return (await this.octokit.paginate(
