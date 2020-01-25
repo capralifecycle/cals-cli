@@ -1,17 +1,17 @@
-import { CommandModule } from 'yargs'
-import { getDefinition } from '../../../definition/definition'
-import { createConfig, createReporter } from '../../util'
+import { CommandModule } from "yargs"
+import { getDefinition } from "../../../definition/definition"
+import { createConfig, createReporter } from "../../util"
 
 const command: CommandModule = {
-  command: 'validate',
-  describe: 'Validate definition file.',
+  command: "validate",
+  describe: "Validate definition file.",
   handler: async argv => {
     const reporter = createReporter(argv)
     const config = createConfig()
 
     getDefinition(config)
 
-    reporter.info('Valid!')
+    reporter.info("Valid!")
   },
 }
 

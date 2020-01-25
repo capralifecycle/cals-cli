@@ -1,17 +1,17 @@
-import fs from 'fs'
-import path from 'path'
-import { sprintf } from 'sprintf-js'
-import { CommandModule } from 'yargs'
-import { Reporter } from '../../../cli/reporter'
+import fs from "fs"
+import path from "path"
+import { sprintf } from "sprintf-js"
+import { CommandModule } from "yargs"
+import { Reporter } from "../../../cli/reporter"
 import {
   createCacheProvider,
   createConfig,
   createReporter,
-} from '../../../cli/util'
-import { Config } from '../../../config'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Repo } from '../../../github/types'
-import { isAbandoned } from '../../../github/util'
+} from "../../../cli/util"
+import { Config } from "../../../config"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { Repo } from "../../../github/types"
+import { isAbandoned } from "../../../github/util"
 
 const analyzeDirectory = async (
   reporter: Reporter,
@@ -29,7 +29,7 @@ const analyzeDirectory = async (
     .readdirSync(config.cwd)
     .filter(it => fs.statSync(path.join(config.cwd, it)).isDirectory())
     // Skip hidden folders
-    .filter(it => !it.startsWith('.'))
+    .filter(it => !it.startsWith("."))
     .sort((a, b) => a.localeCompare(b))
 
   const stats = {
@@ -42,7 +42,7 @@ const analyzeDirectory = async (
     if (!(it in reposDict)) {
       reporter.warn(
         sprintf(
-          '%-30s  <-- Not found in repository list (maybe changed name?)',
+          "%-30s  <-- Not found in repository list (maybe changed name?)",
           it,
         ),
       )
@@ -51,7 +51,7 @@ const analyzeDirectory = async (
     }
 
     if (isAbandoned(reposDict[it])) {
-      reporter.info(sprintf('%-30s  <-- Marked as abandoned', it))
+      reporter.info(sprintf("%-30s  <-- Marked as abandoned", it))
       stats.abandoned++
       return
     }
@@ -61,7 +61,7 @@ const analyzeDirectory = async (
 
   reporter.info(
     sprintf(
-      'Stats: unknown=%d  abandoned=%d  ok=%d',
+      "Stats: unknown=%d  abandoned=%d  ok=%d",
       stats.unknown,
       stats.abandoned,
       stats.ok,
@@ -69,13 +69,13 @@ const analyzeDirectory = async (
   )
 
   reporter.info(
-    'Use `cals github generate-clone-commands` to check for repositories not checked out',
+    "Use `cals github generate-clone-commands` to check for repositories not checked out",
   )
 }
 
 const command: CommandModule = {
-  command: 'analyze-directory',
-  describe: 'Analyze directory for git repos',
+  command: "analyze-directory",
+  describe: "Analyze directory for git repos",
   handler: async argv => {
     const config = createConfig()
     const github = await createGitHubService(
@@ -83,7 +83,7 @@ const command: CommandModule = {
       createCacheProvider(config, argv),
     )
     const reporter = createReporter(argv)
-    return analyzeDirectory(reporter, config, github, argv['org'] as string)
+    return analyzeDirectory(reporter, config, github, argv["org"] as string)
   },
 }
 

@@ -1,11 +1,11 @@
-import yargs, { CommandModule } from 'yargs'
-import report from './snyk/report'
-import setToken from './snyk/set-token'
-import sync from './snyk/sync'
+import yargs, { CommandModule } from "yargs"
+import report from "./snyk/report"
+import setToken from "./snyk/set-token"
+import sync from "./snyk/sync"
 
 const command: CommandModule = {
-  command: 'snyk',
-  describe: 'Integration with Snyk',
+  command: "snyk",
+  describe: "Integration with Snyk",
   builder: yargs =>
     yargs
       .command(setToken)

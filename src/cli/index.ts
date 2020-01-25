@@ -1,10 +1,10 @@
-import { version } from 'package.json'
-import yargs from 'yargs'
-import definition from './commands/definition'
-import detectify from './commands/detectify'
-import gettingStarted from './commands/getting-started'
-import github from './commands/github'
-import snyk from './commands/snyk'
+import { version } from "package.json"
+import yargs from "yargs"
+import definition from "./commands/definition"
+import detectify from "./commands/detectify"
+import gettingStarted from "./commands/getting-started"
+import github from "./commands/github"
+import snyk from "./commands/snyk"
 
 declare const BUILD_TIMESTAMP: string
 
@@ -25,9 +25,9 @@ Usage: cals <command>`
 
   yargs
     .usage(header)
-    .scriptName('cals')
-    .locale('en')
-    .help('help')
+    .scriptName("cals")
+    .locale("en")
+    .help("help")
     .command(definition)
     .command(detectify)
     .command(github)
@@ -35,19 +35,19 @@ Usage: cals <command>`
     .command(snyk)
     .version(version)
     .demandCommand()
-    .option('non-interactive', {
-      describe: 'Non-interactive mode',
-      type: 'boolean',
+    .option("non-interactive", {
+      describe: "Non-interactive mode",
+      type: "boolean",
     })
-    .option('verbose', {
-      describe: 'Verbose output',
-      type: 'boolean',
+    .option("verbose", {
+      describe: "Verbose output",
+      type: "boolean",
     })
     // TODO: Rename the cache option or otherwise improve it so
     // it fits how the GitHub resources are cached/invalidated using ETag.
-    .option('no-cache', {
-      describe: 'Disable offline cache of requests to services',
-      type: 'boolean',
+    .option("no-cache", {
+      describe: "Disable offline cache of requests to services",
+      type: "boolean",
     })
     .parse()
 }

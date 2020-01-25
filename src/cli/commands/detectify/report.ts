@@ -1,11 +1,11 @@
-import { sprintf } from 'sprintf-js'
-import { CommandModule } from 'yargs'
+import { sprintf } from "sprintf-js"
+import { CommandModule } from "yargs"
 import {
   createDetectifyService,
   DetectifyService,
-} from '../../../detectify/service'
-import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+} from "../../../detectify/service"
+import { Reporter } from "../../reporter"
+import { createConfig, createReporter } from "../../util"
 
 async function report({
   reporter,
@@ -14,25 +14,25 @@ async function report({
   reporter: Reporter
   detectify: DetectifyService
 }) {
-  reporter.info('Listing Detectify profiles with latest report')
+  reporter.info("Listing Detectify profiles with latest report")
   const profiles = await detectify.getScanProfiles()
 
   for (const profile of profiles) {
-    reporter.info('')
-    reporter.info(sprintf('Project: %s', profile.name))
-    reporter.info(sprintf('Endpoint: %s', profile.endpoint))
+    reporter.info("")
+    reporter.info(sprintf("Project: %s", profile.name))
+    reporter.info(sprintf("Endpoint: %s", profile.endpoint))
     const report = await detectify.getScanReportLatest(profile.token)
     if (report !== null) {
-      reporter.info(sprintf('Score: %g', report.cvss))
+      reporter.info(sprintf("Score: %g", report.cvss))
     } else {
-      reporter.warn('No report present')
+      reporter.warn("No report present")
     }
   }
 }
 
 const command: CommandModule = {
-  command: 'report',
-  describe: 'Report Detectify status',
+  command: "report",
+  describe: "Report Detectify status",
   handler: async argv =>
     report({
       reporter: createReporter(argv),

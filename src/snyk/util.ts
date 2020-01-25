@@ -1,9 +1,9 @@
-import { SnykGitHubRepo, SnykProject } from './types'
+import { SnykGitHubRepo, SnykProject } from "./types"
 
 export function getGitHubRepo(
   snykProject: SnykProject,
 ): SnykGitHubRepo | undefined {
-  if (snykProject.origin !== 'github') {
+  if (snykProject.origin !== "github") {
     return undefined
   }
 

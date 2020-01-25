@@ -3,7 +3,7 @@ import {
   OrgsListPendingInvitationsResponseItem,
   TeamsListMembersResponseItem,
   TeamsListPendingInvitationsResponseItem,
-} from '@octokit/rest'
+} from "@octokit/rest"
 
 export interface Repo {
   name: string
@@ -20,28 +20,28 @@ export interface Repo {
   repositoryTopics: { edges: { node: { topic: { name: string } } }[] }
 }
 
-export type Permission = 'admin' | 'push' | 'pull'
+export type Permission = "admin" | "push" | "pull"
 
 export type TeamMemberOrInvited =
   | {
-      type: 'member'
+      type: "member"
       login: string
       data: TeamsListMembersResponseItem
     }
   | {
-      type: 'invited'
+      type: "invited"
       login: string
       data: TeamsListPendingInvitationsResponseItem
     }
 
 export type OrgMemberOrInvited =
   | {
-      type: 'member'
+      type: "member"
       login: string
       data: OrgsListMembersResponseItem
     }
   | {
-      type: 'invited'
+      type: "invited"
       login: string
       data: OrgsListPendingInvitationsResponseItem
     }

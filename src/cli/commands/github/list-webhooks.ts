@@ -1,10 +1,10 @@
-import { sprintf } from 'sprintf-js'
-import { CommandModule } from 'yargs'
-import { CacheProvider } from '../../../cache'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { isAbandoned } from '../../../github/util'
-import { Reporter } from '../../reporter'
-import { createCacheProvider, createConfig, createReporter } from '../../util'
+import { sprintf } from "sprintf-js"
+import { CommandModule } from "yargs"
+import { CacheProvider } from "../../../cache"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { isAbandoned } from "../../../github/util"
+import { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const e = encodeURIComponent
 
@@ -34,7 +34,7 @@ const listWebhooks = async (
   )
 
   for (const repo of repos) {
-    reporter.log('')
+    reporter.log("")
     reporter.log(
       `${repo.name}: https://github.com/capralifecycle/${e(
         repo.name,
@@ -51,40 +51,40 @@ const listWebhooks = async (
     for (const hook of hooks) {
       if (
         hook.config.url === undefined ||
-        !hook.config.url.includes('jenkins')
+        !hook.config.url.includes("jenkins")
       ) {
         continue
       }
 
       switch (hook.name) {
-        case 'web':
+        case "web":
           reporter.log(
             sprintf(
-              '    web: %s (%s) (%s)',
+              "    web: %s (%s) (%s)",
               hook.config.url,
               hook.last_response.code,
-              hook.events.join(', '),
+              hook.events.join(", "),
             ),
           )
           break
 
-        case 'jenkinsgit':
+        case "jenkinsgit":
           reporter.log(
             sprintf(
-              '    jenkinsgit: %s (%s) (%s)',
+              "    jenkinsgit: %s (%s) (%s)",
               hook.config.jenkins_url,
               hook.last_response.code,
-              hook.events.join(', '),
+              hook.events.join(", "),
             ),
           )
           break
 
-        case 'docker':
+        case "docker":
           reporter.log(
             sprintf(
-              '    docker (%s) (%s)',
+              "    docker (%s) (%s)",
               hook.last_response.code,
-              hook.events.join(', '),
+              hook.events.join(", "),
             ),
           )
           break
@@ -98,8 +98,8 @@ const listWebhooks = async (
 }
 
 const command: CommandModule = {
-  command: 'list-webhooks',
-  describe: 'List CALS Git repos web hooks',
+  command: "list-webhooks",
+  describe: "List CALS Git repos web hooks",
   handler: async argv => {
     const config = createConfig()
     const cacheProvider = createCacheProvider(config, argv)
@@ -107,7 +107,7 @@ const command: CommandModule = {
       createReporter(argv),
       cacheProvider,
       await createGitHubService(config, cacheProvider),
-      argv['org'] as string,
+      argv["org"] as string,
     )
   },
 }

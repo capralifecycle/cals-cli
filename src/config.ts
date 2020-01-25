@@ -1,18 +1,18 @@
-import cachedir from 'cachedir'
-import fs from 'fs'
-import https from 'https'
-import os from 'os'
-import path from 'path'
+import cachedir from "cachedir"
+import fs from "fs"
+import https from "https"
+import os from "os"
+import path from "path"
 
 export class Config {
   public cwd = path.resolve(process.cwd())
-  public configFile = path.join(os.homedir(), '.cals-config.json')
-  public cacheDir = cachedir('cals-cli')
+  public configFile = path.join(os.homedir(), ".cals-config.json")
+  public cacheDir = cachedir("cals-cli")
   public agent = new https.Agent({
     keepAlive: true,
   })
 
-  public snykAccount = '098205a8-b4f5-45f7-bd3b-16249d6c5942'
+  public snykAccount = "098205a8-b4f5-45f7-bd3b-16249d6c5942"
 
   private configCached?: Record<string, string> = undefined
   private get config() {
@@ -31,10 +31,10 @@ export class Config {
     }
 
     try {
-      return JSON.parse(fs.readFileSync(this.configFile, 'utf-8'))
+      return JSON.parse(fs.readFileSync(this.configFile, "utf-8"))
     } catch (e) {
-      console.error('Failed', e)
-      throw new Error('Failed to read config')
+      console.error("Failed", e)
+      throw new Error("Failed to read config")
     }
   }
 
@@ -58,7 +58,7 @@ export class Config {
       [key]: value, // undefined will remove
     }
 
-    fs.writeFileSync(this.configFile, JSON.stringify(updatedConfig, null, '  '))
+    fs.writeFileSync(this.configFile, JSON.stringify(updatedConfig, null, "  "))
     this.configCached = updatedConfig as Record<string, string>
   }
 }

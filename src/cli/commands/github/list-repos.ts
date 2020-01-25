@@ -1,14 +1,14 @@
-import { CommandModule } from 'yargs'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Repo } from '../../../github/types'
+import { CommandModule } from "yargs"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { Repo } from "../../../github/types"
 import {
   getGroup,
   getGroupedRepos,
   includesTopic,
   isAbandoned,
-} from '../../../github/util'
-import { Reporter } from '../../reporter'
-import { createCacheProvider, createConfig, createReporter } from '../../util'
+} from "../../../github/util"
+import { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const getReposMissingGroup = (repos: Repo[]) =>
   repos.filter(it => getGroup(it) === null)
@@ -55,14 +55,14 @@ const listRepos = async ({
   // All CSV output is done using direct stdout to avoid extra chars.
 
   if (csv) {
-    process.stdout.write('reponame,group\n')
+    process.stdout.write("reponame,group\n")
   }
 
   getGroupedRepos(repos).forEach(group => {
     if (!csv && compact) {
       reporter.log(`${group.name}`)
     } else if (!csv) {
-      reporter.log('')
+      reporter.log("")
       reporter.log(`======== ${group.name} ========`)
     }
 
@@ -83,9 +83,9 @@ const listRepos = async ({
       reporter.log(`- Updated: ${repo.updatedAt}`)
 
       if (repo.repositoryTopics.edges.length === 0) {
-        reporter.log('- Topics: (none)')
+        reporter.log("- Topics: (none)")
       } else {
-        reporter.log('- Topics:')
+        reporter.log("- Topics:")
         repo.repositoryTopics.edges.forEach(edge => {
           reporter.log(`  - ${edge.node.topic.name}`)
         })
@@ -97,20 +97,20 @@ const listRepos = async ({
     return
   }
 
-  reporter.log('')
+  reporter.log("")
   reporter.log(`Total number of repos: ${repos.length}`)
 
   const missingGroup = getReposMissingGroup(repos)
   if (missingGroup.length > 0) {
-    reporter.log('')
-    reporter.log('Repos missing group/customer topic:')
+    reporter.log("")
+    reporter.log("Repos missing group/customer topic:")
 
     missingGroup.forEach(repo => {
       reporter.log(`- ${repo.name}`)
     })
 
     reporter.log(
-      'Useful search query: https://github.com/capralifecycle?q=topics%3A0',
+      "Useful search query: https://github.com/capralifecycle?q=topics%3A0",
     )
   }
 
@@ -118,7 +118,7 @@ const listRepos = async ({
   const oldRepos = getOldRepos(repos, days)
 
   if (oldRepos.length > 0) {
-    reporter.log('')
+    reporter.log("")
     reporter.log(`Repositories not updated for ${days} days:`)
 
     oldRepos.forEach(repo => {
@@ -128,28 +128,28 @@ const listRepos = async ({
 }
 
 const command: CommandModule = {
-  command: 'list-repos',
-  describe: 'List CALS Git repos',
+  command: "list-repos",
+  describe: "List CALS Git repos",
   builder: yargs =>
     yargs
-      .option('include-abandoned', {
-        alias: 'a',
-        describe: 'Include repos with abandoned topic',
-        type: 'boolean',
+      .option("include-abandoned", {
+        alias: "a",
+        describe: "Include repos with abandoned topic",
+        type: "boolean",
       })
-      .options('compact', {
-        alias: 'c',
-        describe: 'Compact output list',
-        type: 'boolean',
+      .options("compact", {
+        alias: "c",
+        describe: "Compact output list",
+        type: "boolean",
       })
-      .options('csv', {
-        describe: 'Output as a CSV list that can be used for automation',
-        type: 'boolean',
+      .options("csv", {
+        describe: "Output as a CSV list that can be used for automation",
+        type: "boolean",
       })
-      .option('topic', {
-        alias: 't',
-        describe: 'Filter by specific topic',
-        type: 'string',
+      .option("topic", {
+        alias: "t",
+        describe: "Filter by specific topic",
+        type: "string",
       }),
   handler: async argv => {
     const config = createConfig()
@@ -159,11 +159,11 @@ const command: CommandModule = {
         config,
         createCacheProvider(config, argv),
       ),
-      includeAbandoned: !!argv['include-abandoned'],
+      includeAbandoned: !!argv["include-abandoned"],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,
-      owner: argv['org'] as string,
+      owner: argv["org"] as string,
     })
   },
 }

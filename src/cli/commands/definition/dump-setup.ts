@@ -3,18 +3,18 @@ import {
   ReposGetResponse,
   ReposListTeamsResponseItem,
   TeamsListResponseItem,
-} from '@octokit/rest'
-import fs from 'fs'
-import yaml from 'js-yaml'
-import pMap from 'p-map'
-import { CommandModule } from 'yargs'
-import { Config } from '../../../config'
+} from "@octokit/rest"
+import fs from "fs"
+import yaml from "js-yaml"
+import pMap from "p-map"
+import { CommandModule } from "yargs"
+import { Config } from "../../../config"
 import {
   getDefinition,
   getRawDefinition,
   getRepoId,
   getRepos,
-} from '../../../definition/definition'
+} from "../../../definition/definition"
 import {
   Definition,
   DefinitionRepo,
@@ -22,15 +22,15 @@ import {
   RepoTeam,
   Team,
   User,
-} from '../../../definition/types'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Permission, Repo, TeamMemberOrInvited } from '../../../github/types'
-import { createSnykService, SnykService } from '../../../snyk/service'
-import { SnykGitHubRepo } from '../../../snyk/types'
-import { getGitHubRepo } from '../../../snyk/util'
-import { Reporter } from '../../reporter'
-import { createCacheProvider, createConfig, createReporter } from '../../util'
-import { reportRateLimit } from '../github/util'
+} from "../../../definition/types"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { Permission, Repo, TeamMemberOrInvited } from "../../../github/types"
+import { createSnykService, SnykService } from "../../../snyk/service"
+import { SnykGitHubRepo } from "../../../snyk/types"
+import { getGitHubRepo } from "../../../snyk/util"
+import { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
+import { reportRateLimit } from "../github/util"
 
 interface DetailedProject {
   name: string
@@ -46,7 +46,7 @@ interface DetailedProject {
 async function getReposFromGitHub(
   github: GitHubService,
   orgs: OrgsGetResponse[],
-): Promise<DetailedProject['repos'][0]> {
+): Promise<DetailedProject["repos"][0]> {
   return (
     await pMap(orgs, async org => {
       const repos = await github.getRepoList({ owner: org.login })
@@ -93,7 +93,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
   }, {})
 }
 
-function getCommonTeams(ownerRepos: DetailedProject['repos'][0]) {
+function getCommonTeams(ownerRepos: DetailedProject["repos"][0]) {
   return ownerRepos.length === 0
     ? []
     : ownerRepos[0].teams.filter(team =>
@@ -192,7 +192,7 @@ async function getProjects(
     }>((acc, cur) => {
       const org = cur.repository.owner.login
       const projectName =
-        projectMap[getRepoId(org, cur.repository.name)] || 'Unknown'
+        projectMap[getRepoId(org, cur.repository.name)] || "Unknown"
       const project = acc[projectName] || {
         name: projectName,
         repos: [],
@@ -273,8 +273,8 @@ async function dumpSetup(
   snyk: SnykService,
   outfile: string,
 ) {
-  reporter.info('Fetching data. This might take some time')
-  const orgs = await getOrgs(github, ['capralifecycle', 'capraconsulting'])
+  reporter.info("Fetching data. This might take some time")
+  const orgs = await getOrgs(github, ["capralifecycle", "capraconsulting"])
   const definition = getDefinition(config)
 
   const teams = getTeams(github, orgs)
@@ -290,10 +290,10 @@ async function dumpSetup(
             definition.github.users.find(
               user => user.login === memberLogin,
             ) || {
-              type: 'external',
+              type: "external",
               login: memberLogin,
               // TODO: Fetch name from GitHub?
-              name: '*Unknown*',
+              name: "*Unknown*",
             },
         )
         .sort((a, b) => a.login.localeCompare(b.login)),
@@ -318,15 +318,15 @@ async function dumpSetup(
 }
 
 const command: CommandModule = {
-  command: 'dump-setup',
+  command: "dump-setup",
   describe:
-    'Dump active setup as YAML. Will be formated same as the definition file.',
+    "Dump active setup as YAML. Will be formated same as the definition file.",
   builder: yargs =>
     yargs
-      .positional('outfile', {
-        type: 'string',
+      .positional("outfile", {
+        type: "string",
       })
-      .demandOption('outfile'),
+      .demandOption("outfile"),
   handler: async argv => {
     const reporter = createReporter(argv)
     const config = createConfig()

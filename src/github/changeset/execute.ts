@@ -2,10 +2,10 @@ import {
   OrgsGetResponse,
   ReposUpdateParams,
   TeamsListResponseItem,
-} from '@octokit/rest'
-import { Reporter } from '../../cli/reporter'
-import { GitHubService } from '../service'
-import { ChangeSetItem } from './types'
+} from "@octokit/rest"
+import { Reporter } from "../../cli/reporter"
+import { GitHubService } from "../service"
+import { ChangeSetItem } from "./types"
 
 function buildLookup(github: GitHubService) {
   // We operate using the Octokit SDK, so cache the objects to avoid
@@ -58,27 +58,27 @@ async function executeChangeSetItem(
   // If a change item type is missing we will get a compile error.
 
   switch (changeItem.type) {
-    case 'repo-create':
-    case 'repo-delete':
-      reporter.warn('Not currently implemented - do it manually')
+    case "repo-create":
+    case "repo-delete":
+      reporter.warn("Not currently implemented - do it manually")
       return true
 
-    case 'member-remove':
+    case "member-remove":
       await github.octokit.orgs.removeMembership({
         org: changeItem.org,
         username: changeItem.user,
       })
       return true
 
-    case 'member-add':
+    case "member-add":
       await github.octokit.orgs.addOrUpdateMembership({
         org: changeItem.org,
         username: changeItem.user,
-        role: 'member',
+        role: "member",
       })
       return true
 
-    case 'team-remove':
+    case "team-remove":
       await github.octokit.teams.deleteInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
@@ -86,15 +86,15 @@ async function executeChangeSetItem(
       })
       return true
 
-    case 'team-add':
+    case "team-add":
       await github.octokit.teams.create({
         org: changeItem.org,
         name: changeItem.team,
-        privacy: 'closed',
+        privacy: "closed",
       })
       return true
 
-    case 'team-member-permission':
+    case "team-member-permission":
       await github.octokit.teams.addOrUpdateMembershipInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
@@ -104,7 +104,7 @@ async function executeChangeSetItem(
       })
       return true
 
-    case 'team-member-remove':
+    case "team-member-remove":
       await github.octokit.teams.removeMembershipInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
@@ -113,7 +113,7 @@ async function executeChangeSetItem(
       })
       return true
 
-    case 'team-member-add':
+    case "team-member-add":
       await github.octokit.teams.addOrUpdateMembershipInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
@@ -122,28 +122,28 @@ async function executeChangeSetItem(
       })
       return true
 
-    case 'repo-update':
+    case "repo-update":
       const upd: ReposUpdateParams = {
         owner: changeItem.org,
         repo: changeItem.repo,
       }
 
       for (const attrib of changeItem.attribs) {
-        if ('archived' in attrib) {
-          upd.archived = attrib['archived']
-        } else if ('issues' in attrib) {
-          upd.has_issues = attrib['issues']
-        } else if ('wiki' in attrib) {
-          upd.has_wiki = attrib['wiki']
-        } else if ('private' in attrib) {
-          upd.private = attrib['private']
+        if ("archived" in attrib) {
+          upd.archived = attrib["archived"]
+        } else if ("issues" in attrib) {
+          upd.has_issues = attrib["issues"]
+        } else if ("wiki" in attrib) {
+          upd.has_wiki = attrib["wiki"]
+        } else if ("private" in attrib) {
+          upd.private = attrib["private"]
         }
       }
 
       await github.octokit.repos.update(upd)
       return true
 
-    case 'repo-team-remove':
+    case "repo-team-remove":
       await github.octokit.teams.removeRepoInOrg({
         org: changeItem.org,
         owner: changeItem.org,
@@ -153,8 +153,8 @@ async function executeChangeSetItem(
       })
       return true
 
-    case 'repo-team-add':
-    case 'repo-team-permission':
+    case "repo-team-add":
+    case "repo-team-permission":
       await github.octokit.teams.addOrUpdateRepoInOrg({
         org: changeItem.org,
         owner: changeItem.org,

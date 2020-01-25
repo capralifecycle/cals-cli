@@ -1,10 +1,10 @@
-import yargs, { CommandModule } from 'yargs'
-import report from './detectify/report'
-import setToken from './detectify/set-token'
+import yargs, { CommandModule } from "yargs"
+import report from "./detectify/report"
+import setToken from "./detectify/set-token"
 
 const command: CommandModule = {
-  command: 'detectify',
-  describe: 'Integration with Detectify',
+  command: "detectify",
+  describe: "Integration with Detectify",
   builder: yargs =>
     yargs
       .command(setToken)

@@ -1,8 +1,8 @@
-import { sprintf } from 'sprintf-js'
-import { CommandModule } from 'yargs'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { Reporter } from '../../reporter'
-import { createCacheProvider, createConfig, createReporter } from '../../util'
+import { sprintf } from "sprintf-js"
+import { CommandModule } from "yargs"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const listPullRequestsStats = async ({
   reporter,
@@ -29,7 +29,7 @@ const listPullRequestsStats = async ({
     .reduce<Category[]>((acc, cur) => {
       const key = `${cur.baseRepository.owner.login}/${cur.baseRepository.name}`
       const old = new Date(cur.createdAt) < cutoffOld
-      const snyk = cur.title.includes('[Snyk]')
+      const snyk = cur.title.includes("[Snyk]")
 
       // Cheat by mutating.
       let t = acc.find(it => it.key === key)
@@ -44,7 +44,7 @@ const listPullRequestsStats = async ({
         acc.push(t)
       }
 
-      t[snyk ? (old ? 'oldSnyk' : 'recentSnyk') : old ? 'old' : 'recent'].push(
+      t[snyk ? (old ? "oldSnyk" : "recentSnyk") : old ? "old" : "recent"].push(
         cur,
       )
       return acc
@@ -52,34 +52,34 @@ const listPullRequestsStats = async ({
     .sort((a, b) => a.key.localeCompare(b.key))
 
   if (categories.length === 0) {
-    reporter.log('No pull requests found')
+    reporter.log("No pull requests found")
   } else {
-    reporter.log('Pull requests stats:')
-    reporter.log('A pull request is considered old after 60 days')
-    reporter.log('')
+    reporter.log("Pull requests stats:")
+    reporter.log("A pull request is considered old after 60 days")
+    reporter.log("")
     reporter.log(
-      sprintf('%-40s %12s %2s %12s %2s', '', 'normal', '', 'snyk', ''),
+      sprintf("%-40s %12s %2s %12s %2s", "", "normal", "", "snyk", ""),
     )
     reporter.log(
       sprintf(
-        '%-40s %7s %7s %7s %7s',
-        'Repo',
-        'old',
-        'recent',
-        'old',
-        'recent',
+        "%-40s %7s %7s %7s %7s",
+        "Repo",
+        "old",
+        "recent",
+        "old",
+        "recent",
       ),
     )
 
     categories.forEach(cat => {
       reporter.log(
         sprintf(
-          '%-40s %7s %7s %7s %7s',
+          "%-40s %7s %7s %7s %7s",
           cat.key,
-          cat.old.length === 0 ? '' : cat.old.length,
-          cat.recent.length === 0 ? '' : cat.recent.length,
-          cat.oldSnyk.length === 0 ? '' : cat.oldSnyk.length,
-          cat.recentSnyk.length === 0 ? '' : cat.recentSnyk.length,
+          cat.old.length === 0 ? "" : cat.old.length,
+          cat.recent.length === 0 ? "" : cat.recent.length,
+          cat.oldSnyk.length === 0 ? "" : cat.oldSnyk.length,
+          cat.recentSnyk.length === 0 ? "" : cat.recentSnyk.length,
         ),
       )
     })
@@ -87,8 +87,8 @@ const listPullRequestsStats = async ({
 }
 
 const command: CommandModule = {
-  command: 'list-pull-requests-stats',
-  describe: 'List stats for pull requests with special filter',
+  command: "list-pull-requests-stats",
+  describe: "List stats for pull requests with special filter",
   handler: async argv => {
     const config = createConfig()
     await listPullRequestsStats({

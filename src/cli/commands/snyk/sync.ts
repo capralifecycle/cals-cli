@@ -1,15 +1,15 @@
-import { CommandModule } from 'yargs'
-import { Config } from '../../../config'
+import { CommandModule } from "yargs"
+import { Config } from "../../../config"
 import {
   getDefinition,
   getRepoId,
   getRepos,
-} from '../../../definition/definition'
-import { createSnykService, SnykService } from '../../../snyk/service'
-import { SnykGitHubRepo } from '../../../snyk/types'
-import { getGitHubRepo } from '../../../snyk/util'
-import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+} from "../../../definition/definition"
+import { createSnykService, SnykService } from "../../../snyk/service"
+import { SnykGitHubRepo } from "../../../snyk/types"
+import { getGitHubRepo } from "../../../snyk/util"
+import { Reporter } from "../../reporter"
+import { createConfig, createReporter } from "../../util"
 
 const sync = async ({
   reporter,
@@ -42,7 +42,7 @@ const sync = async ({
   )
 
   if (missingInSnyk.length === 0) {
-    reporter.info('All seems fine')
+    reporter.info("All seems fine")
   } else {
     missingInSnyk.forEach(it => {
       reporter.info(`Not in Snyk: ${it.project.name} / ${it.repo.name}`)
@@ -54,8 +54,8 @@ const sync = async ({
 }
 
 const command: CommandModule = {
-  command: 'sync',
-  describe: 'Sync Snyk projects (currently only reports, no automation)',
+  command: "sync",
+  describe: "Sync Snyk projects (currently only reports, no automation)",
   handler: async argv =>
     sync({
       reporter: createReporter(argv),

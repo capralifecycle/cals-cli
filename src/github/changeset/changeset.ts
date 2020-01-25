@@ -2,19 +2,19 @@ import {
   OrgsGetResponse,
   ReposGetResponse,
   TeamsListResponseItem,
-} from '@octokit/rest'
-import { sortBy } from 'lodash'
-import pMap from 'p-map'
-import { getGitHubOrgs, getRepos } from '../../definition/definition'
+} from "@octokit/rest"
+import { sortBy } from "lodash"
+import pMap from "p-map"
+import { getGitHubOrgs, getRepos } from "../../definition/definition"
 import {
   Definition,
   DefinitionRepo,
   Project,
   Team,
-} from '../../definition/types'
-import { GitHubService } from '../service'
-import { Permission } from '../types'
-import { ChangeSetItem, RepoAttribUpdateItem } from './types'
+} from "../../definition/types"
+import { GitHubService } from "../service"
+import { Permission } from "../types"
+import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
 
 type GetOrg = (
   orgName: string,
@@ -27,7 +27,7 @@ function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
   actualRepo: ReposGetResponse,
 ) {
-  const attribs: RepoAttribUpdateItem['attribs'] = []
+  const attribs: RepoAttribUpdateItem["attribs"] = []
 
   if (
     definitionRepo.archived !== undefined &&
@@ -93,7 +93,7 @@ async function getRepoTeamChanges({
   repo,
 }: {
   github: GitHubService
-  org: Project['github'][0]
+  org: Project["github"][0]
   projectRepo: DefinitionRepo
   repo: ReposGetResponse
 }) {
@@ -107,7 +107,7 @@ async function getRepoTeamChanges({
     if (found !== undefined) {
       if (found.permission !== repoteam.permission) {
         changes.push({
-          type: 'repo-team-permission',
+          type: "repo-team-permission",
           org: org.organization,
           repo: repo.name,
           team: found.name,
@@ -119,7 +119,7 @@ async function getRepoTeamChanges({
       }
     } else {
       changes.push({
-        type: 'repo-team-add',
+        type: "repo-team-add",
         org: org.organization,
         repo: repo.name,
         team: repoteam.name,
@@ -132,7 +132,7 @@ async function getRepoTeamChanges({
   for (const team of existingTeams) {
     if (!expectedTeams.some(it => team.name === it.name)) {
       changes.push({
-        type: 'repo-team-remove',
+        type: "repo-team-remove",
         org: org.organization,
         repo: repo.name,
         team: team.name,
@@ -149,7 +149,7 @@ async function getProjectRepoChanges({
   projectRepo,
 }: {
   github: GitHubService
-  org: Project['github'][0]
+  org: Project["github"][0]
   projectRepo: DefinitionRepo
 }) {
   const changes: ChangeSetItem[] = []
@@ -157,7 +157,7 @@ async function getProjectRepoChanges({
   const repo = await github.getRepository(org.organization, projectRepo.name)
   if (repo === undefined) {
     changes.push({
-      type: 'repo-create',
+      type: "repo-create",
       org: org.organization,
       repo: projectRepo.name,
     })
@@ -167,7 +167,7 @@ async function getProjectRepoChanges({
   const attribs = getChangedRepoAttribs(projectRepo, repo)
   if (attribs.length > 0) {
     changes.push({
-      type: 'repo-update',
+      type: "repo-update",
       org: org.organization,
       repo: repo.name,
       attribs,
@@ -219,7 +219,7 @@ export async function createChangeSetItemsForProjects(
   const unknownRepos = await getUnknownRepos(github, definition, limitToOrg)
   for (const it of unknownRepos) {
     changes.push({
-      type: 'repo-delete',
+      type: "repo-delete",
       org: it.owner.login,
       repo: it.name,
     })
@@ -259,7 +259,7 @@ export async function createChangeSetItemsForMembers(
       foundLogins.push(user.login)
     } else {
       changes.push({
-        type: 'member-remove',
+        type: "member-remove",
         org: org.login,
         user: user.login,
       })
@@ -268,7 +268,7 @@ export async function createChangeSetItemsForMembers(
 
   for (const user of users.filter(it => !foundLogins.includes(it.login))) {
     changes.push({
-      type: 'member-add',
+      type: "member-add",
       org: org.login,
       user: user.login,
     })
@@ -301,7 +301,7 @@ export async function createChangeSetItemsForTeams(
     .filter(it => !wantedTeamNames.includes(it.name))
     .forEach(it => {
       changes.push({
-        type: 'team-remove',
+        type: "team-remove",
         org: org.login,
         team: it.name,
       })
@@ -311,7 +311,7 @@ export async function createChangeSetItemsForTeams(
     .filter(it => !actualTeamNames.includes(it.name))
     .forEach(team => {
       changes.push({
-        type: 'team-add',
+        type: "team-add",
         org: org.login,
         team: team.name,
       })
@@ -319,12 +319,12 @@ export async function createChangeSetItemsForTeams(
       // Must add all members when creating new team.
       for (const member of team.members) {
         changes.push({
-          type: 'team-member-add',
+          type: "team-member-add",
           org: org.login,
           team: team.name,
           user: member,
           // TODO: Allow to specify maintainers?
-          role: 'member',
+          role: "member",
         })
       }
     })
@@ -344,7 +344,7 @@ export async function createChangeSetItemsForTeams(
       .filter(it => !wantedTeam.members.includes(it.login))
       .forEach(it => {
         changes.push({
-          type: 'team-member-remove',
+          type: "team-member-remove",
           org: org.login,
           team: actualTeam.name,
           user: it.login,
@@ -357,12 +357,12 @@ export async function createChangeSetItemsForTeams(
       .filter(it => !actualMembersNames.includes(it))
       .forEach(it => {
         changes.push({
-          type: 'team-member-add',
+          type: "team-member-add",
           org: org.login,
           team: actualTeam.name,
           user: it,
           // TODO: Allow to specify maintainers?
-          role: 'member',
+          role: "member",
         })
       })
 
@@ -379,18 +379,18 @@ export async function createChangeSetItemsForTeams(
 export function cleanupChangeSetItems(items: ChangeSetItem[]) {
   const hasTeamRemove = ({ org, team }: { org: string; team: string }) =>
     items.some(
-      it => it.type === 'team-remove' && it.org === org && it.team === team,
+      it => it.type === "team-remove" && it.org === org && it.team === team,
     )
 
   const hasMemberRemove = ({ org }: { org: string }) =>
-    items.some(it => it.type === 'member-remove' && it.org === org)
+    items.some(it => it.type === "member-remove" && it.org === org)
 
   return items.filter(
     item =>
       !(
-        (item.type === 'team-member-remove' && hasTeamRemove(item)) ||
-        (item.type === 'repo-team-remove' && hasTeamRemove(item)) ||
-        (item.type === 'team-member-remove' && hasMemberRemove(item))
+        (item.type === "team-member-remove" && hasTeamRemove(item)) ||
+        (item.type === "repo-team-remove" && hasTeamRemove(item)) ||
+        (item.type === "team-member-remove" && hasMemberRemove(item))
       ),
   )
 }

@@ -1,4 +1,4 @@
-import { Permission } from '../github/types'
+import { Permission } from "../github/types"
 
 export interface Definition {
   snyk: {
@@ -26,20 +26,20 @@ export interface Project {
 export type User = UserBot | UserEmployee | UserExternal
 
 export interface UserBot {
-  type: 'bot'
+  type: "bot"
   login: string
   name: string
 }
 
 export interface UserEmployee {
-  type: 'employee'
+  type: "employee"
   login: string
   capraUsername: string
   name: string
 }
 
 export interface UserExternal {
-  type: 'external'
+  type: "external"
   login: string
   name: string
 }

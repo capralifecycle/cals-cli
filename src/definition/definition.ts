@@ -1,12 +1,12 @@
-import fs from 'fs'
-import yaml from 'js-yaml'
-import { uniq } from 'lodash'
-import { Config } from '../config'
-import { Definition } from './types'
-import { getDefinitionFile } from './util'
+import fs from "fs"
+import yaml from "js-yaml"
+import { uniq } from "lodash"
+import { Config } from "../config"
+import { Definition } from "./types"
+import { getDefinitionFile } from "./util"
 
 export function getRawDefinition(config: Config) {
-  return fs.readFileSync(getDefinitionFile(config), 'utf-8')
+  return fs.readFileSync(getDefinitionFile(config), "utf-8")
 }
 
 function getTeamId(org: string, teamName: string) {

@@ -1,15 +1,15 @@
-import keytar from 'keytar'
-import fetch from 'node-fetch'
-import { Config } from '../config'
-import { DetectifyScanProfile, DetectifyScanReport } from './types'
+import keytar from "keytar"
+import fetch from "node-fetch"
+import { Config } from "../config"
+import { DetectifyScanProfile, DetectifyScanReport } from "./types"
 
-const keyringService = 'cals'
-const keyringAccount = 'detectify-token'
+const keyringService = "cals"
+const keyringAccount = "detectify-token"
 
-type ApiResponse<T> = { ok: T } | { error: 'not-found' }
+type ApiResponse<T> = { ok: T } | { error: "not-found" }
 
 function requireOk<T>(response: ApiResponse<T>) {
-  if (!('ok' in response)) {
+  if (!("ok" in response)) {
     throw new Error(`Response: ${response.error}`)
   }
   return response.ok
@@ -38,7 +38,7 @@ export class DetectifyService {
     const result = await keytar.getPassword(keyringService, keyringAccount)
     if (result == null) {
       process.stderr.write(
-        'No token found. Register using `cals detectify set-token`\n',
+        "No token found. Register using `cals detectify set-token`\n",
       )
       return undefined
     }
@@ -48,22 +48,22 @@ export class DetectifyService {
 
   private async getRequest<T>(url: string): Promise<ApiResponse<T>> {
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        Accept: 'application/json',
-        'X-Detectify-Key': `${await DetectifyService.getToken()}`,
+        Accept: "application/json",
+        "X-Detectify-Key": `${await DetectifyService.getToken()}`,
       },
       agent: this.config.agent,
     })
 
     if (response.status === 401) {
-      process.stderr.write('Unauthorized - removing token\n')
+      process.stderr.write("Unauthorized - removing token\n")
       await this.removeToken()
     }
 
     if (response.status === 404) {
       return {
-        error: 'not-found',
+        error: "not-found",
       }
     }
 
@@ -83,7 +83,7 @@ export class DetectifyService {
   public async getScanProfiles(): Promise<DetectifyScanProfile[]> {
     return requireOk(
       await this.getRequest<DetectifyScanProfile[]>(
-        'https://api.detectify.com/rest/v2/profiles/',
+        "https://api.detectify.com/rest/v2/profiles/",
       ),
     )
   }
@@ -97,9 +97,9 @@ export class DetectifyService {
       )}/latest/`,
     )
 
-    if ('ok' in response) {
+    if ("ok" in response) {
       return response.ok
-    } else if (response.error === 'not-found') {
+    } else if (response.error === "not-found") {
       return null
     } else {
       throw new Error(`Unknown response: ${response}`)

@@ -1,7 +1,7 @@
-import { Arguments } from 'yargs'
-import { CacheProvider } from '../cache'
-import { Config } from '../config'
-import { Reporter } from './reporter'
+import { Arguments } from "yargs"
+import { CacheProvider } from "../cache"
+import { Config } from "../config"
+import { Reporter } from "./reporter"
 
 export function createReporter(argv: Arguments) {
   return new Reporter({

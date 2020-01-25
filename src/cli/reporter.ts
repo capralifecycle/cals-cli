@@ -1,5 +1,5 @@
-import readline from 'readline'
-import chalk from 'chalk'
+import readline from "readline"
+import chalk from "chalk"
 
 const CLEAR_WHOLE_LINE = 0
 
@@ -30,7 +30,7 @@ export class Reporter {
 
   public error(msg: string) {
     clearLine(this.stderr)
-    this.stderr.write(`${this.format.red('error')} ${msg}\n`)
+    this.stderr.write(`${this.format.red("error")} ${msg}\n`)
   }
 
   public log(msg: string) {
@@ -40,16 +40,16 @@ export class Reporter {
 
   public warn(msg: string) {
     clearLine(this.stderr)
-    this.stderr.write(`${this.format.yellow('warning')} ${msg}\n`)
+    this.stderr.write(`${this.format.yellow("warning")} ${msg}\n`)
   }
 
   public success(msg: string) {
     clearLine(this.stdout)
-    this.stdout.write(`${this.format.green('success')} ${msg}\n`)
+    this.stdout.write(`${this.format.green("success")} ${msg}\n`)
   }
 
   public info(msg: string) {
     clearLine(this.stdout)
-    this.stdout.write(`${this.format.blue('info')} ${msg}\n`)
+    this.stdout.write(`${this.format.blue("info")} ${msg}\n`)
   }
 }

@@ -1,21 +1,21 @@
-import { OrgsGetResponse, TeamsListResponseItem } from '@octokit/rest'
-import pLimit, { Limit } from 'p-limit'
-import read from 'read'
-import { CommandModule } from 'yargs'
-import { Reporter } from '../../../cli/reporter'
-import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
-import { Definition } from '../../../definition/types'
+import { OrgsGetResponse, TeamsListResponseItem } from "@octokit/rest"
+import pLimit, { Limit } from "p-limit"
+import read from "read"
+import { CommandModule } from "yargs"
+import { Reporter } from "../../../cli/reporter"
+import { getDefinition, getGitHubOrgs } from "../../../definition/definition"
+import { Definition } from "../../../definition/types"
 import {
   cleanupChangeSetItems,
   createChangeSetItemsForMembers,
   createChangeSetItemsForProjects,
   createChangeSetItemsForTeams,
-} from '../../../github/changeset/changeset'
-import { executeChangeSet } from '../../../github/changeset/execute'
-import { ChangeSetItem } from '../../../github/changeset/types'
-import { createGitHubService, GitHubService } from '../../../github/service'
-import { createCacheProvider, createConfig, createReporter } from '../../util'
-import { reportRateLimit } from './util'
+} from "../../../github/changeset/changeset"
+import { executeChangeSet } from "../../../github/changeset/execute"
+import { ChangeSetItem } from "../../../github/changeset/types"
+import { createGitHubService, GitHubService } from "../../../github/service"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
+import { reportRateLimit } from "./util"
 
 function createOrgGetter(github: GitHubService) {
   const orgs: {
@@ -89,7 +89,7 @@ async function process(
   } else {
     reporter.info(`To be performed:`)
     for (const change of changes) {
-      reporter.info('  - ' + JSON.stringify(change))
+      reporter.info("  - " + JSON.stringify(change))
     }
   }
 
@@ -97,7 +97,7 @@ async function process(
     const cont = await new Promise<string>((resolve, reject) => {
       read(
         {
-          prompt: 'Confirm you want to execute the changes [y/N]: ',
+          prompt: "Confirm you want to execute the changes [y/N]: ",
           timeout: 60000,
         },
         (err, answer) => {
@@ -109,11 +109,11 @@ async function process(
       )
     })
 
-    if (cont === 'y' || cont === 'Y') {
-      reporter.info('Executing changes')
+    if (cont === "y" || cont === "Y") {
+      reporter.info("Executing changes")
       await executeChangeSet(github, changes, reporter)
     } else {
-      reporter.info('Skipping')
+      reporter.info("Skipping")
     }
   }
 
@@ -121,20 +121,20 @@ async function process(
 }
 
 const command: CommandModule = {
-  command: 'configure',
-  describe: 'Configure CALS GitHub resources',
+  command: "configure",
+  describe: "Configure CALS GitHub resources",
   builder: yargs =>
     yargs
-      .options('execute', {
-        describe: 'Execute the detected changes',
-        type: 'boolean',
+      .options("execute", {
+        describe: "Execute the detected changes",
+        type: "boolean",
       })
-      .options('all-orgs', {
-        describe: 'Ignore organization filter',
-        type: 'boolean',
+      .options("all-orgs", {
+        describe: "Ignore organization filter",
+        type: "boolean",
       }),
   handler: async argv => {
-    const org = !!argv['all-orgs'] ? null : (argv['org'] as string)
+    const org = !!argv["all-orgs"] ? null : (argv["org"] as string)
 
     const reporter = createReporter(argv)
     const config = createConfig()
@@ -152,7 +152,7 @@ const command: CommandModule = {
         github,
         definition,
         orgGetter,
-        !!argv['execute'],
+        !!argv["execute"],
         org,
       )
     })

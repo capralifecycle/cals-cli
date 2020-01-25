@@ -2,7 +2,7 @@
 export interface DetectifyScanProfile {
   name: string
   endpoint: string
-  status: 'verified' | 'unverified' | 'unable_to_resolve' | 'unable_to_complete'
+  status: "verified" | "unverified" | "unable_to_resolve" | "unable_to_complete"
   created: string
   token: string
 }

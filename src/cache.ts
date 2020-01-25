@@ -1,6 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import { Config } from './config'
+import fs from "fs"
+import path from "path"
+import { Config } from "./config"
 
 interface CacheItem<T> {
   cacheTime: number // getTime()
@@ -28,7 +28,7 @@ export class CacheProvider {
 
     return {
       cacheTime: fs.statSync(cachefile).mtime.getTime(),
-      data: JSON.parse(fs.readFileSync(cachefile, 'utf-8')) as T,
+      data: JSON.parse(fs.readFileSync(cachefile, "utf-8")) as T,
     }
   }
 

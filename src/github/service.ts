@@ -8,17 +8,17 @@ import Octokit, {
   TeamsListMembersResponseItem,
   TeamsListPendingInvitationsResponseItem,
   TeamsListResponseItem,
-} from '@octokit/rest'
-import keytar from 'keytar'
-import fetch from 'node-fetch'
-import pLimit, { Limit } from 'p-limit'
-import { CacheProvider } from '../cache'
-import { Config } from '../config'
-import { OrgMemberOrInvited, Repo, TeamMemberOrInvited } from './types'
-import { undefinedForNotFound } from './util'
+} from "@octokit/rest"
+import keytar from "keytar"
+import fetch from "node-fetch"
+import pLimit, { Limit } from "p-limit"
+import { CacheProvider } from "../cache"
+import { Config } from "../config"
+import { OrgMemberOrInvited, Repo, TeamMemberOrInvited } from "./types"
+import { undefinedForNotFound } from "./util"
 
-const keyringService = 'cals'
-const keyringAccount = 'github-token'
+const keyringService = "cals"
+const keyringAccount = "github-token"
 
 interface EtagCacheItem<T> {
   etag: string
@@ -35,10 +35,10 @@ export class GitHubService {
     // can maximize concurrency all other places.
     this.semaphore = pLimit(6)
 
-    this.octokit.hook.wrap('request', async (request, options) => {
+    this.octokit.hook.wrap("request", async (request, options) => {
       this._requestCount++
 
-      if (options.method !== 'GET') {
+      if (options.method !== "GET") {
         return this.semaphore(() => request(options))
       }
 
@@ -55,13 +55,13 @@ export class GitHubService {
       delete rest.request
 
       // Build a key that is used to identify this request.
-      const key = Buffer.from(JSON.stringify(rest)).toString('base64')
+      const key = Buffer.from(JSON.stringify(rest)).toString("base64")
 
       const cacheItem = this.cache.retrieveJson<EtagCacheItem<unknown>>(key)
 
       if (cacheItem !== undefined) {
         // Copying doesn't work, seems we need to mutate this.
-        options.headers['If-None-Match'] = cacheItem.data.etag
+        options.headers["If-None-Match"] = cacheItem.data.etag
       }
 
       const getResponse = async (
@@ -132,7 +132,7 @@ export class GitHubService {
     const result = await keytar.getPassword(keyringService, keyringAccount)
     if (result == null) {
       process.stderr.write(
-        'No token found. Register using `cals github set-token`\n',
+        "No token found. Register using `cals github set-token`\n",
       )
       return undefined
     }
@@ -141,14 +141,14 @@ export class GitHubService {
   }
 
   public async runGraphqlQuery<T>(query: string) {
-    const url = 'https://api.github.com/graphql'
+    const url = "https://api.github.com/graphql"
     const headers = {
       Authorization: `Bearer ${await GitHubService.getToken()}`,
     }
 
     const response = await this.semaphore(() =>
       fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers,
         body: JSON.stringify({ query }),
         agent: this.config.agent,
@@ -156,7 +156,7 @@ export class GitHubService {
     )
 
     if (response.status === 401) {
-      process.stderr.write('Unauthorized - removing token\n')
+      process.stderr.write("Unauthorized - removing token\n")
       await this.removeToken()
     }
 
@@ -192,9 +192,9 @@ export class GitHubService {
   public async runRestGet<T>(subpath: string) {
     const response = await this.semaphore(async () =>
       fetch(`https://api.github.com${subpath}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          Accept: 'application/vnd.github.v3+json',
+          Accept: "application/vnd.github.v3+json",
           Authorization: `Bearer ${await GitHubService.getToken()}`,
         },
         agent: this.config.agent,
@@ -202,7 +202,7 @@ export class GitHubService {
     )
 
     if (response.status === 401) {
-      process.stderr.write('Unauthorized - removing token\n')
+      process.stderr.write("Unauthorized - removing token\n")
       await this.removeToken()
     }
 
@@ -233,7 +233,7 @@ export class GitHubService {
 
     const getQuery = (after: string | null) => `{
   organization(login: "${owner}") {
-    repositories(first: 100${after === null ? '' : `, after: "${after}"`}) {
+    repositories(first: 100${after === null ? "" : `, after: "${after}"`}) {
       totalCount
       pageInfo {
         hasNextPage
@@ -313,13 +313,13 @@ export class GitHubService {
   ): Promise<OrgMemberOrInvited[]> {
     return [
       ...(await this.getOrgMembersList(org)).map<OrgMemberOrInvited>(it => ({
-        type: 'member',
+        type: "member",
         login: it.login,
         data: it,
       })),
       ...(await this.getOrgMembersInvitedList(org)).map<OrgMemberOrInvited>(
         it => ({
-          type: 'invited',
+          type: "invited",
           login: it.login,
           data: it,
         }),
@@ -409,7 +409,7 @@ export class GitHubService {
     return [
       ...(await this.getTeamMemberList(org, team)).map<TeamMemberOrInvited>(
         it => ({
-          type: 'member',
+          type: "member",
           login: it.login,
           data: it,
         }),
@@ -417,7 +417,7 @@ export class GitHubService {
       ...(await this.getTeamMemberInvitedList(org, team)).map<
         TeamMemberOrInvited
       >(it => ({
-        type: 'invited',
+        type: "invited",
         login: it.login,
         data: it,
       })),
@@ -468,7 +468,7 @@ export class GitHubService {
     type: ISSUE,
     first: 100${
       after === null
-        ? ''
+        ? ""
         : `,
     after: "${after}"`
     }
@@ -510,7 +510,7 @@ export class GitHubService {
   }
 }`
 
-    const pulls: QueryResult['search']['edges'][0]['node'][] = []
+    const pulls: QueryResult["search"]["edges"][0]["node"][] = []
     let after = null
 
     while (true) {

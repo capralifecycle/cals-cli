@@ -1,11 +1,11 @@
-import keytar from 'keytar'
-import fetch from 'node-fetch'
-import { Config } from '../config'
-import { getDefinition } from '../definition/definition'
-import { SnykProject } from './types'
+import keytar from "keytar"
+import fetch from "node-fetch"
+import { Config } from "../config"
+import { getDefinition } from "../definition/definition"
+import { SnykProject } from "./types"
 
-const keyringService = 'cals'
-const keyringAccount = 'snyk-token'
+const keyringService = "cals"
+const keyringAccount = "snyk-token"
 
 export class SnykService {
   public constructor(config: Config) {
@@ -30,7 +30,7 @@ export class SnykService {
     const result = await keytar.getPassword(keyringService, keyringAccount)
     if (result == null) {
       process.stderr.write(
-        'No token found. Register using `cals snyk set-token`\n',
+        "No token found. Register using `cals snyk set-token`\n",
       )
       return undefined
     }
@@ -46,9 +46,9 @@ export class SnykService {
         snykAccountId,
       )}/projects`,
       {
-        method: 'GET',
+        method: "GET",
         headers: {
-          Accept: 'application/json',
+          Accept: "application/json",
           Authorization: `token ${await SnykService.getToken()}`,
         },
         agent: this.config.agent,
@@ -56,7 +56,7 @@ export class SnykService {
     )
 
     if (response.status === 401) {
-      process.stderr.write('Unauthorized - removing token\n')
+      process.stderr.write("Unauthorized - removing token\n")
       await this.removeToken()
     }
 

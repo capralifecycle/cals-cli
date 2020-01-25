@@ -1,21 +1,21 @@
-import { Permission } from '../types'
+import { Permission } from "../types"
 
 // GitHub repos
 
 interface RepoCreateItem {
-  type: 'repo-create'
+  type: "repo-create"
   org: string
   repo: string
 }
 
 interface RepoDeleteItem {
-  type: 'repo-delete'
+  type: "repo-delete"
   org: string
   repo: string
 }
 
 export interface RepoAttribUpdateItem {
-  type: 'repo-update'
+  type: "repo-update"
   org: string
   repo: string
   attribs: (
@@ -27,7 +27,7 @@ export interface RepoAttribUpdateItem {
 }
 
 interface RepoTeamAddItem {
-  type: 'repo-team-add'
+  type: "repo-team-add"
   org: string
   repo: string
   team: string
@@ -35,14 +35,14 @@ interface RepoTeamAddItem {
 }
 
 interface RepoTeamRemoveItem {
-  type: 'repo-team-remove'
+  type: "repo-team-remove"
   org: string
   repo: string
   team: string
 }
 
 interface RepoTeamPermissionItem {
-  type: 'repo-team-permission'
+  type: "repo-team-permission"
   org: string
   repo: string
   team: string
@@ -55,13 +55,13 @@ interface RepoTeamPermissionItem {
 // GitHub members
 
 interface MemberRemoveItem {
-  type: 'member-remove'
+  type: "member-remove"
   org: string
   user: string
 }
 
 interface MemberAddItem {
-  type: 'member-add'
+  type: "member-add"
   org: string
   user: string
 }
@@ -69,38 +69,38 @@ interface MemberAddItem {
 // GitHub teams
 
 interface TeamRemoveItem {
-  type: 'team-remove'
+  type: "team-remove"
   org: string
   team: string
 }
 
 interface TeamAddItem {
-  type: 'team-add'
+  type: "team-add"
   org: string
   team: string
 }
 
 interface TeamMemberRemoveItem {
-  type: 'team-member-remove'
+  type: "team-member-remove"
   org: string
   team: string
   user: string
 }
 
 interface TeamMemberAddItem {
-  type: 'team-member-add'
+  type: "team-member-add"
   org: string
   team: string
   user: string
-  role: 'member' | 'maintainer'
+  role: "member" | "maintainer"
 }
 
 interface TeamMemberPermissionItem {
-  type: 'team-member-permission'
+  type: "team-member-permission"
   org: string
   team: string
   user: string
-  role: 'member' | 'maintainer'
+  role: "member" | "maintainer"
 }
 
 /**

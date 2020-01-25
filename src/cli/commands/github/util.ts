@@ -1,5 +1,5 @@
-import { GitHubService } from '../../../github/service'
-import { Reporter } from '../../reporter'
+import { GitHubService } from "../../../github/service"
+import { Reporter } from "../../reporter"
 
 export async function reportRateLimit(
   reporter: Reporter,

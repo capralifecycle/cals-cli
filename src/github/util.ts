@@ -1,4 +1,4 @@
-import { Repo } from './types'
+import { Repo } from "./types"
 
 export const getGroup = (repo: Repo) => {
   const projectTopics: string[] = []
@@ -6,13 +6,13 @@ export const getGroup = (repo: Repo) => {
 
   repo.repositoryTopics.edges.forEach(edge => {
     const name = edge.node.topic.name
-    if (name.startsWith('customer-')) {
+    if (name.startsWith("customer-")) {
       projectTopics.push(name.substring(9))
     }
-    if (name.startsWith('project-')) {
+    if (name.startsWith("project-")) {
       projectTopics.push(name.substring(8))
     }
-    if (name === 'infrastructure') {
+    if (name === "infrastructure") {
       isInfra = true
     }
   })
@@ -20,7 +20,7 @@ export const getGroup = (repo: Repo) => {
   if (projectTopics.length > 1) {
     console.warn(
       `Repo ${repo.name} has multiple project groups: ${projectTopics.join(
-        ', ',
+        ", ",
       )}. Picking first`,
     )
   }
@@ -30,7 +30,7 @@ export const getGroup = (repo: Repo) => {
   }
 
   if (isInfra) {
-    return 'infrastructure'
+    return "infrastructure"
   }
 
   return null
@@ -46,7 +46,7 @@ export const getGroupedRepos = (repos: Repo[]) =>
         items: Repo[]
       }
     }>((acc, repo) => {
-      const group = ifnull(getGroup(repo), '(unknown)')
+      const group = ifnull(getGroup(repo), "(unknown)")
       const value = acc[group] || { name: group, items: [] }
 
       return {
@@ -63,7 +63,7 @@ export const includesTopic = (repo: Repo, topic: string) =>
   repo.repositoryTopics.edges.some(it => it.node.topic.name === topic)
 
 export const isAbandoned = (repo: Repo) =>
-  includesTopic(repo, 'abandoned') || repo.isArchived
+  includesTopic(repo, "abandoned") || repo.isArchived
 
 export const undefinedForNotFound = async <T>(
   value: Promise<T>,
@@ -71,7 +71,7 @@ export const undefinedForNotFound = async <T>(
   try {
     return await value
   } catch (e) {
-    if (e.name === 'HttpError' && e.status === 404) {
+    if (e.name === "HttpError" && e.status === 404) {
       return undefined
     } else {
       throw e

@@ -1,20 +1,20 @@
-import fs from 'fs'
-import path from 'path'
-import { sprintf } from 'sprintf-js'
-import yargs, { CommandModule } from 'yargs'
+import fs from "fs"
+import path from "path"
+import { sprintf } from "sprintf-js"
+import yargs, { CommandModule } from "yargs"
 import {
   createCacheProvider,
   createConfig,
   createReporter,
-} from '../../../cli/util'
-import { Config } from '../../../config'
-import { createGitHubService, GitHubService } from '../../../github/service'
+} from "../../../cli/util"
+import { Config } from "../../../config"
+import { createGitHubService, GitHubService } from "../../../github/service"
 import {
   getGroupedRepos,
   includesTopic,
   isAbandoned,
-} from '../../../github/util'
-import { Reporter } from '../../reporter'
+} from "../../../github/util"
+import { Reporter } from "../../reporter"
 
 const generateCloneCommands = async ({
   reporter,
@@ -73,36 +73,36 @@ const generateCloneCommands = async ({
 }
 
 const command: CommandModule = {
-  command: 'generate-clone-commands',
-  describe: 'Generate shell commands to clone CALS Git repos',
+  command: "generate-clone-commands",
+  describe: "Generate shell commands to clone CALS Git repos",
   builder: yargs =>
     yargs
-      .positional('group', {
-        describe: 'Group to generate commands for',
+      .positional("group", {
+        describe: "Group to generate commands for",
       })
-      .option('all', {
-        describe: 'Use all groups',
-        type: 'boolean',
+      .option("all", {
+        describe: "Use all groups",
+        type: "boolean",
       })
-      .option('list-groups', {
-        alias: 'l',
-        describe: 'List available groups',
-        type: 'boolean',
+      .option("list-groups", {
+        alias: "l",
+        describe: "List available groups",
+        type: "boolean",
       })
-      .option('include-abandoned', {
-        alias: 'a',
-        describe: 'Include repos with abandoned topic',
-        type: 'boolean',
+      .option("include-abandoned", {
+        alias: "a",
+        describe: "Include repos with abandoned topic",
+        type: "boolean",
       })
-      .option('topic', {
-        alias: 't',
-        describe: 'Filter by specific topic',
-        type: 'string',
+      .option("topic", {
+        alias: "t",
+        describe: "Filter by specific topic",
+        type: "string",
       })
-      .option('exclude-existing', {
-        alias: 'x',
-        describe: 'Exclude if existing in working directory',
-        type: 'boolean',
+      .option("exclude-existing", {
+        alias: "x",
+        describe: "Exclude if existing in working directory",
+        type: "boolean",
       }),
   handler: async argv => {
     const config = createConfig()
@@ -115,12 +115,12 @@ const command: CommandModule = {
         createCacheProvider(config, argv),
       ),
       all: !!argv.all,
-      listGroups: !!argv['list-groups'],
-      includeAbandoned: !!argv['include-abandoned'],
+      listGroups: !!argv["list-groups"],
+      includeAbandoned: !!argv["include-abandoned"],
       topic: argv.topic as string | undefined,
-      excludeExisting: !!argv['exclude-existing'],
+      excludeExisting: !!argv["exclude-existing"],
       group: argv.group as string | undefined,
-      owner: argv['org'] as string,
+      owner: argv["org"] as string,
     })
   },
 }

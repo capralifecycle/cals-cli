@@ -1,14 +1,14 @@
-import { groupBy, repeat, sortBy, sumBy } from 'lodash'
-import { sprintf } from 'sprintf-js'
-import { CommandModule } from 'yargs'
-import { Config } from '../../../config'
-import { getDefinition, getRepos } from '../../../definition/definition'
-import { Project } from '../../../definition/types'
-import { createSnykService, SnykService } from '../../../snyk/service'
-import { SnykProject } from '../../../snyk/types'
-import { getGitHubRepo, getGitHubRepoId } from '../../../snyk/util'
-import { Reporter } from '../../reporter'
-import { createConfig, createReporter } from '../../util'
+import { groupBy, repeat, sortBy, sumBy } from "lodash"
+import { sprintf } from "sprintf-js"
+import { CommandModule } from "yargs"
+import { Config } from "../../../config"
+import { getDefinition, getRepos } from "../../../definition/definition"
+import { Project } from "../../../definition/types"
+import { createSnykService, SnykService } from "../../../snyk/service"
+import { SnykProject } from "../../../snyk/types"
+import { getGitHubRepo, getGitHubRepoId } from "../../../snyk/util"
+import { Reporter } from "../../reporter"
+import { createConfig, createReporter } from "../../util"
 
 function totalSeverityCount(project: SnykProject) {
   return (
@@ -18,16 +18,16 @@ function totalSeverityCount(project: SnykProject) {
   )
 }
 
-function buildStatsLine(stats: SnykProject['issueCountsBySeverity']) {
+function buildStatsLine(stats: SnykProject["issueCountsBySeverity"]) {
   function item(num: number, str: string) {
-    return num === 0 ? repeat(' ', str.length + 4) : sprintf('%3d %s', num, str)
+    return num === 0 ? repeat(" ", str.length + 4) : sprintf("%3d %s", num, str)
   }
 
   return sprintf(
-    '%s  %s  %s',
-    item(stats.high, 'high'),
-    item(stats.medium, 'medium'),
-    item(stats.low, 'low'),
+    "%s  %s  %s",
+    item(stats.high, "high"),
+    item(stats.medium, "medium"),
+    item(stats.low, "low"),
   )
 }
 
@@ -59,23 +59,23 @@ async function report({
   }))
 
   function getProjectName(project: Project | undefined) {
-    return project ? project.name : 'unknown project'
+    return project ? project.name : "unknown project"
   }
 
   const byProjects = sortBy(
     Object.values(
-      groupBy(enhancedRepos, it => (it.project ? it.project.name : 'unknown')),
+      groupBy(enhancedRepos, it => (it.project ? it.project.name : "unknown")),
     ),
     it => getProjectName(it[0].project),
   )
 
   if (byProjects.length === 0) {
-    reporter.info('No issues found')
+    reporter.info("No issues found")
   } else {
     reporter.info(
       sprintf(
-        '%-70s %s',
-        'Total count',
+        "%-70s %s",
+        "Total count",
         buildStatsLine({
           high: sumBy(reposWithIssues, it => it.issueCountsBySeverity.high),
           medium: sumBy(reposWithIssues, it => it.issueCountsBySeverity.medium),
@@ -84,7 +84,7 @@ async function report({
       ),
     )
 
-    reporter.info('Issues by project:')
+    reporter.info("Issues by project:")
     byProjects.forEach(repos => {
       const project = repos[0].project
       const totalCount = {
@@ -93,10 +93,10 @@ async function report({
         low: sumBy(repos, it => it.repo.issueCountsBySeverity.low),
       }
 
-      reporter.info('')
+      reporter.info("")
       reporter.info(
         sprintf(
-          '%-70s %s',
+          "%-70s %s",
           getProjectName(project),
           buildStatsLine(totalCount),
         ),
@@ -105,7 +105,7 @@ async function report({
       for (const { repo } of repos) {
         reporter.info(
           sprintf(
-            '  %-68s %s',
+            "  %-68s %s",
             repo.name,
             buildStatsLine(repo.issueCountsBySeverity),
           ),
@@ -116,8 +116,8 @@ async function report({
 }
 
 const command: CommandModule = {
-  command: 'report',
-  describe: 'Report Snyk projects status',
+  command: "report",
+  describe: "Report Snyk projects status",
   handler: async argv =>
     report({
       reporter: createReporter(argv),
