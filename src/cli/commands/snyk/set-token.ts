@@ -33,7 +33,7 @@ const setToken = async ({
     })
   }
 
-  snyk.setToken(token)
+  await snyk.setToken(token)
   reporter.info('Token saved')
 }
 

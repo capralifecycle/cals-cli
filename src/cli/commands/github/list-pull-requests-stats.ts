@@ -91,7 +91,7 @@ const command: CommandModule = {
   describe: 'List stats for pull requests with special filter',
   handler: async argv => {
     const config = createConfig()
-    listPullRequestsStats({
+    await listPullRequestsStats({
       reporter: createReporter(argv),
       github: await createGitHubService(
         config,

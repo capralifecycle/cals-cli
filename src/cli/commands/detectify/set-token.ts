@@ -36,7 +36,7 @@ const setToken = async ({
     })
   }
 
-  detectify.setToken(token)
+  await detectify.setToken(token)
   reporter.info('Token saved')
 }
 

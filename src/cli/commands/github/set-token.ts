@@ -35,7 +35,7 @@ const setToken = async ({
     })
   }
 
-  github.setToken(token)
+  await github.setToken(token)
   reporter.info('Token saved')
 }
 
@@ -49,7 +49,7 @@ const command: CommandModule = {
     }),
   handler: async argv => {
     const config = createConfig()
-    setToken({
+    await setToken({
       reporter: createReporter(argv),
       github: await createGitHubService(
         config,

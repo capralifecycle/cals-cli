@@ -153,7 +153,7 @@ const command: CommandModule = {
       }),
   handler: async argv => {
     const config = createConfig()
-    listRepos({
+    await listRepos({
       reporter: createReporter(argv),
       github: await createGitHubService(
         config,

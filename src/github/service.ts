@@ -157,7 +157,7 @@ export class GitHubService {
 
     if (response.status === 401) {
       process.stderr.write('Unauthorized - removing token\n')
-      this.removeToken()
+      await this.removeToken()
     }
 
     if (!response.ok) {
@@ -203,7 +203,7 @@ export class GitHubService {
 
     if (response.status === 401) {
       process.stderr.write('Unauthorized - removing token\n')
-      this.removeToken()
+      await this.removeToken()
     }
 
     if (!response.ok) {

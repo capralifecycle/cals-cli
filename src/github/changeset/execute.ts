@@ -178,6 +178,6 @@ export async function executeChangeSet(
   const lookup = buildLookup(github)
   for (const changeItem of changes) {
     reporter.info(`Executing ${JSON.stringify(changeItem)}`)
-    executeChangeSetItem(github, changeItem, reporter, lookup)
+    await executeChangeSetItem(github, changeItem, reporter, lookup)
   }
 }
