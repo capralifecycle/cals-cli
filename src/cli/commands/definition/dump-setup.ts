@@ -76,7 +76,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
       org,
       teams: await pMap(teams, async team => ({
         team,
-        users: await github.getTeamMemberListIncludingInvited(team),
+        users: await github.getTeamMemberListIncludingInvited(org, team),
       })),
     }
   })

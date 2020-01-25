@@ -79,8 +79,10 @@ async function executeChangeSetItem(
       return true
 
     case 'team-remove':
-      await github.octokit.teams.delete({
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+      await github.octokit.teams.deleteInOrg({
+        org: changeItem.org,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
       })
       return true
 
@@ -93,23 +95,29 @@ async function executeChangeSetItem(
       return true
 
     case 'team-member-permission':
-      await github.octokit.teams.addOrUpdateMembership({
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+      await github.octokit.teams.addOrUpdateMembershipInOrg({
+        org: changeItem.org,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
         role: changeItem.role,
       })
       return true
 
     case 'team-member-remove':
-      await github.octokit.teams.removeMembership({
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+      await github.octokit.teams.removeMembershipInOrg({
+        org: changeItem.org,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
       })
       return true
 
     case 'team-member-add':
-      await github.octokit.teams.addOrUpdateMembership({
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+      await github.octokit.teams.addOrUpdateMembershipInOrg({
+        org: changeItem.org,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
       })
       return true
@@ -136,19 +144,23 @@ async function executeChangeSetItem(
       return true
 
     case 'repo-team-remove':
-      await github.octokit.teams.removeRepo({
+      await github.octokit.teams.removeRepoInOrg({
+        org: changeItem.org,
         owner: changeItem.org,
         repo: changeItem.repo,
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
       })
       return true
 
     case 'repo-team-add':
     case 'repo-team-permission':
-      await github.octokit.teams.addOrUpdateRepo({
+      await github.octokit.teams.addOrUpdateRepoInOrg({
+        org: changeItem.org,
         owner: changeItem.org,
         repo: changeItem.repo,
-        team_id: (await lookup.getOrgTeam(changeItem.org, changeItem.team)).id,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         permission: changeItem.permission,
       })
       return true

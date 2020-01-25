@@ -370,10 +370,14 @@ export class GitHubService {
     })
   }
 
-  public async getTeamMemberList(team: TeamsListResponseItem) {
+  public async getTeamMemberList(
+    org: OrgsGetResponse,
+    team: TeamsListResponseItem,
+  ) {
     return this.cache.json(`team-member-list-${team.id}`, async () => {
-      const options = this.octokit.teams.listMembers.endpoint.merge({
-        team_id: team.id,
+      const options = this.octokit.teams.listMembersInOrg.endpoint.merge({
+        org: org.login,
+        team_slug: team.slug,
       })
       return (await this.octokit.paginate(
         options,
@@ -381,11 +385,17 @@ export class GitHubService {
     })
   }
 
-  public async getTeamMemberInvitedList(team: TeamsListResponseItem) {
+  public async getTeamMemberInvitedList(
+    org: OrgsGetResponse,
+    team: TeamsListResponseItem,
+  ) {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
-      const options = this.octokit.teams.listPendingInvitations.endpoint.merge({
-        team_id: team.id,
-      })
+      const options = this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge(
+        {
+          org: org.login,
+          team_slug: team.slug,
+        },
+      )
       return (await this.octokit.paginate(
         options,
       )) as TeamsListPendingInvitationsResponseItem[]
@@ -393,21 +403,24 @@ export class GitHubService {
   }
 
   public async getTeamMemberListIncludingInvited(
+    org: OrgsGetResponse,
     team: TeamsListResponseItem,
   ): Promise<TeamMemberOrInvited[]> {
     return [
-      ...(await this.getTeamMemberList(team)).map<TeamMemberOrInvited>(it => ({
-        type: 'member',
-        login: it.login,
-        data: it,
-      })),
-      ...(await this.getTeamMemberInvitedList(team)).map<TeamMemberOrInvited>(
+      ...(await this.getTeamMemberList(org, team)).map<TeamMemberOrInvited>(
         it => ({
-          type: 'invited',
+          type: 'member',
           login: it.login,
           data: it,
         }),
       ),
+      ...(await this.getTeamMemberInvitedList(org, team)).map<
+        TeamMemberOrInvited
+      >(it => ({
+        type: 'invited',
+        login: it.login,
+        data: it,
+      })),
     ]
   }
 

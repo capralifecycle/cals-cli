@@ -336,6 +336,7 @@ export async function createChangeSetItemsForTeams(
   await pMap(overlappingTeams, async actualTeam => {
     const wantedTeam = teams.find(it => it.name === actualTeam.name)!
     const actualMembers = await github.getTeamMemberListIncludingInvited(
+      org,
       actualTeam,
     )
 
