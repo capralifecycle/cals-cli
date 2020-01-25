@@ -36,14 +36,14 @@ function getChangedRepoAttribs(
     })
   }
 
-  const issues = definitionRepo.issues || true
+  const issues = definitionRepo.issues ?? true
   if (issues !== actualRepo.has_issues && !actualRepo.archived) {
     attribs.push({
       issues,
     })
   }
 
-  const wiki = definitionRepo.wiki || true
+  const wiki = definitionRepo.wiki ?? true
   if (wiki !== actualRepo.has_wiki && !actualRepo.archived) {
     attribs.push({
       wiki,

@@ -8,6 +8,6 @@
     "moduleResolution": "node",
     "noImplicitReturns": true,
     "strict": true,
-    "target": "esnext"
+    "target": "ES2020"
   }
 }
