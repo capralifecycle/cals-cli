@@ -29,32 +29,24 @@ function getChangedRepoAttribs(
 ) {
   const attribs: RepoAttribUpdateItem["attribs"] = []
 
-  if (
-    definitionRepo.archived !== undefined &&
-    definitionRepo.archived !== actualRepo.archived
-  ) {
+  const archived = definitionRepo.archived || false
+  if (archived !== actualRepo.archived) {
     attribs.push({
-      archived: definitionRepo.archived,
+      archived,
     })
   }
 
-  if (
-    definitionRepo.issues !== undefined &&
-    definitionRepo.issues !== actualRepo.has_issues &&
-    !actualRepo.archived
-  ) {
+  const issues = definitionRepo.issues || true
+  if (issues !== actualRepo.has_issues && !actualRepo.archived) {
     attribs.push({
-      issues: definitionRepo.issues,
+      issues,
     })
   }
 
-  if (
-    definitionRepo.wiki !== undefined &&
-    definitionRepo.wiki !== actualRepo.has_wiki &&
-    !actualRepo.archived
-  ) {
+  const wiki = definitionRepo.wiki || true
+  if (wiki !== actualRepo.has_wiki && !actualRepo.archived) {
     attribs.push({
-      wiki: definitionRepo.wiki,
+      wiki,
     })
   }
 
