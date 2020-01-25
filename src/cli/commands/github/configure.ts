@@ -6,6 +6,7 @@ import { Reporter } from '../../../cli/reporter'
 import { getDefinition, getGitHubOrgs } from '../../../definition/definition'
 import { Definition } from '../../../definition/types'
 import {
+  cleanupChangeSetItems,
   createChangeSetItemsForMembers,
   createChangeSetItemsForProjects,
   createChangeSetItemsForTeams,
@@ -80,6 +81,8 @@ async function process(
     ...changes,
     ...(await createChangeSetItemsForProjects(github, definition, limitToOrg)),
   ]
+
+  changes = cleanupChangeSetItems(changes)
 
   if (changes.length === 0) {
     reporter.info(`No actions to be performed`)

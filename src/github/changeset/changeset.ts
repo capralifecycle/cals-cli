@@ -371,3 +371,26 @@ export async function createChangeSetItemsForTeams(
 
   return changes
 }
+
+/**
+ * Remove redundant change set items due to effects by other
+ * change set items.
+ */
+export function cleanupChangeSetItems(items: ChangeSetItem[]) {
+  const hasTeamRemove = ({ org, team }: { org: string; team: string }) =>
+    items.some(
+      it => it.type === 'team-remove' && it.org === org && it.team === team,
+    )
+
+  const hasMemberRemove = ({ org }: { org: string }) =>
+    items.some(it => it.type === 'member-remove' && it.org === org)
+
+  return items.filter(
+    item =>
+      !(
+        (item.type === 'team-member-remove' && hasTeamRemove(item)) ||
+        (item.type === 'repo-team-remove' && hasTeamRemove(item)) ||
+        (item.type === 'team-member-remove' && hasMemberRemove(item))
+      ),
+  )
+}
