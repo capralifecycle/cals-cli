@@ -1,15 +1,7 @@
-import readline from 'readline'
 import { Arguments } from 'yargs'
 import { CacheProvider } from '../cache'
 import { Config } from '../config'
 import { Reporter } from './reporter'
-
-const CLEAR_WHOLE_LINE = 0
-
-export function clearLine(stdout: NodeJS.WriteStream) {
-  readline.clearLine(stdout, CLEAR_WHOLE_LINE)
-  readline.cursorTo(stdout, 0)
-}
 
 export function createReporter(argv: Arguments) {
   return new Reporter({

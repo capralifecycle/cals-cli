@@ -1,5 +1,12 @@
+import readline from 'readline'
 import chalk from 'chalk'
-import { clearLine } from './util'
+
+const CLEAR_WHOLE_LINE = 0
+
+function clearLine(stdout: NodeJS.WriteStream) {
+  readline.clearLine(stdout, CLEAR_WHOLE_LINE)
+  readline.cursorTo(stdout, 0)
+}
 
 export class Reporter {
   public constructor(
