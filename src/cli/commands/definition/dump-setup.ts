@@ -1,9 +1,4 @@
-import {
-  OrgsGetResponse,
-  ReposGetResponse,
-  ReposListTeamsResponseItem,
-  TeamsListResponseItem,
-} from "@octokit/rest"
+import { Octokit } from "@octokit/rest"
 import fs from "fs"
 import yaml from "js-yaml"
 import pMap from "p-map"
@@ -37,15 +32,15 @@ interface DetailedProject {
   repos: {
     [org: string]: {
       basic: Repo
-      repository: ReposGetResponse
-      teams: ReposListTeamsResponseItem[]
+      repository: Octokit.ReposGetResponse
+      teams: Octokit.ReposListTeamsResponseItem[]
     }[]
   }
 }
 
 async function getReposFromGitHub(
   github: GitHubService,
-  orgs: OrgsGetResponse[],
+  orgs: Octokit.OrgsGetResponse[],
 ): Promise<DetailedProject["repos"][0]> {
   return (
     await pMap(orgs, async org => {
@@ -69,7 +64,10 @@ async function getReposFromGitHub(
   ).flat()
 }
 
-async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
+async function getTeams(
+  github: GitHubService,
+  orgs: Octokit.OrgsGetResponse[],
+) {
   const intermediate = await pMap(orgs, async org => {
     const teams = await github.getTeamList(org)
     return {
@@ -84,7 +82,7 @@ async function getTeams(github: GitHubService, orgs: OrgsGetResponse[]) {
   // Transform output.
   return intermediate.reduce<{
     [org: string]: {
-      team: TeamsListResponseItem
+      team: Octokit.TeamsListResponseItem
       users: TeamMemberOrInvited[]
     }[]
   }>((prev, cur) => {
@@ -108,13 +106,13 @@ function getCommonTeams(ownerRepos: DetailedProject["repos"][0]) {
 }
 
 function getSpecificTeams(
-  teams: ReposListTeamsResponseItem[],
-  commonTeams: ReposListTeamsResponseItem[],
+  teams: Octokit.ReposListTeamsResponseItem[],
+  commonTeams: Octokit.ReposListTeamsResponseItem[],
 ) {
   return teams.filter(team => !commonTeams.some(it => it.name === team.name))
 }
 
-function getFormattedTeams(teams: ReposListTeamsResponseItem[]) {
+function getFormattedTeams(teams: Octokit.ReposListTeamsResponseItem[]) {
   return teams.length === 0
     ? undefined
     : teams
@@ -142,7 +140,10 @@ function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
   return result
 }
 
-async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
+async function getMembers(
+  github: GitHubService,
+  orgs: Octokit.OrgsGetResponse[],
+) {
   return removeDuplicates(
     (
       await pMap(orgs, org =>
@@ -164,7 +165,7 @@ async function getSnykRepos(snyk: SnykService) {
 
 async function getProjects(
   github: GitHubService,
-  orgs: OrgsGetResponse[],
+  orgs: Octokit.OrgsGetResponse[],
   definition: Definition,
   snyk: SnykService,
 ) {
@@ -248,7 +249,7 @@ function buildTeamsList(
   list: Record<
     string,
     {
-      team: TeamsListResponseItem
+      team: Octokit.TeamsListResponseItem
       users: TeamMemberOrInvited[]
     }[]
   >,

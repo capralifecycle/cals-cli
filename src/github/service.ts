@@ -1,14 +1,4 @@
-import Octokit, {
-  OrgsGetResponse,
-  OrgsListMembersResponseItem,
-  OrgsListPendingInvitationsResponseItem,
-  ReposGetResponse,
-  ReposListTeamsResponseItem,
-  Response,
-  TeamsListMembersResponseItem,
-  TeamsListPendingInvitationsResponseItem,
-  TeamsListResponseItem,
-} from "@octokit/rest"
+import { Octokit } from "@octokit/rest"
 import keytar from "keytar"
 import fetch from "node-fetch"
 import pLimit, { Limit } from "p-limit"
@@ -66,7 +56,7 @@ export class GitHubService {
 
       const getResponse = async (
         allowRetry = true,
-      ): Promise<Response<unknown> | undefined> => {
+      ): Promise<Octokit.Response<unknown> | undefined> => {
         try {
           return await request(options)
         } catch (e) {
@@ -291,7 +281,7 @@ export class GitHubService {
       org,
     })
     return (
-      (await undefinedForNotFound<OrgsListMembersResponseItem[]>(
+      (await undefinedForNotFound<Octokit.OrgsListMembersResponseItem[]>(
         this.octokit.paginate(options),
       )) || []
     )
@@ -302,9 +292,9 @@ export class GitHubService {
       org,
     })
     return (
-      (await undefinedForNotFound<OrgsListPendingInvitationsResponseItem[]>(
-        this.octokit.paginate(options),
-      )) || []
+      (await undefinedForNotFound<
+        Octokit.OrgsListPendingInvitationsResponseItem[]
+      >(this.octokit.paginate(options))) || []
     )
   }
 
@@ -340,14 +330,14 @@ export class GitHubService {
     })
   }
 
-  public async getRepositoryTeamsList(repo: ReposGetResponse) {
+  public async getRepositoryTeamsList(repo: Octokit.ReposGetResponse) {
     return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
       const options = this.octokit.repos.listTeams.endpoint.merge({
         owner: repo.owner.login,
         repo: repo.name,
       })
       return (
-        (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
+        (await undefinedForNotFound<Octokit.ReposListTeamsResponseItem[]>(
           this.octokit.paginate(options),
         )) || []
       )
@@ -361,18 +351,20 @@ export class GitHubService {
     return orgResponse.data
   }
 
-  public async getTeamList(org: OrgsGetResponse) {
+  public async getTeamList(org: Octokit.OrgsGetResponse) {
     return this.cache.json(`team-list-${org.login}`, async () => {
       const options = this.octokit.teams.list.endpoint.merge({
         org: org.login,
       })
-      return (await this.octokit.paginate(options)) as TeamsListResponseItem[]
+      return (await this.octokit.paginate(
+        options,
+      )) as Octokit.TeamsListResponseItem[]
     })
   }
 
   public async getTeamMemberList(
-    org: OrgsGetResponse,
-    team: TeamsListResponseItem,
+    org: Octokit.OrgsGetResponse,
+    team: Octokit.TeamsListResponseItem,
   ) {
     return this.cache.json(`team-member-list-${team.id}`, async () => {
       const options = this.octokit.teams.listMembersInOrg.endpoint.merge({
@@ -381,13 +373,13 @@ export class GitHubService {
       })
       return (await this.octokit.paginate(
         options,
-      )) as TeamsListMembersResponseItem[]
+      )) as Octokit.TeamsListMembersResponseItem[]
     })
   }
 
   public async getTeamMemberInvitedList(
-    org: OrgsGetResponse,
-    team: TeamsListResponseItem,
+    org: Octokit.OrgsGetResponse,
+    team: Octokit.TeamsListResponseItem,
   ) {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
       const options = this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge(
@@ -398,13 +390,13 @@ export class GitHubService {
       )
       return (await this.octokit.paginate(
         options,
-      )) as TeamsListPendingInvitationsResponseItem[]
+      )) as Octokit.TeamsListPendingInvitationsResponseItem[]
     })
   }
 
   public async getTeamMemberListIncludingInvited(
-    org: OrgsGetResponse,
-    team: TeamsListResponseItem,
+    org: Octokit.OrgsGetResponse,
+    team: Octokit.TeamsListResponseItem,
   ): Promise<TeamMemberOrInvited[]> {
     return [
       ...(await this.getTeamMemberList(org, team)).map<TeamMemberOrInvited>(
