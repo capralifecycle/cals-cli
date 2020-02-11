@@ -1,4 +1,4 @@
-import { OrgsGetResponse, TeamsListResponseItem } from "@octokit/rest"
+import { Octokit } from "@octokit/rest"
 import pLimit, { Limit } from "p-limit"
 import read from "read"
 import { CommandModule } from "yargs"
@@ -20,8 +20,8 @@ import { reportRateLimit } from "./util"
 function createOrgGetter(github: GitHubService) {
   const orgs: {
     [name: string]: {
-      org: OrgsGetResponse
-      teams: TeamsListResponseItem[]
+      org: Octokit.OrgsGetResponse
+      teams: Octokit.TeamsListResponseItem[]
     }
   } = {}
 

@@ -1,9 +1,4 @@
-import {
-  OrgsListMembersResponseItem,
-  OrgsListPendingInvitationsResponseItem,
-  TeamsListMembersResponseItem,
-  TeamsListPendingInvitationsResponseItem,
-} from "@octokit/rest"
+import { Octokit } from "@octokit/rest"
 
 export interface Repo {
   name: string
@@ -26,22 +21,22 @@ export type TeamMemberOrInvited =
   | {
       type: "member"
       login: string
-      data: TeamsListMembersResponseItem
+      data: Octokit.TeamsListMembersResponseItem
     }
   | {
       type: "invited"
       login: string
-      data: TeamsListPendingInvitationsResponseItem
+      data: Octokit.TeamsListPendingInvitationsResponseItem
     }
 
 export type OrgMemberOrInvited =
   | {
       type: "member"
       login: string
-      data: OrgsListMembersResponseItem
+      data: Octokit.OrgsListMembersResponseItem
     }
   | {
       type: "invited"
       login: string
-      data: OrgsListPendingInvitationsResponseItem
+      data: Octokit.OrgsListPendingInvitationsResponseItem
     }
