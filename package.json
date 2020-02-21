@@ -53,7 +53,7 @@
     "rollup-plugin-replace": "2.2.0",
     "rollup-plugin-typescript2": "0.26.0",
     "semantic-release": "17.0.4",
-    "ts-jest": "25.2.0",
+    "ts-jest": "25.2.1",
     "typescript": "3.7.5"
   },
   "files": [
