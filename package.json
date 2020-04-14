@@ -16,7 +16,7 @@
     "cals": "lib/cals-cli.js"
   },
   "dependencies": {
-    "@octokit/rest": "^16.38.2",
+    "@octokit/rest": "^17.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
     "js-yaml": "^3.13.1",
