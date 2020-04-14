@@ -1,4 +1,3 @@
-import { Octokit } from "@octokit/rest"
 import { sortBy } from "lodash"
 import pMap from "p-map"
 import { getGitHubOrgs, getRepos } from "../../definition/definition"
@@ -9,19 +8,24 @@ import {
   Team,
 } from "../../definition/types"
 import { GitHubService } from "../service"
-import { Permission } from "../types"
+import {
+  OrgsGetResponse,
+  Permission,
+  ReposGetResponse,
+  TeamsListResponseItem,
+} from "../types"
 import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
 
 type GetOrg = (
   orgName: string,
 ) => Promise<{
-  org: Octokit.OrgsGetResponse
-  teams: Octokit.TeamsListResponseItem[]
+  org: OrgsGetResponse
+  teams: TeamsListResponseItem[]
 }>
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
-  actualRepo: Octokit.ReposGetResponse,
+  actualRepo: ReposGetResponse,
 ) {
   const attribs: RepoAttribUpdateItem["attribs"] = []
 
@@ -83,7 +87,7 @@ async function getRepoTeamChanges({
   github: GitHubService
   org: Project["github"][0]
   projectRepo: DefinitionRepo
-  repo: Octokit.ReposGetResponse
+  repo: ReposGetResponse
 }) {
   const changes: ChangeSetItem[] = []
   const expectedTeams = [...(org.teams || []), ...(projectRepo.teams || [])]
@@ -233,7 +237,7 @@ function getUsersForOrg(definition: Definition, org: string) {
 export async function createChangeSetItemsForMembers(
   github: GitHubService,
   definition: Definition,
-  org: Octokit.OrgsGetResponse,
+  org: OrgsGetResponse,
 ) {
   const changes: ChangeSetItem[] = []
   const users = getUsersForOrg(definition, org.login)
@@ -271,7 +275,7 @@ export async function createChangeSetItemsForMembers(
 export async function createChangeSetItemsForTeams(
   github: GitHubService,
   definition: Definition,
-  org: Octokit.OrgsGetResponse,
+  org: OrgsGetResponse,
 ) {
   const changes: ChangeSetItem[] = []
 

@@ -1,4 +1,3 @@
-import { Octokit } from "@octokit/rest"
 import pLimit, { Limit } from "p-limit"
 import read from "read"
 import { CommandModule } from "yargs"
@@ -14,14 +13,15 @@ import {
 import { executeChangeSet } from "../../../github/changeset/execute"
 import { ChangeSetItem } from "../../../github/changeset/types"
 import { createGitHubService, GitHubService } from "../../../github/service"
+import { OrgsGetResponse, TeamsListResponseItem } from "../../../github/types"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 import { reportRateLimit } from "./util"
 
 function createOrgGetter(github: GitHubService) {
   const orgs: {
     [name: string]: {
-      org: Octokit.OrgsGetResponse
-      teams: Octokit.TeamsListResponseItem[]
+      org: OrgsGetResponse
+      teams: TeamsListResponseItem[]
     }
   } = {}
 
