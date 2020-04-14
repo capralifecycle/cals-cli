@@ -4,7 +4,7 @@ export const getGroup = (repo: Repo) => {
   const projectTopics: string[] = []
   let isInfra = false
 
-  repo.repositoryTopics.edges.forEach(edge => {
+  repo.repositoryTopics.edges.forEach((edge) => {
     const name = edge.node.topic.name
     if (name.startsWith("customer-")) {
       projectTopics.push(name.substring(9))
@@ -60,7 +60,7 @@ export const getGroupedRepos = (repos: Repo[]) =>
   ).sort((a, b) => a.name.localeCompare(b.name))
 
 export const includesTopic = (repo: Repo, topic: string) =>
-  repo.repositoryTopics.edges.some(it => it.node.topic.name === topic)
+  repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
 
 export const isAbandoned = (repo: Repo) =>
   includesTopic(repo, "abandoned") || repo.isArchived

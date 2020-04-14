@@ -30,7 +30,7 @@ const listWebhooks = async (
   owner: string,
 ) => {
   const repos = (await github.getRepoList({ owner })).filter(
-    it => !isAbandoned(it),
+    (it) => !isAbandoned(it),
   )
 
   for (const repo of repos) {
@@ -100,7 +100,7 @@ const listWebhooks = async (
 const command: CommandModule = {
   command: "list-webhooks",
   describe: "List CALS Git repos web hooks",
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
     const cacheProvider = createCacheProvider(config, argv)
     await listWebhooks(

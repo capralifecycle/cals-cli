@@ -5,7 +5,7 @@ import { createConfig, createReporter } from "../../util"
 const command: CommandModule = {
   command: "validate",
   describe: "Validate definition file.",
-  handler: async argv => {
+  handler: async (argv) => {
     const reporter = createReporter(argv)
     const config = createConfig()
 

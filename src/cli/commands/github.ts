@@ -10,7 +10,7 @@ import setToken from "./github/set-token"
 const command: CommandModule = {
   command: "github",
   describe: "Integration with GitHub",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs
       .command(analyzeDirectory)
       .command(configure)

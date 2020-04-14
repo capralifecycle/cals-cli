@@ -11,15 +11,15 @@ import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const getReposMissingGroup = (repos: Repo[]) =>
-  repos.filter(it => getGroup(it) === null)
+  repos.filter((it) => getGroup(it) === null)
 
 const getOldRepos = (repos: Repo[], days: number) => {
   const ignoreAfter = new Date()
   ignoreAfter.setDate(ignoreAfter.getDate() - days)
 
   return repos
-    .filter(it => !isAbandoned(it))
-    .filter(it => new Date(it.updatedAt) < ignoreAfter)
+    .filter((it) => !isAbandoned(it))
+    .filter((it) => new Date(it.updatedAt) < ignoreAfter)
     .sort((a, b) =>
       a.updatedAt.toString().localeCompare(b.updatedAt.toString()),
     )
@@ -45,11 +45,11 @@ const listRepos = async ({
   let repos = await github.getRepoList({ owner })
 
   if (!includeAbandoned) {
-    repos = repos.filter(it => !isAbandoned(it))
+    repos = repos.filter((it) => !isAbandoned(it))
   }
 
   if (topic !== null) {
-    repos = repos.filter(it => includesTopic(it, topic))
+    repos = repos.filter((it) => includesTopic(it, topic))
   }
 
   // All CSV output is done using direct stdout to avoid extra chars.
@@ -58,7 +58,7 @@ const listRepos = async ({
     process.stdout.write("reponame,group\n")
   }
 
-  getGroupedRepos(repos).forEach(group => {
+  getGroupedRepos(repos).forEach((group) => {
     if (!csv && compact) {
       reporter.log(`${group.name}`)
     } else if (!csv) {
@@ -66,7 +66,7 @@ const listRepos = async ({
       reporter.log(`======== ${group.name} ========`)
     }
 
-    group.items.forEach(repo => {
+    group.items.forEach((repo) => {
       if (csv) {
         // We assume we have no repos or group names with a comma in its name.
         process.stdout.write(`${repo.name},${group.name}\n`)
@@ -86,7 +86,7 @@ const listRepos = async ({
         reporter.log("- Topics: (none)")
       } else {
         reporter.log("- Topics:")
-        repo.repositoryTopics.edges.forEach(edge => {
+        repo.repositoryTopics.edges.forEach((edge) => {
           reporter.log(`  - ${edge.node.topic.name}`)
         })
       }
@@ -105,7 +105,7 @@ const listRepos = async ({
     reporter.log("")
     reporter.log("Repos missing group/customer topic:")
 
-    missingGroup.forEach(repo => {
+    missingGroup.forEach((repo) => {
       reporter.log(`- ${repo.name}`)
     })
 
@@ -121,7 +121,7 @@ const listRepos = async ({
     reporter.log("")
     reporter.log(`Repositories not updated for ${days} days:`)
 
-    oldRepos.forEach(repo => {
+    oldRepos.forEach((repo) => {
       reporter.log(`- ${repo.name} - ${repo.updatedAt}`)
     })
   }
@@ -130,7 +130,7 @@ const listRepos = async ({
 const command: CommandModule = {
   command: "list-repos",
   describe: "List CALS Git repos",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs
       .option("include-abandoned", {
         alias: "a",
@@ -151,7 +151,7 @@ const command: CommandModule = {
         describe: "Filter by specific topic",
         type: "string",
       }),
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
     await listRepos({
       reporter: createReporter(argv),

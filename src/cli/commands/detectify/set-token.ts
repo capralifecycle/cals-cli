@@ -43,11 +43,11 @@ const setToken = async ({
 const command: CommandModule = {
   command: "set-token",
   describe: "Set Detectify token for API calls",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs.positional("token", {
       describe: "Token. If not provided it will be requested as input",
     }),
-  handler: async argv =>
+  handler: async (argv) =>
     setToken({
       reporter: createReporter(argv),
       detectify: await createDetectifyService(createConfig()),

@@ -5,11 +5,9 @@ import setToken from "./detectify/set-token"
 const command: CommandModule = {
   command: "detectify",
   describe: "Integration with Detectify",
-  builder: yargs =>
-    yargs
-      .command(setToken)
-      .command(report)
-      .demandCommand().usage(`cals detectify
+  builder: (yargs) =>
+    yargs.command(setToken).command(report).demandCommand()
+      .usage(`cals detectify
 
 Notes:
   Before doing anything against Detectify you need to configure a token

@@ -61,16 +61,16 @@ async function getUnknownRepos(
   definition: Definition,
   limitToOrg: string | null,
 ) {
-  const knownRepos = getRepos(definition).map(it => it.id)
+  const knownRepos = getRepos(definition).map((it) => it.id)
   const orgs = getGitHubOrgs(definition).filter(
-    orgName => limitToOrg === null || limitToOrg === orgName,
+    (orgName) => limitToOrg === null || limitToOrg === orgName,
   )
 
   return sortBy(
-    (await pMap(orgs, orgName => github.getRepoList({ owner: orgName })))
+    (await pMap(orgs, (orgName) => github.getRepoList({ owner: orgName })))
       .flat()
-      .filter(it => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
-    it => `${it.owner.login}/${it.name}`,
+      .filter((it) => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
+    (it) => `${it.owner.login}/${it.name}`,
   )
 }
 
@@ -91,7 +91,7 @@ async function getRepoTeamChanges({
 
   // Check for teams to be added / modified.
   for (const repoteam of expectedTeams) {
-    const found = existingTeams.find(it => repoteam.name === it.name)
+    const found = existingTeams.find((it) => repoteam.name === it.name)
     if (found !== undefined) {
       if (found.permission !== repoteam.permission) {
         changes.push({
@@ -118,7 +118,7 @@ async function getRepoTeamChanges({
 
   // Check for teams that should not be registered.
   for (const team of existingTeams) {
-    if (!expectedTeams.some(it => team.name === it.name)) {
+    if (!expectedTeams.some((it) => team.name === it.name)) {
       changes.push({
         type: "repo-team-remove",
         org: org.organization,
@@ -185,13 +185,13 @@ export async function createChangeSetItemsForProjects(
   const changes: ChangeSetItem[] = []
 
   const orgs = definition.projects
-    .flatMap(it => it.github)
-    .filter(org => limitToOrg === null || limitToOrg === org.organization)
+    .flatMap((it) => it.github)
+    .filter((org) => limitToOrg === null || limitToOrg === org.organization)
 
   changes.push(
     ...(
-      await pMap(orgs, async org =>
-        pMap(org.repos || [], projectRepo =>
+      await pMap(orgs, async (org) =>
+        pMap(org.repos || [], (projectRepo) =>
           getProjectRepoChanges({
             github,
             org,
@@ -220,11 +220,11 @@ export async function createChangeSetItemsForProjects(
  * Get user list based on team memberships in an organization.
  */
 function getUsersForOrg(definition: Definition, org: string) {
-  const teams = definition.github.teams.find(it => it.organization == org)
+  const teams = definition.github.teams.find((it) => it.organization == org)
   if (teams === undefined) return []
 
-  const memberLogins = new Set(teams.teams.flatMap(it => it.members))
-  return definition.github.users.filter(user => memberLogins.has(user.login))
+  const memberLogins = new Set(teams.teams.flatMap((it) => it.members))
+  return definition.github.users.filter((user) => memberLogins.has(user.login))
 }
 
 /**
@@ -238,11 +238,11 @@ export async function createChangeSetItemsForMembers(
   const changes: ChangeSetItem[] = []
   const users = getUsersForOrg(definition, org.login)
 
-  const usersLogins = users.map(it => it.login)
+  const usersLogins = users.map((it) => it.login)
   const foundLogins: string[] = []
 
   const members = await github.getOrgMembersListIncludingInvited(org.login)
-  members.forEach(user => {
+  members.forEach((user) => {
     if (usersLogins.includes(user.login)) {
       foundLogins.push(user.login)
     } else {
@@ -254,7 +254,7 @@ export async function createChangeSetItemsForMembers(
     }
   })
 
-  for (const user of users.filter(it => !foundLogins.includes(it.login))) {
+  for (const user of users.filter((it) => !foundLogins.includes(it.login))) {
     changes.push({
       type: "member-add",
       org: org.login,
@@ -276,18 +276,18 @@ export async function createChangeSetItemsForTeams(
   const changes: ChangeSetItem[] = []
 
   const teams = (
-    definition.github.teams.find(it => it.organization === org.login) || {
+    definition.github.teams.find((it) => it.organization === org.login) || {
       teams: [] as Team[],
     }
   ).teams
 
   const actualTeams = await github.getTeamList(org)
-  const actualTeamNames = actualTeams.map(it => it.name)
-  const wantedTeamNames = teams.map(it => it.name)
+  const actualTeamNames = actualTeams.map((it) => it.name)
+  const wantedTeamNames = teams.map((it) => it.name)
 
   actualTeams
-    .filter(it => !wantedTeamNames.includes(it.name))
-    .forEach(it => {
+    .filter((it) => !wantedTeamNames.includes(it.name))
+    .forEach((it) => {
       changes.push({
         type: "team-remove",
         org: org.login,
@@ -296,8 +296,8 @@ export async function createChangeSetItemsForTeams(
     })
 
   teams
-    .filter(it => !actualTeamNames.includes(it.name))
-    .forEach(team => {
+    .filter((it) => !actualTeamNames.includes(it.name))
+    .forEach((team) => {
       changes.push({
         type: "team-add",
         org: org.login,
@@ -317,20 +317,20 @@ export async function createChangeSetItemsForTeams(
       }
     })
 
-  const overlappingTeams = actualTeams.filter(it =>
+  const overlappingTeams = actualTeams.filter((it) =>
     wantedTeamNames.includes(it.name),
   )
 
-  await pMap(overlappingTeams, async actualTeam => {
-    const wantedTeam = teams.find(it => it.name === actualTeam.name)!
+  await pMap(overlappingTeams, async (actualTeam) => {
+    const wantedTeam = teams.find((it) => it.name === actualTeam.name)!
     const actualMembers = await github.getTeamMemberListIncludingInvited(
       org,
       actualTeam,
     )
 
     actualMembers
-      .filter(it => !wantedTeam.members.includes(it.login))
-      .forEach(it => {
+      .filter((it) => !wantedTeam.members.includes(it.login))
+      .forEach((it) => {
         changes.push({
           type: "team-member-remove",
           org: org.login,
@@ -339,11 +339,11 @@ export async function createChangeSetItemsForTeams(
         })
       })
 
-    const actualMembersNames = actualMembers.map(it => it.login)
+    const actualMembersNames = actualMembers.map((it) => it.login)
 
     wantedTeam.members
-      .filter(it => !actualMembersNames.includes(it))
-      .forEach(it => {
+      .filter((it) => !actualMembersNames.includes(it))
+      .forEach((it) => {
         changes.push({
           type: "team-member-add",
           org: org.login,
@@ -367,14 +367,14 @@ export async function createChangeSetItemsForTeams(
 export function cleanupChangeSetItems(items: ChangeSetItem[]) {
   const hasTeamRemove = ({ org, team }: { org: string; team: string }) =>
     items.some(
-      it => it.type === "team-remove" && it.org === org && it.team === team,
+      (it) => it.type === "team-remove" && it.org === org && it.team === team,
     )
 
   const hasMemberRemove = ({ org }: { org: string }) =>
-    items.some(it => it.type === "member-remove" && it.org === org)
+    items.some((it) => it.type === "member-remove" && it.org === org)
 
   return items.filter(
-    item =>
+    (item) =>
       !(
         (item.type === "team-member-remove" && hasTeamRemove(item)) ||
         (item.type === "repo-team-remove" && hasTeamRemove(item)) ||

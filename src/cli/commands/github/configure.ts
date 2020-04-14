@@ -35,7 +35,7 @@ function createOrgGetter(github: GitHubService) {
     return semaphores[orgName]
   }
 
-  return async function(orgName: string) {
+  return async function (orgName: string) {
     return await getSemaphore(orgName)(async () => {
       if (!(orgName in orgs)) {
         const org = await github.getOrg(orgName)
@@ -123,7 +123,7 @@ async function process(
 const command: CommandModule = {
   command: "configure",
   describe: "Configure CALS GitHub resources",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs
       .options("execute", {
         describe: "Execute the detected changes",
@@ -133,7 +133,7 @@ const command: CommandModule = {
         describe: "Ignore organization filter",
         type: "boolean",
       }),
-  handler: async argv => {
+  handler: async (argv) => {
     const org = !!argv["all-orgs"] ? null : (argv["org"] as string)
 
     const reporter = createReporter(argv)

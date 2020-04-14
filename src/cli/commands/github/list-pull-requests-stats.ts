@@ -32,7 +32,7 @@ const listPullRequestsStats = async ({
       const snyk = cur.title.includes("[Snyk]")
 
       // Cheat by mutating.
-      let t = acc.find(it => it.key === key)
+      let t = acc.find((it) => it.key === key)
       if (t === undefined) {
         t = {
           key,
@@ -71,7 +71,7 @@ const listPullRequestsStats = async ({
       ),
     )
 
-    categories.forEach(cat => {
+    categories.forEach((cat) => {
       reporter.log(
         sprintf(
           "%-40s %7s %7s %7s %7s",
@@ -89,7 +89,7 @@ const listPullRequestsStats = async ({
 const command: CommandModule = {
   command: "list-pull-requests-stats",
   describe: "List stats for pull requests with special filter",
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
     await listPullRequestsStats({
       reporter: createReporter(argv),

@@ -43,9 +43,9 @@ async function getReposFromGitHub(
   orgs: Octokit.OrgsGetResponse[],
 ): Promise<DetailedProject["repos"][0]> {
   return (
-    await pMap(orgs, async org => {
+    await pMap(orgs, async (org) => {
       const repos = await github.getRepoList({ owner: org.login })
-      return pMap(repos, async repo => {
+      return pMap(repos, async (repo) => {
         const detailedRepo = await github.getRepository(
           repo.owner.login,
           repo.name,
@@ -68,11 +68,11 @@ async function getTeams(
   github: GitHubService,
   orgs: Octokit.OrgsGetResponse[],
 ) {
-  const intermediate = await pMap(orgs, async org => {
+  const intermediate = await pMap(orgs, async (org) => {
     const teams = await github.getTeamList(org)
     return {
       org,
-      teams: await pMap(teams, async team => ({
+      teams: await pMap(teams, async (team) => ({
         team,
         users: await github.getTeamMemberListIncludingInvited(org, team),
       })),
@@ -94,10 +94,10 @@ async function getTeams(
 function getCommonTeams(ownerRepos: DetailedProject["repos"][0]) {
   return ownerRepos.length === 0
     ? []
-    : ownerRepos[0].teams.filter(team =>
-        ownerRepos.every(repo =>
+    : ownerRepos[0].teams.filter((team) =>
+        ownerRepos.every((repo) =>
           repo.teams.some(
-            otherTeam =>
+            (otherTeam) =>
               otherTeam.name === team.name &&
               otherTeam.permission === team.permission,
           ),
@@ -109,14 +109,16 @@ function getSpecificTeams(
   teams: Octokit.ReposListTeamsResponseItem[],
   commonTeams: Octokit.ReposListTeamsResponseItem[],
 ) {
-  return teams.filter(team => !commonTeams.some(it => it.name === team.name))
+  return teams.filter(
+    (team) => !commonTeams.some((it) => it.name === team.name),
+  )
 }
 
 function getFormattedTeams(teams: Octokit.ReposListTeamsResponseItem[]) {
   return teams.length === 0
     ? undefined
     : teams
-        .map<RepoTeam>(it => ({
+        .map<RepoTeam>((it) => ({
           name: it.name,
           permission: it.permission as Permission,
         }))
@@ -124,7 +126,7 @@ function getFormattedTeams(teams: Octokit.ReposListTeamsResponseItem[]) {
 }
 
 async function getOrgs(github: GitHubService, orgs: string[]) {
-  return pMap(orgs, it => github.getOrg(it))
+  return pMap(orgs, (it) => github.getOrg(it))
 }
 
 function removeDuplicates<T, R>(items: T[], selector: (item: T) => R): T[] {
@@ -146,21 +148,21 @@ async function getMembers(
 ) {
   return removeDuplicates(
     (
-      await pMap(orgs, org =>
+      await pMap(orgs, (org) =>
         github.getOrgMembersListIncludingInvited(org.login),
       )
     )
       .flat()
-      .map(it => it.login),
-    it => it,
+      .map((it) => it.login),
+    (it) => it,
   )
 }
 
 async function getSnykRepos(snyk: SnykService) {
   return (await snyk.getProjects())
-    .map(it => getGitHubRepo(it))
+    .map((it) => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
-    .map(it => getRepoId(it.owner, it.name))
+    .map((it) => getRepoId(it.owner, it.name))
 }
 
 async function getProjects(
@@ -211,7 +213,7 @@ async function getProjects(
       }
     }, {}),
   )
-    .map<Project>(project => ({
+    .map<Project>((project) => ({
       name: project.name,
       github: Object.entries(project.repos)
         .map(([org, list]) => {
@@ -220,7 +222,7 @@ async function getProjects(
             organization: org,
             teams: getFormattedTeams(commonTeams),
             repos: list!
-              .map<DefinitionRepo>(repo => ({
+              .map<DefinitionRepo>((repo) => ({
                 name: repo.basic.name,
                 archived: repo.repository.archived ? true : undefined,
                 issues: repo.repository.has_issues ? undefined : false,
@@ -257,10 +259,10 @@ function buildTeamsList(
   return Object.entries(list)
     .map(([org, teams]) => ({
       organization: org,
-      teams: teams.map<Team>(team => ({
+      teams: teams.map<Team>((team) => ({
         name: team.team.name,
         members: team.users
-          .map(it => it.login)
+          .map((it) => it.login)
           .sort((a, b) => a.localeCompare(b)),
       })),
     }))
@@ -287,9 +289,9 @@ async function dumpSetup(
     github: {
       users: (await members)
         .map<User>(
-          memberLogin =>
+          (memberLogin) =>
             definition.github.users.find(
-              user => user.login === memberLogin,
+              (user) => user.login === memberLogin,
             ) || {
               type: "external",
               login: memberLogin,
@@ -322,13 +324,13 @@ const command: CommandModule = {
   command: "dump-setup",
   describe:
     "Dump active setup as YAML. Will be formated same as the definition file.",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs
       .positional("outfile", {
         type: "string",
       })
       .demandOption("outfile"),
-  handler: async argv => {
+  handler: async (argv) => {
     const reporter = createReporter(argv)
     const config = createConfig()
     const github = await createGitHubService(

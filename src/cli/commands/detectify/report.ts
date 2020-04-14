@@ -33,7 +33,7 @@ async function report({
 const command: CommandModule = {
   command: "report",
   describe: "Report Detectify status",
-  handler: async argv =>
+  handler: async (argv) =>
     report({
       reporter: createReporter(argv),
       detectify: await createDetectifyService(createConfig()),

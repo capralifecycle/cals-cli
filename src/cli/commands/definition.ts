@@ -5,11 +5,9 @@ import validate from "./definition/validate"
 const command: CommandModule = {
   command: "definition",
   describe: "CALS definition file management",
-  builder: yargs =>
-    yargs
-      .command(dumpSetup)
-      .command(validate)
-      .demandCommand().usage(`cals definition
+  builder: (yargs) =>
+    yargs.command(dumpSetup).command(validate).demandCommand()
+      .usage(`cals definition
 
 The definition file is located at
 https://github.com/capralifecycle/resources-definition/blob/master/resources.yaml

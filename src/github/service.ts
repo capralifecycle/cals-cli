@@ -67,7 +67,7 @@ export class GitHubService {
           // GitHub seems to throw a lot of 502 errors.
           // Let's give it a few seconds and retry one time.
           if (e.status === 502 && allowRetry) {
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            await new Promise((resolve) => setTimeout(resolve, 2000))
             return await getResponse(false)
           }
           throw e
@@ -302,13 +302,13 @@ export class GitHubService {
     org: string,
   ): Promise<OrgMemberOrInvited[]> {
     return [
-      ...(await this.getOrgMembersList(org)).map<OrgMemberOrInvited>(it => ({
+      ...(await this.getOrgMembersList(org)).map<OrgMemberOrInvited>((it) => ({
         type: "member",
         login: it.login,
         data: it,
       })),
       ...(await this.getOrgMembersInvitedList(org)).map<OrgMemberOrInvited>(
-        it => ({
+        (it) => ({
           type: "invited",
           login: it.login,
           data: it,
@@ -400,7 +400,7 @@ export class GitHubService {
   ): Promise<TeamMemberOrInvited[]> {
     return [
       ...(await this.getTeamMemberList(org, team)).map<TeamMemberOrInvited>(
-        it => ({
+        (it) => ({
           type: "member",
           login: it.login,
           data: it,
@@ -408,7 +408,7 @@ export class GitHubService {
       ),
       ...(await this.getTeamMemberInvitedList(org, team)).map<
         TeamMemberOrInvited
-      >(it => ({
+      >((it) => ({
         type: "invited",
         login: it.login,
         data: it,
@@ -509,7 +509,7 @@ export class GitHubService {
       const query = getQuery(after)
       const res = await this.runGraphqlQuery<QueryResult>(query)
 
-      pulls.push(...res.search.edges.map(it => it.node))
+      pulls.push(...res.search.edges.map((it) => it.node))
 
       if (!res.search.pageInfo.hasNextPage) {
         break
