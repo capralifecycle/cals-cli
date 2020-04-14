@@ -1,10 +1,23 @@
 import { Octokit } from "@octokit/rest"
+import { EndpointOptions, OctokitResponse } from "@octokit/types"
 import keytar from "keytar"
 import fetch from "node-fetch"
 import pLimit, { Limit } from "p-limit"
 import { CacheProvider } from "../cache"
 import { Config } from "../config"
-import { OrgMemberOrInvited, Repo, TeamMemberOrInvited } from "./types"
+import {
+  OrgMemberOrInvited,
+  OrgsGetResponse,
+  OrgsListMembersResponseItem,
+  OrgsListPendingInvitationsResponseItem,
+  Repo,
+  ReposGetResponse,
+  ReposListTeamsResponseItem,
+  TeamMemberOrInvited,
+  TeamsListMembersResponseItem,
+  TeamsListPendingInvitationsResponseItem,
+  TeamsListResponseItem,
+} from "./types"
 import { undefinedForNotFound } from "./util"
 
 const keyringService = "cals"
@@ -56,7 +69,7 @@ export class GitHubService {
 
       const getResponse = async (
         allowRetry = true,
-      ): Promise<Octokit.Response<unknown> | undefined> => {
+      ): Promise<OctokitResponse<unknown> | undefined> => {
         try {
           return await request(options)
         } catch (e) {
@@ -281,8 +294,8 @@ export class GitHubService {
       org,
     })
     return (
-      (await undefinedForNotFound<Octokit.OrgsListMembersResponseItem[]>(
-        this.octokit.paginate(options),
+      (await undefinedForNotFound<OrgsListMembersResponseItem[]>(
+        this.octokit.paginate(options as EndpointOptions),
       )) || []
     )
   }
@@ -292,9 +305,9 @@ export class GitHubService {
       org,
     })
     return (
-      (await undefinedForNotFound<
-        Octokit.OrgsListPendingInvitationsResponseItem[]
-      >(this.octokit.paginate(options))) || []
+      (await undefinedForNotFound<OrgsListPendingInvitationsResponseItem[]>(
+        this.octokit.paginate(options as EndpointOptions),
+      )) || []
     )
   }
 
@@ -330,15 +343,15 @@ export class GitHubService {
     })
   }
 
-  public async getRepositoryTeamsList(repo: Octokit.ReposGetResponse) {
+  public async getRepositoryTeamsList(repo: ReposGetResponse) {
     return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
       const options = this.octokit.repos.listTeams.endpoint.merge({
         owner: repo.owner.login,
         repo: repo.name,
       })
       return (
-        (await undefinedForNotFound<Octokit.ReposListTeamsResponseItem[]>(
-          this.octokit.paginate(options),
+        (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
+          this.octokit.paginate(options as EndpointOptions),
         )) || []
       )
     })
@@ -351,20 +364,20 @@ export class GitHubService {
     return orgResponse.data
   }
 
-  public async getTeamList(org: Octokit.OrgsGetResponse) {
+  public async getTeamList(org: OrgsGetResponse) {
     return this.cache.json(`team-list-${org.login}`, async () => {
       const options = this.octokit.teams.list.endpoint.merge({
         org: org.login,
       })
       return (await this.octokit.paginate(
-        options,
-      )) as Octokit.TeamsListResponseItem[]
+        options as EndpointOptions,
+      )) as TeamsListResponseItem[]
     })
   }
 
   public async getTeamMemberList(
-    org: Octokit.OrgsGetResponse,
-    team: Octokit.TeamsListResponseItem,
+    org: OrgsGetResponse,
+    team: TeamsListResponseItem,
   ) {
     return this.cache.json(`team-member-list-${team.id}`, async () => {
       const options = this.octokit.teams.listMembersInOrg.endpoint.merge({
@@ -372,14 +385,14 @@ export class GitHubService {
         team_slug: team.slug,
       })
       return (await this.octokit.paginate(
-        options,
-      )) as Octokit.TeamsListMembersResponseItem[]
+        options as EndpointOptions,
+      )) as TeamsListMembersResponseItem[]
     })
   }
 
   public async getTeamMemberInvitedList(
-    org: Octokit.OrgsGetResponse,
-    team: Octokit.TeamsListResponseItem,
+    org: OrgsGetResponse,
+    team: TeamsListResponseItem,
   ) {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
       const options = this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge(
@@ -389,14 +402,14 @@ export class GitHubService {
         },
       )
       return (await this.octokit.paginate(
-        options,
-      )) as Octokit.TeamsListPendingInvitationsResponseItem[]
+        options as EndpointOptions,
+      )) as TeamsListPendingInvitationsResponseItem[]
     })
   }
 
   public async getTeamMemberListIncludingInvited(
-    org: Octokit.OrgsGetResponse,
-    team: Octokit.TeamsListResponseItem,
+    org: OrgsGetResponse,
+    team: TeamsListResponseItem,
   ): Promise<TeamMemberOrInvited[]> {
     return [
       ...(await this.getTeamMemberList(org, team)).map<TeamMemberOrInvited>(

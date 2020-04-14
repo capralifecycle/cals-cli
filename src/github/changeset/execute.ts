@@ -1,14 +1,18 @@
-import { Octokit } from "@octokit/rest"
 import { Reporter } from "../../cli/reporter"
 import { GitHubService } from "../service"
+import {
+  OrgsGetResponse,
+  ReposUpdateParams,
+  TeamsListResponseItem,
+} from "../types"
 import { ChangeSetItem } from "./types"
 
 function buildLookup(github: GitHubService) {
   // We operate using the Octokit SDK, so cache the objects to avoid
   // excessive lookups to the API for them.
 
-  const orgCache: Record<string, Octokit.OrgsGetResponse> = {}
-  const orgTeamListCache: Record<string, Octokit.TeamsListResponseItem[]> = {}
+  const orgCache: Record<string, OrgsGetResponse> = {}
+  const orgTeamListCache: Record<string, TeamsListResponseItem[]> = {}
 
   async function getOrg(orgName: string) {
     if (!(orgName in orgCache)) {
@@ -119,7 +123,7 @@ async function executeChangeSetItem(
       return true
 
     case "repo-update":
-      const upd: Octokit.ReposUpdateParams = {
+      const upd: ReposUpdateParams = {
         owner: changeItem.org,
         repo: changeItem.repo,
       }
