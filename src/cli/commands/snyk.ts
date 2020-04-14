@@ -6,12 +6,9 @@ import sync from "./snyk/sync"
 const command: CommandModule = {
   command: "snyk",
   describe: "Integration with Snyk",
-  builder: yargs =>
-    yargs
-      .command(setToken)
-      .command(report)
-      .command(sync)
-      .demandCommand().usage(`cals snyk
+  builder: (yargs) =>
+    yargs.command(setToken).command(report).command(sync).demandCommand()
+      .usage(`cals snyk
 
 Notes:
   Before doing anything against Snyk you need to configure a token

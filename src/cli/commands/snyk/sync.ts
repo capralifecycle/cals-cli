@@ -21,33 +21,35 @@ const sync = async ({
   config: Config
 }) => {
   const knownRepos = (await snyk.getProjects())
-    .map(it => getGitHubRepo(it))
+    .map((it) => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
 
   const allReposWithSnyk = getRepos(getDefinition(config)).filter(
-    it => it.repo.snyk === true,
+    (it) => it.repo.snyk === true,
   )
 
-  const allReposWithSnykStr = allReposWithSnyk.map(it =>
+  const allReposWithSnykStr = allReposWithSnyk.map((it) =>
     getRepoId(it.orgName, it.repo.name),
   )
 
   const missingInSnyk = allReposWithSnyk.filter(
-    it =>
-      !knownRepos.some(r => r.owner === it.orgName && r.name === it.repo.name),
+    (it) =>
+      !knownRepos.some(
+        (r) => r.owner === it.orgName && r.name === it.repo.name,
+      ),
   )
 
   const extraInSnyk = knownRepos.filter(
-    it => !allReposWithSnykStr.includes(`${it.owner}/${it.name}`),
+    (it) => !allReposWithSnykStr.includes(`${it.owner}/${it.name}`),
   )
 
   if (missingInSnyk.length === 0) {
     reporter.info("All seems fine")
   } else {
-    missingInSnyk.forEach(it => {
+    missingInSnyk.forEach((it) => {
       reporter.info(`Not in Snyk: ${it.project.name} / ${it.repo.name}`)
     })
-    extraInSnyk.forEach(it => {
+    extraInSnyk.forEach((it) => {
       reporter.info(`Should not be in Snyk? ${it.owner}/${it.name}`)
     })
   }
@@ -56,7 +58,7 @@ const sync = async ({
 const command: CommandModule = {
   command: "sync",
   describe: "Sync Snyk projects (currently only reports, no automation)",
-  handler: async argv =>
+  handler: async (argv) =>
     sync({
       reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),

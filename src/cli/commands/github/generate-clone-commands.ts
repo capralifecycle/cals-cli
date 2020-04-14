@@ -43,26 +43,26 @@ const generateCloneCommands = async ({
   const groups = getGroupedRepos(repos)
 
   if (opt.listGroups) {
-    groups.forEach(it => {
+    groups.forEach((it) => {
       reporter.log(it.name)
     })
     return
   }
 
-  groups.forEach(group => {
+  groups.forEach((group) => {
     if (opt.group !== undefined && opt.group !== group.name) {
       return
     }
 
     group.items
-      .filter(it => opt.includeAbandoned || !isAbandoned(it))
-      .filter(it => opt.topic === undefined || includesTopic(it, opt.topic))
+      .filter((it) => opt.includeAbandoned || !isAbandoned(it))
+      .filter((it) => opt.topic === undefined || includesTopic(it, opt.topic))
       .filter(
-        it =>
+        (it) =>
           !opt.excludeExisting ||
           !fs.existsSync(path.resolve(config.cwd, it.name)),
       )
-      .forEach(repo => {
+      .forEach((repo) => {
         // The output of this is used to pipe into e.g. bash.
         // We cannot use reporter.log as it adds additional characters.
         process.stdout.write(
@@ -75,7 +75,7 @@ const generateCloneCommands = async ({
 const command: CommandModule = {
   command: "generate-clone-commands",
   describe: "Generate shell commands to clone CALS Git repos",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs
       .positional("group", {
         describe: "Group to generate commands for",
@@ -104,7 +104,7 @@ const command: CommandModule = {
         describe: "Exclude if existing in working directory",
         type: "boolean",
       }),
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
 
     return generateCloneCommands({

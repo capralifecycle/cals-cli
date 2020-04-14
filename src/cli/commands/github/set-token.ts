@@ -42,12 +42,12 @@ const setToken = async ({
 const command: CommandModule = {
   command: "set-token",
   describe: "Set GitHub token for API calls",
-  builder: yargs =>
+  builder: (yargs) =>
     yargs.positional("token", {
       describe:
         "Token. If not provided it will be requested as input. Can be generated at https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook",
     }),
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
     await setToken({
       reporter: createReporter(argv),

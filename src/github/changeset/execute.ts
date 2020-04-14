@@ -29,7 +29,7 @@ function buildLookup(github: GitHubService) {
 
   async function getOrgTeam(orgName: string, teamName: string) {
     const teams = await getOrgTeamList(orgName)
-    const team = teams.find(it => it.name === teamName)
+    const team = teams.find((it) => it.name === teamName)
     if (team === undefined) {
       throw new Error(`Team ${orgName}/${teamName} not found`)
     }

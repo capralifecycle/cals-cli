@@ -41,7 +41,7 @@ async function report({
   config: Config
 }) {
   const reposWithIssues = (await snyk.getProjects()).filter(
-    it => totalSeverityCount(it) > 0,
+    (it) => totalSeverityCount(it) > 0,
   )
 
   const definitionRepos = getRepos(getDefinition(config))
@@ -49,11 +49,11 @@ async function report({
   function getProject(p: SnykProject) {
     const id = getGitHubRepoId(getGitHubRepo(p))
     const def =
-      id === undefined ? undefined : definitionRepos.find(it => it.id === id)
+      id === undefined ? undefined : definitionRepos.find((it) => it.id === id)
     return def === undefined ? undefined : def.project
   }
 
-  const enhancedRepos = reposWithIssues.map(repo => ({
+  const enhancedRepos = reposWithIssues.map((repo) => ({
     repo,
     project: getProject(repo),
   }))
@@ -64,9 +64,11 @@ async function report({
 
   const byProjects = sortBy(
     Object.values(
-      groupBy(enhancedRepos, it => (it.project ? it.project.name : "unknown")),
+      groupBy(enhancedRepos, (it) =>
+        it.project ? it.project.name : "unknown",
+      ),
     ),
-    it => getProjectName(it[0].project),
+    (it) => getProjectName(it[0].project),
   )
 
   if (byProjects.length === 0) {
@@ -77,20 +79,23 @@ async function report({
         "%-70s %s",
         "Total count",
         buildStatsLine({
-          high: sumBy(reposWithIssues, it => it.issueCountsBySeverity.high),
-          medium: sumBy(reposWithIssues, it => it.issueCountsBySeverity.medium),
-          low: sumBy(reposWithIssues, it => it.issueCountsBySeverity.low),
+          high: sumBy(reposWithIssues, (it) => it.issueCountsBySeverity.high),
+          medium: sumBy(
+            reposWithIssues,
+            (it) => it.issueCountsBySeverity.medium,
+          ),
+          low: sumBy(reposWithIssues, (it) => it.issueCountsBySeverity.low),
         }),
       ),
     )
 
     reporter.info("Issues by project:")
-    byProjects.forEach(repos => {
+    byProjects.forEach((repos) => {
       const project = repos[0].project
       const totalCount = {
-        high: sumBy(repos, it => it.repo.issueCountsBySeverity.high),
-        medium: sumBy(repos, it => it.repo.issueCountsBySeverity.medium),
-        low: sumBy(repos, it => it.repo.issueCountsBySeverity.low),
+        high: sumBy(repos, (it) => it.repo.issueCountsBySeverity.high),
+        medium: sumBy(repos, (it) => it.repo.issueCountsBySeverity.medium),
+        low: sumBy(repos, (it) => it.repo.issueCountsBySeverity.low),
       }
 
       reporter.info("")
@@ -118,7 +123,7 @@ async function report({
 const command: CommandModule = {
   command: "report",
   describe: "Report Snyk projects status",
-  handler: async argv =>
+  handler: async (argv) =>
     report({
       reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),

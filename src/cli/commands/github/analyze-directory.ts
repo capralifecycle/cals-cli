@@ -27,9 +27,9 @@ const analyzeDirectory = async (
 
   const dirs = fs
     .readdirSync(config.cwd)
-    .filter(it => fs.statSync(path.join(config.cwd, it)).isDirectory())
+    .filter((it) => fs.statSync(path.join(config.cwd, it)).isDirectory())
     // Skip hidden folders
-    .filter(it => !it.startsWith("."))
+    .filter((it) => !it.startsWith("."))
     .sort((a, b) => a.localeCompare(b))
 
   const stats = {
@@ -38,7 +38,7 @@ const analyzeDirectory = async (
     ok: 0,
   }
 
-  dirs.forEach(it => {
+  dirs.forEach((it) => {
     if (!(it in reposDict)) {
       reporter.warn(
         sprintf(
@@ -76,7 +76,7 @@ const analyzeDirectory = async (
 const command: CommandModule = {
   command: "analyze-directory",
   describe: "Analyze directory for git repos",
-  handler: async argv => {
+  handler: async (argv) => {
     const config = createConfig()
     const github = await createGitHubService(
       config,
