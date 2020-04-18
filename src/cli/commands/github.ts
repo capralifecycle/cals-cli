@@ -36,9 +36,9 @@ Notes:
   Keeping up to date with removed/renamed repos:
   $ cals github analyze-directory --org capralifecycle
 
-  Some responses are cached for some time. Wipe the cals-cli
-  cache folder in your users cache dir (~/.cache/cals-cli on Linux)
-  to invalidate cache.`),
+  Some responses are cached for some time. Use the --validate-cache
+  option to avoid stale cache. The cache can also be cleared with
+  the "cals delete-cache" command.`),
   handler: () => {
     yargs.showHelp()
   },

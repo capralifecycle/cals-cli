@@ -45,10 +45,8 @@ Usage: cals <command>`
       describe: "Verbose output",
       type: "boolean",
     })
-    // TODO: Rename the cache option or otherwise improve it so
-    // it fits how the GitHub resources are cached/invalidated using ETag.
-    .option("no-cache", {
-      describe: "Disable offline cache of requests to services",
+    .option("validate-cache", {
+      describe: "Only read from cache if validated against server",
       type: "boolean",
     })
     .parse()

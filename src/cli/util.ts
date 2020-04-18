@@ -1,3 +1,4 @@
+import { deprecate } from "util"
 import { Arguments } from "yargs"
 import { CacheProvider } from "../cache"
 import { Config } from "../config"
@@ -13,10 +14,18 @@ export function createReporter(argv: Arguments) {
 export function createCacheProvider(config: Config, argv: Arguments) {
   const cache = new CacheProvider(config)
 
-  // --no-cache
-  if (argv.cache === false) {
-    cache.enabled = false
+  // --validate-cache
+  if (argv.validateCache === true) {
+    cache.mustValidate = true
   }
+
+  // old option: --no-cache
+  if (argv.cache === false) {
+    deprecate(() => {
+      cache.mustValidate = true
+    }, "The --no-cache option is deprecated. See new --validate-cache option")()
+  }
+
   return cache
 }
 

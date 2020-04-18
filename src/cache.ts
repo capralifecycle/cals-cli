@@ -13,12 +13,14 @@ export class CacheProvider {
     this.config = config
   }
 
-  public enabled = true
+  public mustValidate = false
   private config: Config
   private defaultCacheTime = 1800
 
   /**
    * Retrieve cache if existent, ignoring the time.
+   *
+   * The caller is responsible for handling proper validation,
    */
   public retrieveJson<T>(cachekey: string): CacheItem<T> | undefined {
     const cachefile = path.join(this.config.cacheDir, `${cachekey}.json`)
@@ -51,11 +53,9 @@ export class CacheProvider {
     block: () => Promise<T>,
     cachetime: number = this.defaultCacheTime,
   ) {
-    if (!this.enabled) {
-      return await block()
-    }
-
-    const cacheItem = this.retrieveJson<T>(cachekey)
+    const cacheItem = this.mustValidate
+      ? undefined
+      : this.retrieveJson<T>(cachekey)
     const expire = new Date(new Date().getTime() - cachetime * 1000).getTime()
 
     if (cacheItem !== undefined && cacheItem.cacheTime > expire) {

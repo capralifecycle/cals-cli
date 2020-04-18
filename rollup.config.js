@@ -12,6 +12,7 @@ const external = [
   'path',
   'https',
   'os',
+  'util',
   ...Object.keys(pkg.dependencies || {}),
   ...Object.keys(pkg.peerDependencies || {}),
 ]
