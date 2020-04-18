@@ -10,7 +10,10 @@ import {
   createChangeSetItemsForProjects,
   createChangeSetItemsForTeams,
 } from "../../../github/changeset/changeset"
-import { executeChangeSet } from "../../../github/changeset/execute"
+import {
+  executeChangeSet,
+  isNotImplementedChangeSetItem,
+} from "../../../github/changeset/execute"
 import { ChangeSetItem } from "../../../github/changeset/types"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { OrgsGetResponse, TeamsListResponseItem } from "../../../github/types"
@@ -83,6 +86,16 @@ async function process(
   ]
 
   changes = cleanupChangeSetItems(changes)
+
+  const ignored: ChangeSetItem[] = changes.filter(isNotImplementedChangeSetItem)
+  changes = changes.filter((it) => !ignored.includes(it))
+
+  if (ignored.length > 0) {
+    reporter.info("Not implemented:")
+    for (const change of ignored) {
+      reporter.info("  - " + JSON.stringify(change))
+    }
+  }
 
   if (changes.length === 0) {
     reporter.info(`No actions to be performed`)

@@ -5,7 +5,7 @@ import {
   ReposUpdateParams,
   TeamsListResponseItem,
 } from "../types"
-import { ChangeSetItem } from "./types"
+import { ChangeSetItem, RepoCreateItem, RepoDeleteItem } from "./types"
 
 function buildLookup(github: GitHubService) {
   // We operate using the Octokit SDK, so cache the objects to avoid
@@ -45,6 +45,19 @@ function buildLookup(github: GitHubService) {
   }
 }
 
+type NotImplementedChangeSetItem = RepoCreateItem | RepoDeleteItem
+
+const notImplementedChangeSetItems: NotImplementedChangeSetItem["type"][] = [
+  "repo-create",
+  "repo-delete",
+]
+
+export function isNotImplementedChangeSetItem(
+  changeItem: ChangeSetItem,
+): changeItem is NotImplementedChangeSetItem {
+  return (notImplementedChangeSetItems as string[]).includes(changeItem.type)
+}
+
 /**
  * Execute a change set item.
  */
@@ -57,12 +70,12 @@ async function executeChangeSetItem(
   // We return to ensure all code paths are followed during compiling.
   // If a change item type is missing we will get a compile error.
 
-  switch (changeItem.type) {
-    case "repo-create":
-    case "repo-delete":
-      reporter.warn("Not currently implemented - do it manually")
-      return true
+  if (isNotImplementedChangeSetItem(changeItem)) {
+    reporter.warn("Not currently implemented - do it manually")
+    return true
+  }
 
+  switch (changeItem.type) {
     case "member-remove":
       await github.octokit.orgs.removeMembership({
         org: changeItem.org,
