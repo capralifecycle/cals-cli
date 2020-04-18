@@ -1,6 +1,7 @@
 import { version } from "package.json"
 import yargs from "yargs"
 import definition from "./commands/definition"
+import deleteCache from "./commands/delete-cache"
 import detectify from "./commands/detectify"
 import gettingStarted from "./commands/getting-started"
 import github from "./commands/github"
@@ -28,6 +29,7 @@ Usage: cals <command>`
     .scriptName("cals")
     .locale("en")
     .help("help")
+    .command(deleteCache)
     .command(definition)
     .command(detectify)
     .command(github)

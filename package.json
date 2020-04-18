@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@octokit/rest": "^17.0.0",
+    "@types/rimraf": "^3.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
     "js-yaml": "^3.13.1",
@@ -26,6 +27,7 @@
     "p-limit": "^2.2.2",
     "p-map": "^4.0.0",
     "read": "^1.0.7",
+    "rimraf": "^3.0.2",
     "sprintf-js": "^1.1.2",
     "yargs": "^15.1.0"
   },
