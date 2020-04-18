@@ -9,11 +9,7 @@ import {
 } from "../../../cli/util"
 import { Config } from "../../../config"
 import { createGitHubService, GitHubService } from "../../../github/service"
-import {
-  getGroupedRepos,
-  includesTopic,
-  isAbandoned,
-} from "../../../github/util"
+import { getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
 
 const generateCloneCommands = async ({
@@ -29,7 +25,7 @@ const generateCloneCommands = async ({
   all: boolean
   excludeExisting: boolean
   group: string | undefined
-  includeAbandoned: boolean
+  includeArchived: boolean
   listGroups: boolean
   topic: string | undefined
   owner: string
@@ -55,7 +51,7 @@ const generateCloneCommands = async ({
     }
 
     group.items
-      .filter((it) => opt.includeAbandoned || !isAbandoned(it))
+      .filter((it) => opt.includeArchived || !it.isArchived)
       .filter((it) => opt.topic === undefined || includesTopic(it, opt.topic))
       .filter(
         (it) =>
@@ -89,9 +85,9 @@ const command: CommandModule = {
         describe: "List available groups",
         type: "boolean",
       })
-      .option("include-abandoned", {
+      .option("include-archived", {
         alias: "a",
-        describe: "Include repos with abandoned topic",
+        describe: "Include archived repos",
         type: "boolean",
       })
       .option("topic", {
@@ -116,7 +112,7 @@ const command: CommandModule = {
       ),
       all: !!argv.all,
       listGroups: !!argv["list-groups"],
-      includeAbandoned: !!argv["include-abandoned"],
+      includeArchived: !!argv["include-archived"],
       topic: argv.topic as string | undefined,
       excludeExisting: !!argv["exclude-existing"],
       group: argv.group as string | undefined,

@@ -1,12 +1,7 @@
 import { CommandModule } from "yargs"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { Repo } from "../../../github/types"
-import {
-  getGroup,
-  getGroupedRepos,
-  includesTopic,
-  isAbandoned,
-} from "../../../github/util"
+import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
@@ -18,7 +13,7 @@ const getOldRepos = (repos: Repo[], days: number) => {
   ignoreAfter.setDate(ignoreAfter.getDate() - days)
 
   return repos
-    .filter((it) => !isAbandoned(it))
+    .filter((it) => !it.isArchived)
     .filter((it) => new Date(it.updatedAt) < ignoreAfter)
     .sort((a, b) =>
       a.updatedAt.toString().localeCompare(b.updatedAt.toString()),
@@ -28,7 +23,7 @@ const getOldRepos = (repos: Repo[], days: number) => {
 const listRepos = async ({
   reporter,
   github,
-  includeAbandoned,
+  includeArchived,
   topic = null,
   compact,
   csv,
@@ -36,7 +31,7 @@ const listRepos = async ({
 }: {
   reporter: Reporter
   github: GitHubService
-  includeAbandoned: boolean
+  includeArchived: boolean
   topic?: string | null
   compact: boolean
   csv: boolean
@@ -44,8 +39,8 @@ const listRepos = async ({
 }) => {
   let repos = await github.getRepoList({ owner })
 
-  if (!includeAbandoned) {
-    repos = repos.filter((it) => !isAbandoned(it))
+  if (!includeArchived) {
+    repos = repos.filter((it) => !it.isArchived)
   }
 
   if (topic !== null) {
@@ -132,9 +127,9 @@ const command: CommandModule = {
   describe: "List CALS Git repos",
   builder: (yargs) =>
     yargs
-      .option("include-abandoned", {
+      .option("include-archived", {
         alias: "a",
-        describe: "Include repos with abandoned topic",
+        describe: "Include archived repos",
         type: "boolean",
       })
       .options("compact", {
@@ -159,7 +154,7 @@ const command: CommandModule = {
         config,
         createCacheProvider(config, argv),
       ),
-      includeAbandoned: !!argv["include-abandoned"],
+      includeArchived: !!argv["include-archived"],
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,

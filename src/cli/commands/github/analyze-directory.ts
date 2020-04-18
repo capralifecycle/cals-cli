@@ -11,7 +11,6 @@ import {
 import { Config } from "../../../config"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { Repo } from "../../../github/types"
-import { isAbandoned } from "../../../github/util"
 
 const analyzeDirectory = async (
   reporter: Reporter,
@@ -34,7 +33,7 @@ const analyzeDirectory = async (
 
   const stats = {
     unknown: 0,
-    abandoned: 0,
+    archived: 0,
     ok: 0,
   }
 
@@ -50,9 +49,9 @@ const analyzeDirectory = async (
       return
     }
 
-    if (isAbandoned(reposDict[it])) {
-      reporter.info(sprintf("%-30s  <-- Marked as abandoned", it))
-      stats.abandoned++
+    if (reposDict[it].isArchived) {
+      reporter.info(sprintf("%-30s  <-- Archived", it))
+      stats.archived++
       return
     }
 
@@ -61,9 +60,9 @@ const analyzeDirectory = async (
 
   reporter.info(
     sprintf(
-      "Stats: unknown=%d  abandoned=%d  ok=%d",
+      "Stats: unknown=%d  archoved=%d  ok=%d",
       stats.unknown,
-      stats.abandoned,
+      stats.archived,
       stats.ok,
     ),
   )

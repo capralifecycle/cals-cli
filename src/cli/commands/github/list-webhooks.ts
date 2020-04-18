@@ -2,7 +2,6 @@ import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
 import { CacheProvider } from "../../../cache"
 import { createGitHubService, GitHubService } from "../../../github/service"
-import { isAbandoned } from "../../../github/util"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
@@ -30,7 +29,7 @@ const listWebhooks = async (
   owner: string,
 ) => {
   const repos = (await github.getRepoList({ owner })).filter(
-    (it) => !isAbandoned(it),
+    (it) => !it.isArchived,
   )
 
   for (const repo of repos) {

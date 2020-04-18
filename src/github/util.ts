@@ -62,9 +62,6 @@ export const getGroupedRepos = (repos: Repo[]) =>
 export const includesTopic = (repo: Repo, topic: string) =>
   repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
 
-export const isAbandoned = (repo: Repo) =>
-  includesTopic(repo, "abandoned") || repo.isArchived
-
 export const undefinedForNotFound = async <T>(
   value: Promise<T>,
 ): Promise<T | undefined> => {
