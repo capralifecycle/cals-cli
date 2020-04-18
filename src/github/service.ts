@@ -12,6 +12,7 @@ import {
   OrgsListPendingInvitationsResponseItem,
   Repo,
   ReposGetResponse,
+  ReposListHooksResponseItem,
   ReposListTeamsResponseItem,
   TeamMemberOrInvited,
   TeamsListMembersResponseItem,
@@ -192,34 +193,6 @@ export class GitHubService {
     return json.data
   }
 
-  public async runRestGet<T>(subpath: string) {
-    const response = await this.semaphore(async () =>
-      fetch(`https://api.github.com${subpath}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-          Authorization: `Bearer ${await GitHubService.getToken()}`,
-        },
-        agent: this.config.agent,
-      }),
-    )
-
-    if (response.status === 401) {
-      process.stderr.write("Unauthorized - removing token\n")
-      await this.removeToken()
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        `Response from GitHub not OK (${response.status}): ${JSON.stringify(
-          response,
-        )}`,
-      )
-    }
-
-    return (await response.json()) as T
-  }
-
   public async getOrgRepoList({ org }: { org: string }) {
     interface QueryResult {
       organization: {
@@ -351,6 +324,20 @@ export class GitHubService {
       })
       return (
         (await undefinedForNotFound<ReposListTeamsResponseItem[]>(
+          this.octokit.paginate(options as EndpointOptions),
+        )) || []
+      )
+    })
+  }
+
+  public async getRepositoryHooks(owner: string, repo: string) {
+    return this.cache.json(`repository-hooks-${owner}-${repo}`, async () => {
+      const options = this.octokit.repos.listHooks.endpoint.merge({
+        owner,
+        repo,
+      })
+      return (
+        (await undefinedForNotFound<ReposListHooksResponseItem[]>(
           this.octokit.paginate(options as EndpointOptions),
         )) || []
       )

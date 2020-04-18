@@ -7,21 +7,6 @@ import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const e = encodeURIComponent
 
-/** @see https://developer.github.com/v3/repos/hooks/#response */
-interface Hook {
-  name: string
-  config: {
-    url?: string
-    // Undocumented?!
-    jenkins_url?: string
-  }
-  // Undocumented?!
-  last_response: {
-    code: string
-  }
-  events: string[]
-}
-
 const listWebhooks = async (
   reporter: Reporter,
   cache: CacheProvider,
@@ -40,13 +25,7 @@ const listWebhooks = async (
       )}/settings/hooks`,
     )
 
-    const hooks = await cache.json(
-      `${repo.owner.login}-${repo.name}-hooks`,
-      async () =>
-        github.runRestGet<Hook[]>(
-          `/repos/${e(repo.owner.login)}/${e(repo.name)}/hooks`,
-        ),
-    )
+    const hooks = await github.getRepositoryHooks(repo.owner.login, repo.name)
     for (const hook of hooks) {
       if (
         hook.config.url === undefined ||
@@ -71,7 +50,8 @@ const listWebhooks = async (
           reporter.log(
             sprintf(
               "    jenkinsgit: %s (%s) (%s)",
-              hook.config.jenkins_url,
+              // This is undocumented.
+              (hook.config as Record<string, string>).jenkins_url,
               hook.last_response.code,
               hook.events.join(", "),
             ),

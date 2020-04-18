@@ -10,6 +10,8 @@ export type ReposGetResponse = Endpoints["GET /repos/:owner/:repo"]["response"][
 
 export type ReposListTeamsResponseItem = Endpoints["GET /repos/:owner/:repo/teams"]["response"]["data"][0]
 
+export type ReposListHooksResponseItem = Endpoints["GET /repos/:owner/:repo/hooks"]["response"]["data"][0]
+
 export type ReposUpdateParams = Endpoints["PATCH /repos/:owner/:repo"]["parameters"]
 
 export type TeamsListMembersResponseItem = Endpoints["GET /teams/:team_id/members"]["response"]["data"][0]
