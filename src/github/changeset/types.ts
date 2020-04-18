@@ -2,13 +2,13 @@ import { Permission } from "../types"
 
 // GitHub repos
 
-interface RepoCreateItem {
+export interface RepoCreateItem {
   type: "repo-create"
   org: string
   repo: string
 }
 
-interface RepoDeleteItem {
+export interface RepoDeleteItem {
   type: "repo-delete"
   org: string
   repo: string
@@ -26,7 +26,7 @@ export interface RepoAttribUpdateItem {
   )[]
 }
 
-interface RepoTeamAddItem {
+export interface RepoTeamAddItem {
   type: "repo-team-add"
   org: string
   repo: string
@@ -34,14 +34,14 @@ interface RepoTeamAddItem {
   permission: Permission
 }
 
-interface RepoTeamRemoveItem {
+export interface RepoTeamRemoveItem {
   type: "repo-team-remove"
   org: string
   repo: string
   team: string
 }
 
-interface RepoTeamPermissionItem {
+export interface RepoTeamPermissionItem {
   type: "repo-team-permission"
   org: string
   repo: string
@@ -54,13 +54,13 @@ interface RepoTeamPermissionItem {
 
 // GitHub members
 
-interface MemberRemoveItem {
+export interface MemberRemoveItem {
   type: "member-remove"
   org: string
   user: string
 }
 
-interface MemberAddItem {
+export interface MemberAddItem {
   type: "member-add"
   org: string
   user: string
@@ -68,26 +68,26 @@ interface MemberAddItem {
 
 // GitHub teams
 
-interface TeamRemoveItem {
+export interface TeamRemoveItem {
   type: "team-remove"
   org: string
   team: string
 }
 
-interface TeamAddItem {
+export interface TeamAddItem {
   type: "team-add"
   org: string
   team: string
 }
 
-interface TeamMemberRemoveItem {
+export interface TeamMemberRemoveItem {
   type: "team-member-remove"
   org: string
   team: string
   user: string
 }
 
-interface TeamMemberAddItem {
+export interface TeamMemberAddItem {
   type: "team-member-add"
   org: string
   team: string
@@ -95,7 +95,7 @@ interface TeamMemberAddItem {
   role: "member" | "maintainer"
 }
 
-interface TeamMemberPermissionItem {
+export interface TeamMemberPermissionItem {
   type: "team-member-permission"
   org: string
   team: string
