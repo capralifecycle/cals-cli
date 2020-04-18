@@ -19,11 +19,6 @@ const command: CommandModule = {
       .command(listRepos)
       .command(listWebhooks)
       .command(setToken)
-      .options("org", {
-        default: "capralifecycle",
-        describe: "Specify GitHub organization",
-        type: "string",
-      })
       .demandCommand().usage(`cals github
 
 Notes:
@@ -33,13 +28,13 @@ Notes:
   $ cals github set-token
 
   Quick clone all repos:
-  $ cals github generate-clone-commands --all -x | bash
+  $ cals github generate-clone-commands --org capralifecycle --all -x | bash
 
   And for a specific project:
-  $ cals github generate-clone-commands -x buildtools | bash
+  $ cals github generate-clone-commands --org capralifecycle -x buildtools | bash
 
   Keeping up to date with removed/renamed repos:
-  $ cals github analyze-directory
+  $ cals github analyze-directory --org capralifecycle
 
   Some responses are cached for some time. Wipe the cals-cli
   cache folder in your users cache dir (~/.cache/cals-cli on Linux)

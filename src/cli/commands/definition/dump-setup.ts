@@ -51,7 +51,7 @@ async function getReposFromGitHub(
 ): Promise<DetailedProject["repos"][0]> {
   return (
     await pMap(orgs, async (org) => {
-      const repos = await github.getRepoList({ owner: org.login })
+      const repos = await github.getOrgRepoList({ org: org.login })
       return pMap(repos, async (repo) => {
         const detailedRepo = await github.getRepository(
           repo.owner.login,

@@ -58,12 +58,12 @@ async function process(
   definition: Definition,
   getOrg: ReturnType<typeof createOrgGetter>,
   execute: boolean,
-  limitToOrg: string | null,
+  limitToOrg: string | undefined,
 ) {
   let changes: ChangeSetItem[] = []
 
   for (const orgName of getGitHubOrgs(definition)) {
-    if (limitToOrg !== null && limitToOrg !== orgName) {
+    if (limitToOrg !== undefined && limitToOrg !== orgName) {
       continue
     }
 
@@ -142,13 +142,11 @@ const command: CommandModule = {
         describe: "Execute the detected changes",
         type: "boolean",
       })
-      .options("all-orgs", {
-        describe: "Ignore organization filter",
-        type: "boolean",
+      .options("org", {
+        describe: "Filter resources by GitHub organization",
+        type: "string",
       }),
   handler: async (argv) => {
-    const org = !!argv["all-orgs"] ? null : (argv["org"] as string)
-
     const reporter = createReporter(argv)
     const config = createConfig()
     const github = await createGitHubService(
@@ -166,7 +164,7 @@ const command: CommandModule = {
         definition,
         orgGetter,
         !!argv["execute"],
-        org,
+        argv["org"] as string | undefined,
       )
     })
   },

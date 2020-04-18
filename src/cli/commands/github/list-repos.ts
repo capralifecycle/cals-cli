@@ -28,7 +28,7 @@ const listRepos = async ({
   topic = undefined,
   compact,
   csv,
-  owner,
+  org,
 }: {
   reporter: Reporter
   github: GitHubService
@@ -37,9 +37,9 @@ const listRepos = async ({
   topic?: string
   compact: boolean
   csv: boolean
-  owner: string
+  org: string
 }) => {
-  let repos = await github.getRepoList({ owner })
+  let repos = await github.getOrgRepoList({ org })
 
   if (!includeArchived) {
     repos = repos.filter((it) => !it.isArchived)
@@ -130,9 +130,14 @@ const listRepos = async ({
 
 const command: CommandModule = {
   command: "list-repos",
-  describe: "List CALS Git repos",
+  describe: "List Git repos for a GitHub organization",
   builder: (yargs) =>
     yargs
+      .options("org", {
+        required: true,
+        describe: "Specify GitHub organization",
+        type: "string",
+      })
       .option("include-archived", {
         alias: "a",
         describe: "Include archived repos",
@@ -169,7 +174,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,
-      owner: argv["org"] as string,
+      org: argv["org"] as string,
     })
   },
 }

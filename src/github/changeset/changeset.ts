@@ -63,15 +63,15 @@ function getChangedRepoAttribs(
 async function getUnknownRepos(
   github: GitHubService,
   definition: Definition,
-  limitToOrg: string | null,
+  limitToOrg: string | undefined,
 ) {
   const knownRepos = getRepos(definition).map((it) => it.id)
   const orgs = getGitHubOrgs(definition).filter(
-    (orgName) => limitToOrg === null || limitToOrg === orgName,
+    (orgName) => limitToOrg === undefined || limitToOrg === orgName,
   )
 
   return sortBy(
-    (await pMap(orgs, (orgName) => github.getRepoList({ owner: orgName })))
+    (await pMap(orgs, (orgName) => github.getOrgRepoList({ org: orgName })))
       .flat()
       .filter((it) => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
     (it) => `${it.owner.login}/${it.name}`,
@@ -184,13 +184,15 @@ async function getProjectRepoChanges({
 export async function createChangeSetItemsForProjects(
   github: GitHubService,
   definition: Definition,
-  limitToOrg: string | null,
+  limitToOrg: string | undefined,
 ) {
   const changes: ChangeSetItem[] = []
 
   const orgs = definition.projects
     .flatMap((it) => it.github)
-    .filter((org) => limitToOrg === null || limitToOrg === org.organization)
+    .filter(
+      (org) => limitToOrg === undefined || limitToOrg === org.organization,
+    )
 
   changes.push(
     ...(

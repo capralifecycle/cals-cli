@@ -26,9 +26,9 @@ const listWebhooks = async (
   reporter: Reporter,
   cache: CacheProvider,
   github: GitHubService,
-  owner: string,
+  org: string,
 ) => {
-  const repos = (await github.getRepoList({ owner })).filter(
+  const repos = (await github.getOrgRepoList({ org })).filter(
     (it) => !it.isArchived,
   )
 
@@ -98,7 +98,13 @@ const listWebhooks = async (
 
 const command: CommandModule = {
   command: "list-webhooks",
-  describe: "List CALS Git repos web hooks",
+  describe: "List webhooks for repositories in for a GitHub organization",
+  builder: (yargs) =>
+    yargs.options("org", {
+      required: true,
+      describe: "Specify GitHub organization",
+      type: "string",
+    }),
   handler: async (argv) => {
     const config = createConfig()
     const cacheProvider = createCacheProvider(config, argv)

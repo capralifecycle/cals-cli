@@ -16,7 +16,7 @@ const generateCloneCommands = async ({
   reporter,
   config,
   github,
-  owner,
+  org,
   ...opt
 }: {
   reporter: Reporter
@@ -29,14 +29,14 @@ const generateCloneCommands = async ({
   listGroups: boolean
   name: string | undefined
   topic: string | undefined
-  owner: string
+  org: string
 }) => {
   if (!opt.listGroups && !opt.all && opt.group === undefined) {
     yargs.showHelp()
     return
   }
 
-  const repos = await github.getRepoList({ owner })
+  const repos = await github.getOrgRepoList({ org })
   const groups = getGroupedRepos(repos)
 
   if (opt.listGroups) {
@@ -72,11 +72,16 @@ const generateCloneCommands = async ({
 
 const command: CommandModule = {
   command: "generate-clone-commands",
-  describe: "Generate shell commands to clone CALS Git repos",
+  describe: "Generate shell commands to clone GitHub repos for an organization",
   builder: (yargs) =>
     yargs
       .positional("group", {
         describe: "Group to generate commands for",
+      })
+      .options("org", {
+        required: true,
+        describe: "Specify GitHub organization",
+        type: "string",
       })
       .option("all", {
         describe: "Use all groups",
@@ -123,7 +128,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       excludeExisting: !!argv["exclude-existing"],
       group: argv.group as string | undefined,
-      owner: argv["org"] as string,
+      org: argv["org"] as string,
     })
   },
 }

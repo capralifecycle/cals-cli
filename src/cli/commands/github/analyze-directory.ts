@@ -16,9 +16,9 @@ const analyzeDirectory = async (
   reporter: Reporter,
   config: Config,
   github: GitHubService,
-  owner: string,
+  org: string,
 ) => {
-  const repos = await github.getRepoList({ owner })
+  const repos = await github.getOrgRepoList({ org })
 
   const reposDict = repos.reduce<{
     [key: string]: Repo
@@ -75,6 +75,12 @@ const analyzeDirectory = async (
 const command: CommandModule = {
   command: "analyze-directory",
   describe: "Analyze directory for git repos",
+  builder: (yargs) =>
+    yargs.options("org", {
+      required: true,
+      describe: "Specify GitHub organization",
+      type: "string",
+    }),
   handler: async (argv) => {
     const config = createConfig()
     const github = await createGitHubService(

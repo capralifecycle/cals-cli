@@ -220,7 +220,7 @@ export class GitHubService {
     return (await response.json()) as T
   }
 
-  public async getRepoList({ owner }: { owner: string }) {
+  public async getOrgRepoList({ org }: { org: string }) {
     interface QueryResult {
       organization: {
         repositories: {
@@ -235,7 +235,7 @@ export class GitHubService {
     }
 
     const getQuery = (after: string | null) => `{
-  organization(login: "${owner}") {
+  organization(login: "${org}") {
     repositories(first: 100${after === null ? "" : `, after: "${after}"`}) {
       totalCount
       pageInfo {
@@ -268,7 +268,7 @@ export class GitHubService {
   }
 }`
 
-    return this.cache.json(`repos-${owner}`, async () => {
+    return this.cache.json(`repos-${org}`, async () => {
       const repos: Repo[] = []
       let after = null
 
