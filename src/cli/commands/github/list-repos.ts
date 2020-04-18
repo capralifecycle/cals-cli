@@ -24,7 +24,8 @@ const listRepos = async ({
   reporter,
   github,
   includeArchived,
-  topic = null,
+  name = undefined,
+  topic = undefined,
   compact,
   csv,
   owner,
@@ -32,7 +33,8 @@ const listRepos = async ({
   reporter: Reporter
   github: GitHubService
   includeArchived: boolean
-  topic?: string | null
+  name?: string
+  topic?: string
   compact: boolean
   csv: boolean
   owner: string
@@ -43,7 +45,11 @@ const listRepos = async ({
     repos = repos.filter((it) => !it.isArchived)
   }
 
-  if (topic !== null) {
+  if (name !== undefined) {
+    repos = repos.filter((it) => it.name.includes(name))
+  }
+
+  if (topic !== undefined) {
     repos = repos.filter((it) => includesTopic(it, topic))
   }
 
@@ -141,6 +147,10 @@ const command: CommandModule = {
         describe: "Output as a CSV list that can be used for automation",
         type: "boolean",
       })
+      .option("name", {
+        describe: "Filter to include the specified name",
+        type: "string",
+      })
       .option("topic", {
         alias: "t",
         describe: "Filter by specific topic",
@@ -155,6 +165,7 @@ const command: CommandModule = {
         createCacheProvider(config, argv),
       ),
       includeArchived: !!argv["include-archived"],
+      name: argv.name as string | undefined,
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,

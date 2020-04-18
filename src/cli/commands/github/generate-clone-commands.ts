@@ -27,6 +27,7 @@ const generateCloneCommands = async ({
   group: string | undefined
   includeArchived: boolean
   listGroups: boolean
+  name: string | undefined
   topic: string | undefined
   owner: string
 }) => {
@@ -52,6 +53,7 @@ const generateCloneCommands = async ({
 
     group.items
       .filter((it) => opt.includeArchived || !it.isArchived)
+      .filter((it) => opt.name === undefined || it.name.includes(opt.name))
       .filter((it) => opt.topic === undefined || includesTopic(it, opt.topic))
       .filter(
         (it) =>
@@ -90,6 +92,10 @@ const command: CommandModule = {
         describe: "Include archived repos",
         type: "boolean",
       })
+      .option("name", {
+        describe: "Filter to include the specified name",
+        type: "string",
+      })
       .option("topic", {
         alias: "t",
         describe: "Filter by specific topic",
@@ -113,6 +119,7 @@ const command: CommandModule = {
       all: !!argv.all,
       listGroups: !!argv["list-groups"],
       includeArchived: !!argv["include-archived"],
+      name: argv.name as string | undefined,
       topic: argv.topic as string | undefined,
       excludeExisting: !!argv["exclude-existing"],
       group: argv.group as string | undefined,
