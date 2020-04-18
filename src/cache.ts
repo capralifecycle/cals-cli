@@ -4,7 +4,7 @@ import rimraf from "rimraf"
 import { Config } from "./config"
 
 interface CacheItem<T> {
-  cacheTime: number // getTime()
+  cacheTime: ReturnType<Date["getTime"]>
   data: T
 }
 
