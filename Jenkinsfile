@@ -33,7 +33,7 @@ buildConfig([
         'sonar.projectKey': 'capralifecycle_cals-cli',
       ])
 
-      // We only run semantic-release on the master branch,
+      // We only run semantic-release on the release branches,
       // as we do not want credentials to be exposed to the job
       // on other branches or in PRs.
       //
@@ -43,7 +43,7 @@ buildConfig([
       // that 'npm link' and alike builds the code, and we can
       // trigger the same hook on other branches.
 
-      if (env.BRANCH_NAME == 'master') {
+      if (env.BRANCH_NAME ==~ /^(master|\d+\.(\d+|x)(\.x)?)$/) {
         stage('Build, verify and possibly release') {
           withSemanticReleaseEnv {
             sh 'npm run semantic-release'
