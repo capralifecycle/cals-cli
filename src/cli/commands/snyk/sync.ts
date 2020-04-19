@@ -1,7 +1,6 @@
 import { CommandModule } from "yargs"
-import { Config } from "../../../config"
 import {
-  getDefinition,
+  DefinitionFile,
   getRepoId,
   getRepos,
 } from "../../../definition/definition"
@@ -9,22 +8,30 @@ import { createSnykService, SnykService } from "../../../snyk/service"
 import { SnykGitHubRepo } from "../../../snyk/types"
 import { getGitHubRepo } from "../../../snyk/util"
 import { Reporter } from "../../reporter"
-import { createConfig, createReporter } from "../../util"
+import {
+  createConfig,
+  createReporter,
+  definitionFileOptionName,
+  definitionFileOptionValue,
+  getDefinitionFile,
+} from "../../util"
 
 const sync = async ({
   reporter,
   snyk,
-  config,
+  definitionFile,
 }: {
   reporter: Reporter
   snyk: SnykService
-  config: Config
+  definitionFile: DefinitionFile
 }) => {
-  const knownRepos = (await snyk.getProjects())
+  const definition = await definitionFile.getDefinition()
+
+  const knownRepos = (await snyk.getProjects(definition))
     .map((it) => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
 
-  const allReposWithSnyk = getRepos(getDefinition(config)).filter(
+  const allReposWithSnyk = getRepos(definition).filter(
     (it) => it.repo.snyk === true,
   )
 
@@ -58,11 +65,13 @@ const sync = async ({
 const command: CommandModule = {
   command: "sync",
   describe: "Sync Snyk projects (currently only reports, no automation)",
+  builder: (yargs) =>
+    yargs.option(definitionFileOptionName, definitionFileOptionValue),
   handler: async (argv) =>
     sync({
       reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),
-      config: createConfig(),
+      definitionFile: getDefinitionFile(argv),
     }),
 }
 

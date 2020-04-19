@@ -1,14 +1,19 @@
 import { groupBy, repeat, sortBy, sumBy } from "lodash"
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
-import { Config } from "../../../config"
-import { getDefinition, getRepos } from "../../../definition/definition"
+import { DefinitionFile, getRepos } from "../../../definition/definition"
 import { Project } from "../../../definition/types"
 import { createSnykService, SnykService } from "../../../snyk/service"
 import { SnykProject } from "../../../snyk/types"
 import { getGitHubRepo, getGitHubRepoId } from "../../../snyk/util"
 import { Reporter } from "../../reporter"
-import { createConfig, createReporter } from "../../util"
+import {
+  createConfig,
+  createReporter,
+  definitionFileOptionName,
+  definitionFileOptionValue,
+  getDefinitionFile,
+} from "../../util"
 
 function totalSeverityCount(project: SnykProject) {
   return (
@@ -34,17 +39,19 @@ function buildStatsLine(stats: SnykProject["issueCountsBySeverity"]) {
 async function report({
   reporter,
   snyk,
-  config,
+  definitionFile,
 }: {
   reporter: Reporter
   snyk: SnykService
-  config: Config
+  definitionFile: DefinitionFile
 }) {
-  const reposWithIssues = (await snyk.getProjects()).filter(
+  const definition = await definitionFile.getDefinition()
+
+  const reposWithIssues = (await snyk.getProjects(definition)).filter(
     (it) => totalSeverityCount(it) > 0,
   )
 
-  const definitionRepos = getRepos(getDefinition(config))
+  const definitionRepos = getRepos(definition)
 
   function getProject(p: SnykProject) {
     const id = getGitHubRepoId(getGitHubRepo(p))
@@ -123,11 +130,13 @@ async function report({
 const command: CommandModule = {
   command: "report",
   describe: "Report Snyk projects status",
+  builder: (yargs) =>
+    yargs.option(definitionFileOptionName, definitionFileOptionValue),
   handler: async (argv) =>
     report({
       reporter: createReporter(argv),
       snyk: await createSnykService(createConfig()),
-      config: createConfig(),
+      definitionFile: getDefinitionFile(argv),
     }),
 }
 

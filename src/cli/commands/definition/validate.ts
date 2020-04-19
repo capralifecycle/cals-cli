@@ -1,15 +1,20 @@
 import { CommandModule } from "yargs"
-import { getDefinition } from "../../../definition/definition"
-import { createConfig, createReporter } from "../../util"
+import {
+  createReporter,
+  definitionFileOptionName,
+  definitionFileOptionValue,
+  getDefinitionFile,
+} from "../../util"
 
 const command: CommandModule = {
   command: "validate",
   describe: "Validate definition file.",
+  builder: (yargs) =>
+    yargs.option(definitionFileOptionName, definitionFileOptionValue),
   handler: async (argv) => {
     const reporter = createReporter(argv)
-    const config = createConfig()
 
-    getDefinition(config)
+    await getDefinitionFile(argv).getDefinition()
 
     reporter.info("Valid!")
   },

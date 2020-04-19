@@ -1,7 +1,7 @@
 import keytar from "keytar"
 import fetch from "node-fetch"
 import { Config } from "../config"
-import { getDefinition } from "../definition/definition"
+import { Definition } from "../definition/types"
 import { SnykProject } from "./types"
 
 const keyringService = "cals"
@@ -38,8 +38,8 @@ export class SnykService {
     return result
   }
 
-  public async getProjects(): Promise<SnykProject[]> {
-    const snykAccountId = getDefinition(this.config).snyk.accountId
+  public async getProjects(definition: Definition): Promise<SnykProject[]> {
+    const snykAccountId = definition.snyk.accountId
 
     const response = await fetch(
       `https://snyk.io/api/v1/org/${encodeURIComponent(

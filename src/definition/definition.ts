@@ -1,13 +1,7 @@
 import fs from "fs"
 import yaml from "js-yaml"
 import { uniq } from "lodash"
-import { Config } from "../config"
 import { Definition } from "./types"
-import { getDefinitionFile } from "./util"
-
-export function getRawDefinition(config: Config) {
-  return fs.readFileSync(getDefinitionFile(config), "utf-8")
-}
 
 function getTeamId(org: string, teamName: string) {
   return `${org}/${teamName}`
@@ -107,10 +101,27 @@ function validateDefinition(definition: Definition) {
     }, [])
 }
 
-export function getDefinition(config: Config) {
-  const definition = yaml.safeLoad(getRawDefinition(config)) as Definition
-  validateDefinition(definition)
-  return definition
+export class DefinitionFile {
+  private path: string
+
+  constructor(path: string) {
+    this.path = path
+  }
+
+  public async getContents(): Promise<string> {
+    return new Promise((resolve, reject) =>
+      fs.readFile(this.path, "utf-8", (err, data) => {
+        if (err) reject(err)
+        else resolve(data)
+      }),
+    )
+  }
+
+  public async getDefinition(): Promise<Definition> {
+    const definition = yaml.safeLoad(await this.getContents()) as Definition
+    validateDefinition(definition)
+    return definition
+  }
 }
 
 export function getRepos(definition: Definition) {

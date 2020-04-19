@@ -6,14 +6,11 @@ const command: CommandModule = {
   command: "definition",
   describe: "CALS definition file management",
   builder: (yargs) =>
-    yargs.command(dumpSetup).command(validate).demandCommand()
-      .usage(`cals definition
-
-The definition file is located at
-https://github.com/capralifecycle/resources-definition/blob/master/resources.yaml
-
-The file ~/.cals-config.json must include a reference to the location of this
-file. See README for details: https://github.com/capralifecycle/cals-cli`),
+    yargs
+      .command(dumpSetup)
+      .command(validate)
+      .demandCommand()
+      .usage(`cals definition`),
   handler: () => {
     yargs.showHelp()
   },

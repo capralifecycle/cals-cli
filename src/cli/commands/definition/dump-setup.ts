@@ -4,8 +4,7 @@ import pMap from "p-map"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import {
-  getDefinition,
-  getRawDefinition,
+  DefinitionFile,
   getRepoId,
   getRepos,
 } from "../../../definition/definition"
@@ -31,7 +30,14 @@ import { createSnykService, SnykService } from "../../../snyk/service"
 import { SnykGitHubRepo } from "../../../snyk/types"
 import { getGitHubRepo } from "../../../snyk/util"
 import { Reporter } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+import {
+  createCacheProvider,
+  createConfig,
+  createReporter,
+  definitionFileOptionName,
+  definitionFileOptionValue,
+  getDefinitionFile,
+} from "../../util"
 import { reportRateLimit } from "../github/util"
 
 interface DetailedProject {
@@ -159,8 +165,8 @@ async function getMembers(github: GitHubService, orgs: OrgsGetResponse[]) {
   )
 }
 
-async function getSnykRepos(snyk: SnykService) {
-  return (await snyk.getProjects())
+async function getSnykRepos(snyk: SnykService, definition: Definition) {
+  return (await snyk.getProjects(definition))
     .map((it) => getGitHubRepo(it))
     .filter((it): it is SnykGitHubRepo => it !== undefined)
     .map((it) => getRepoId(it.owner, it.name))
@@ -172,7 +178,7 @@ async function getProjects(
   definition: Definition,
   snyk: SnykService,
 ) {
-  const snykReposPromise = getSnykRepos(snyk)
+  const snykReposPromise = getSnykRepos(snyk, definition)
 
   const projectMap = getRepos(definition).reduce<Record<string, string>>(
     (acc, cur) => ({
@@ -276,10 +282,11 @@ async function dumpSetup(
   github: GitHubService,
   snyk: SnykService,
   outfile: string,
+  definitionFile: DefinitionFile,
 ) {
   reporter.info("Fetching data. This might take some time")
   const orgs = await getOrgs(github, ["capralifecycle", "capraconsulting"])
-  const definition = getDefinition(config)
+  const definition = await definitionFile.getDefinition()
 
   const teams = getTeams(github, orgs)
   const members = getMembers(github, orgs)
@@ -310,7 +317,7 @@ async function dumpSetup(
   //  package. However it often produced invalid yaml, so we have removed
   //  it. We might want to revisit it to preserve comments.
 
-  const doc = yaml.safeLoad(getRawDefinition(config))
+  const doc = yaml.safeLoad(await definitionFile.getContents())
   doc.snyk = generatedDefinition.snyk
   doc.projects = generatedDefinition.projects
   doc.github = generatedDefinition.github
@@ -330,6 +337,7 @@ const command: CommandModule = {
       .positional("outfile", {
         type: "string",
       })
+      .option(definitionFileOptionName, definitionFileOptionValue)
       .demandOption("outfile"),
   handler: async (argv) => {
     const reporter = createReporter(argv)
@@ -340,7 +348,14 @@ const command: CommandModule = {
     )
     const snyk = await createSnykService(config)
     await reportRateLimit(reporter, github, () =>
-      dumpSetup(config, reporter, github, snyk, argv.outfile as string),
+      dumpSetup(
+        config,
+        reporter,
+        github,
+        snyk,
+        argv.outfile as string,
+        getDefinitionFile(argv),
+      ),
     )
   },
 }

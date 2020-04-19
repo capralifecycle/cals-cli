@@ -2,7 +2,7 @@ import pLimit, { Limit } from "p-limit"
 import read from "read"
 import { CommandModule } from "yargs"
 import { Reporter } from "../../../cli/reporter"
-import { getDefinition, getGitHubOrgs } from "../../../definition/definition"
+import { getGitHubOrgs } from "../../../definition/definition"
 import { Definition } from "../../../definition/types"
 import {
   cleanupChangeSetItems,
@@ -17,7 +17,14 @@ import {
 import { ChangeSetItem } from "../../../github/changeset/types"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { OrgsGetResponse, TeamsListResponseItem } from "../../../github/types"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+import {
+  createCacheProvider,
+  createConfig,
+  createReporter,
+  definitionFileOptionName,
+  definitionFileOptionValue,
+  getDefinitionFile,
+} from "../../util"
 import { reportRateLimit } from "./util"
 
 function createOrgGetter(github: GitHubService) {
@@ -145,7 +152,8 @@ const command: CommandModule = {
       .options("org", {
         describe: "Filter resources by GitHub organization",
         type: "string",
-      }),
+      })
+      .option(definitionFileOptionName, definitionFileOptionValue),
   handler: async (argv) => {
     const reporter = createReporter(argv)
     const config = createConfig()
@@ -153,7 +161,7 @@ const command: CommandModule = {
       config,
       createCacheProvider(config, argv),
     )
-    const definition = getDefinition(config)
+    const definition = await getDefinitionFile(argv).getDefinition()
 
     await reportRateLimit(reporter, github, async () => {
       const orgGetter = createOrgGetter(github)
