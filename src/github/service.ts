@@ -193,6 +193,13 @@ export class GitHubService {
     return json.data
   }
 
+  /**
+   * @deprecated
+   */
+  public async getRepoList({ owner }: { owner: string }) {
+    return this.getOrgRepoList({ org: owner })
+  }
+
   public async getOrgRepoList({ org }: { org: string }) {
     interface QueryResult {
       organization: {
