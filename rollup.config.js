@@ -1,29 +1,29 @@
-import dateFormat from 'dateformat'
-import path from 'path'
-import alias from 'rollup-plugin-alias'
-import json from 'rollup-plugin-json'
-import replace from 'rollup-plugin-replace'
-import typescript from 'rollup-plugin-typescript2'
-import pkg from './package.json'
+import dateFormat from "dateformat"
+import path from "path"
+import alias from "rollup-plugin-alias"
+import json from "rollup-plugin-json"
+import replace from "rollup-plugin-replace"
+import typescript from "rollup-plugin-typescript2"
+import pkg from "./package.json"
 
 const external = [
-  'fs',
-  'readline',
-  'path',
-  'https',
-  'os',
-  'util',
+  "fs",
+  "readline",
+  "path",
+  "https",
+  "os",
+  "util",
   ...Object.keys(pkg.dependencies || {}),
   ...Object.keys(pkg.peerDependencies || {}),
 ]
 
 const plugins = [
   alias({
-    resolve: ['.js', '.json'],
+    resolve: [".js", ".json"],
     entries: [
       {
-        find: 'package.json',
-        replacement: path.resolve('package.json'),
+        find: "package.json",
+        replacement: path.resolve("package.json"),
       },
     ],
   }),
@@ -31,7 +31,7 @@ const plugins = [
   json(),
   replace({
     BUILD_TIMESTAMP: JSON.stringify(
-      dateFormat(new Date(), 'isoDateTime', true),
+      dateFormat(new Date(), "isoDateTime", true),
     ),
   }),
 ]
@@ -39,10 +39,10 @@ const plugins = [
 export default [
   // CommonJS
   {
-    input: 'src/index.ts',
+    input: "src/index.ts",
     output: {
       file: pkg.main,
-      format: 'cjs',
+      format: "cjs",
       sourcemap: true,
     },
     external,
@@ -50,10 +50,10 @@ export default [
   },
   // ES
   {
-    input: 'src/index.ts',
+    input: "src/index.ts",
     output: {
       file: pkg.module,
-      format: 'es',
+      format: "es",
       sourcemap: true,
     },
     external,
@@ -61,11 +61,11 @@ export default [
   },
   // CLI
   {
-    input: 'src/cals-cli.ts',
+    input: "src/cals-cli.ts",
     output: {
       file: pkg.bin.cals,
-      banner: '#!/usr/bin/env node',
-      format: 'cjs',
+      banner: "#!/usr/bin/env node",
+      format: "cjs",
       sourcemap: true,
     },
     external,

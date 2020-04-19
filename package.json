@@ -5,9 +5,9 @@
   "scripts": {
     "build": "rollup -c",
     "test": "jest --coverage src",
-    "lint": "eslint --ext ts src",
+    "lint": "eslint --ext js --ext ts .",
     "prepack": "./scripts/build-and-verify.sh",
-    "prettier": "prettier --config .prettierrc --write 'src/**/*.ts'",
+    "prettier": "prettier --config .prettierrc --write .",
     "semantic-release": "semantic-release"
   },
   "main": "lib/index.js",

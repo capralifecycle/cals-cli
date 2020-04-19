@@ -44,29 +44,29 @@ from the Angular project.
 
 ## Goals of CLI
 
-* Provide an uniform way of consistently doing repeatable CALS tasks
-* Provide simple guidelines to improve the experience for developers
-* A tool that everybody uses and gets ownership of
-* Automate repeatable CALS tasks as we go
+- Provide an uniform way of consistently doing repeatable CALS tasks
+- Provide simple guidelines to improve the experience for developers
+- A tool that everybody uses and gets ownership of
+- Automate repeatable CALS tasks as we go
 
 ## Ideas and future work
 
-* Automate onboarding of people
-  * Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
-* Automate offboarding of people
-* Automate generation of new projects/resources
-  * Creating GitHub repos, giving permissions etc
-  * Slack channels
-  * AWS account and structure
-  * Checklist for manual processes
-* AWS infrastructure management, e.g. scripts such as https://github.com/capralifecycle/rvr-aws-infrastructure/blob/master/rvr/create-stack.sh
-  * `cals aws ...`
+- Automate onboarding of people
+  - Granting access to various resources: AWS, GitHub, Confluence, JIRA, Slack, ...
+- Automate offboarding of people
+- Automate generation of new projects/resources
+  - Creating GitHub repos, giving permissions etc
+  - Slack channels
+  - AWS account and structure
+  - Checklist for manual processes
+- AWS infrastructure management, e.g. scripts such as https://github.com/capralifecycle/rvr-aws-infrastructure/blob/master/rvr/create-stack.sh
+  - `cals aws ...`
 
 ### Snyk management
 
 https://snyk.docs.apiary.io/reference/projects
 
-* [ ] Automatically set up project in Snyk
-* [x] Report of which repos are in Snyk and which is not
-* [ ] Detect active vs disabled projects in Snyk (no way through API now?)
-* [x] Report issues in Snyk grouped by our projects
+- [ ] Automatically set up project in Snyk
+- [x] Report of which repos are in Snyk and which is not
+- [ ] Detect active vs disabled projects in Snyk (no way through API now?)
+- [x] Report issues in Snyk grouped by our projects

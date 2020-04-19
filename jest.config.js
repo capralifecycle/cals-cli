@@ -1,8 +1,8 @@
 module.exports = {
   moduleNameMapper: {
-    'package.json': '<rootDir>/package.json',
+    "package.json": "<rootDir>/package.json",
   },
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testResultsProcessor: 'jest-sonar-reporter',
+  preset: "ts-jest",
+  testEnvironment: "node",
+  testResultsProcessor: "jest-sonar-reporter",
 }
