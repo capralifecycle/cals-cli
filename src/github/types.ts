@@ -35,6 +35,42 @@ export interface Repo {
   repositoryTopics: { edges: { node: { topic: { name: string } } }[] }
 }
 
+// See https://developer.github.com/v4/object/repositoryvulnerabilityalert/
+export interface VulerabilityAlert {
+  dismissReason: string | null
+  vulnerableManifestFilename: string
+  vulnerableManifestPath: string
+  vulnerableRequirements: string | null
+  securityAdvisory: {
+    description: string
+    identifiers: Array<{
+      type: string
+      value: string
+    }>
+    references: Array<{
+      url: string // URI
+    }>
+    severity: "CRITICAL" | "HIGH" | "LOW" | "MODERATE"
+  } | null
+  securityVulnerability: {
+    package: {
+      name: string
+      ecosystem:
+        | "COMPOSER"
+        | "MAVEN"
+        | "NPM"
+        | "NUGET"
+        | "PIP"
+        | "RUBYGEMS"
+        | string
+    }
+    firstPatchedVersion: {
+      identifier: string
+    }
+    vulnerableVersionRange: string
+  } | null
+}
+
 export type Permission = "admin" | "push" | "pull"
 
 export type TeamMemberOrInvited =

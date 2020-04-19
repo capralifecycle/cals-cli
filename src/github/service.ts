@@ -18,6 +18,7 @@ import {
   TeamsListMembersResponseItem,
   TeamsListPendingInvitationsResponseItem,
   TeamsListResponseItem,
+  VulerabilityAlert,
 } from "./types"
 import { undefinedForNotFound } from "./util"
 
@@ -519,6 +520,118 @@ export class GitHubService {
     }
 
     return pulls.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }
+
+  public async getHasVulnerabilityAlertsEnabled(
+    owner: string,
+    repo: string,
+  ): Promise<boolean> {
+    try {
+      const response = await this.octokit.repos.checkVulnerabilityAlerts({
+        owner: owner,
+        repo: repo,
+      })
+
+      if (response.status !== 204) {
+        console.log(response)
+        throw new Error("Unknown response - see previous log line")
+      }
+
+      return true
+    } catch (e) {
+      if (e.status === 404) {
+        return false
+      }
+      throw e
+    }
+  }
+
+  public async enableVulnerabilityAlerts(
+    owner: string,
+    repo: string,
+  ): Promise<void> {
+    await this.octokit.repos.enableVulnerabilityAlerts({
+      owner: owner,
+      repo: repo,
+    })
+  }
+
+  /**
+   * Get the vulernability alerts for a repository.
+   */
+  public async getVulnerabilityAlerts(owner: string, repo: string) {
+    interface QueryResult {
+      repository: {
+        vulnerabilityAlerts: {
+          pageInfo: {
+            hasNextPage: boolean
+            endCursor: string | null
+          }
+          edges: Array<{
+            node: VulerabilityAlert
+          }> | null
+        }
+      } | null
+    }
+
+    const getQuery = (after: string | null) => `{
+  repository(owner: "${owner}", name: "${repo}") {
+    vulnerabilityAlerts(first: 100${
+      after === null ? "" : `, after: "${after}"`
+    }) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          dismissReason
+          vulnerableManifestFilename
+          vulnerableManifestPath
+          vulnerableRequirements
+          securityAdvisory {
+            description
+            identifiers { type value }
+            references { url }
+            severity
+          }
+          securityVulnerability {
+            package { name ecosystem }
+            firstPatchedVersion { identifier }
+            vulnerableVersionRange
+          }
+        }
+      }
+    }
+  }
+}`
+
+    return this.cache.json(
+      `vulnerability-alerts-${owner}-${repo}`,
+      async () => {
+        const result: VulerabilityAlert[] = []
+        let after = null
+
+        while (true) {
+          const query = getQuery(after)
+          const res = await this.runGraphqlQuery<QueryResult>(query)
+
+          result.push(
+            ...(res.repository?.vulnerabilityAlerts.edges?.map(
+              (it) => it.node,
+            ) ?? []),
+          )
+
+          if (!res.repository?.vulnerabilityAlerts.pageInfo.hasNextPage) {
+            break
+          }
+
+          after = res.repository!.vulnerabilityAlerts.pageInfo.endCursor
+        }
+
+        return result
+      },
+    )
   }
 }
 
