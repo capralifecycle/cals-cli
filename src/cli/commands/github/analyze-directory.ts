@@ -60,7 +60,7 @@ const analyzeDirectory = async (
 
   reporter.info(
     sprintf(
-      "Stats: unknown=%d  archoved=%d  ok=%d",
+      "Stats: unknown=%d  archived=%d  ok=%d",
       stats.unknown,
       stats.archived,
       stats.ok,
