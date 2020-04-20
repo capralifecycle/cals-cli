@@ -20,6 +20,7 @@
     "@types/rimraf": "^3.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
+    "execa": "^4.0.0",
     "js-yaml": "^3.13.1",
     "keytar": "^5.0.0",
     "lodash": "^4.17.15",
