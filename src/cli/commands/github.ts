@@ -6,6 +6,7 @@ import listPullRequestsStats from "./github/list-pull-requests-stats"
 import listRepos from "./github/list-repos"
 import listWebhooks from "./github/list-webhooks"
 import setToken from "./github/set-token"
+import sync from "./github/sync"
 
 const command: CommandModule = {
   command: "github",
@@ -19,6 +20,7 @@ const command: CommandModule = {
       .command(listRepos)
       .command(listWebhooks)
       .command(setToken)
+      .command(sync)
       .demandCommand().usage(`cals github
 
 Notes:
