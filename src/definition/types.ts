@@ -21,6 +21,7 @@ export interface Project {
     repos?: DefinitionRepo[]
     teams?: RepoTeam[]
   }[]
+  tags?: string[]
 }
 
 export type User = UserBot | UserEmployee | UserExternal
