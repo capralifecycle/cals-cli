@@ -1,7 +1,7 @@
 import { Permission } from "../github/types"
 
 export interface Definition {
-  snyk: {
+  snyk?: {
     accountId: string
   }
   github: {

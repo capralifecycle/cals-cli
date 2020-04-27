@@ -39,7 +39,10 @@ export class SnykService {
   }
 
   public async getProjects(definition: Definition): Promise<SnykProject[]> {
-    const snykAccountId = definition.snyk.accountId
+    const snykAccountId = definition.snyk?.accountId
+    if (snykAccountId === undefined) {
+      throw new Error("Missing snyk account ID")
+    }
 
     const response = await fetch(
       `https://snyk.io/api/v1/org/${encodeURIComponent(
