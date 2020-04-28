@@ -41,7 +41,7 @@ export class SnykService {
   public async getProjects(definition: Definition): Promise<SnykProject[]> {
     const snykAccountId = definition.snyk?.accountId
     if (snykAccountId === undefined) {
-      throw new Error("Missing snyk account ID")
+      return []
     }
 
     const response = await fetch(
