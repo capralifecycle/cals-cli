@@ -79,6 +79,11 @@ export class GitRepo {
     return result.stdout.replace(/^\?\?.+$/gm, "").length > 0
   }
 
+  async hasUnpushedCommits() {
+    const result = await this.git(["status", "-sb"])
+    return result.stdout.includes("[ahead")
+  }
+
   async getAuthorsForRange(range: {
     from: string
     to: string

@@ -328,6 +328,13 @@ async function sync({
     }
   }
 
+  // Report repos with changes ahead.
+  for (const repo of foundRepos) {
+    if (await repo.git.hasUnpushedCommits()) {
+      reporter.warn(`Has unpushed commits: ${repo.relpath}`)
+    }
+  }
+
   // Intentionally put dirty at the end, as the user needs to do something here.
   for (const repo of dirtyList) {
     reporter.warn(`Dirty path: ${repo.relpath} - handle manually`)
