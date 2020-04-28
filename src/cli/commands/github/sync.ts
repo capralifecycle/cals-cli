@@ -1,3 +1,4 @@
+import findUp from "find-up"
 import fs from "fs"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
@@ -84,12 +85,16 @@ async function updateRepos(
   )
 }
 
-async function getDefinition(cals: CalsManifest): Promise<Definition> {
-  if (!fs.existsSync(cals.resourcesDefinition.path)) {
-    throw Error(`The file ${cals.resourcesDefinition.path} does not exist`)
+async function getDefinition(
+  rootdir: string,
+  cals: CalsManifest,
+): Promise<Definition> {
+  const p = path.resolve(rootdir, cals.resourcesDefinition.path)
+  if (!fs.existsSync(p)) {
+    throw Error(`The file ${p} does not exist`)
   }
 
-  return new DefinitionFile(cals.resourcesDefinition.path).getDefinition()
+  return new DefinitionFile(p).getDefinition()
 }
 
 /**
@@ -108,15 +113,15 @@ function getDirNames(parent: string): string[] {
 
 async function getExpectedRepos(
   reporter: Reporter,
-  config: Config,
   github: GitHubService,
   cals: CalsManifest,
+  rootdir: string,
 ): Promise<ExpectedRepo[]> {
   const githubRepos = await github.getOrgRepoList({
     org: cals.githubOrganization,
   })
 
-  const definition = await getDefinition(cals)
+  const definition = await getDefinition(rootdir, cals)
   const expectedRepos: ExpectedRepo[] = []
 
   const reposInOrg = getRepos(definition)
@@ -128,7 +133,7 @@ async function getExpectedRepos(
           cals.resourcesDefinition.tags?.includes(tag),
         ) ||
         // Always include if already checked out to avoid stale state.
-        fs.existsSync(path.join(config.cwd, it.project.name, it.repo.name)),
+        fs.existsSync(path.join(rootdir, it.project.name, it.repo.name)),
     )
 
   for (const item of reposInOrg) {
@@ -152,18 +157,18 @@ async function getExpectedRepos(
 
 async function sync(
   reporter: Reporter,
-  config: Config,
   github: GitHubService,
   cals: CalsManifest,
+  rootdir: string,
 ) {
-  const expectedRepos = await getExpectedRepos(reporter, config, github, cals)
+  const expectedRepos = await getExpectedRepos(reporter, github, cals, rootdir)
 
   const unknownDirs: string[] = []
   const foundRepos: ActualRepo[] = []
 
   // Categorize all dirs.
-  for (const topdir of getDirNames(config.cwd)) {
-    const isGitDir = fs.existsSync(path.join(config.cwd, topdir, ".git"))
+  for (const topdir of getDirNames(rootdir)) {
+    const isGitDir = fs.existsSync(path.join(rootdir, topdir, ".git"))
     if (isGitDir) {
       // Do not traverse deeper inside another Git repo, as that might
       // mean we do not have the proper grouped structure.
@@ -171,7 +176,7 @@ async function sync(
       continue
     }
 
-    for (const subdir of getDirNames(path.join(config.cwd, topdir))) {
+    for (const subdir of getDirNames(path.join(rootdir, topdir))) {
       const p = path.join(topdir, subdir)
 
       const expectedRepo = expectedRepos.find((it) => it.relpath === p)
@@ -182,9 +187,9 @@ async function sync(
 
       foundRepos.push({
         ...expectedRepo,
-        git: new GitRepo(p, async (result) => {
+        git: new GitRepo(path.resolve(rootdir, p), async (result) => {
           await appendFile(
-            CALS_LOG,
+            path.resolve(rootdir, CALS_LOG),
             JSON.stringify({
               time: new Date().toISOString(),
               context: p,
@@ -280,22 +285,32 @@ async function sync(
   }
 }
 
-function loadCalsManifest(reporter: Reporter): CalsManifest | null {
-  if (!fs.existsSync(CALS_YAML)) {
-    reporter.error(`File ${CALS_YAML} does not exist. See help`)
+async function loadCalsManifest(
+  config: Config,
+  reporter: Reporter,
+): Promise<{
+  dir: string
+  cals: CalsManifest
+} | null> {
+  const p = await findUp(CALS_YAML, { cwd: config.cwd })
+  if (p === undefined) {
+    reporter.error(`File ${CALS_YAML} not found. See help`)
     process.exitCode = 1
     return null
   }
 
   // TODO: Verify file has expected contents.
   //  (Can we easily generate schema for type and verify?)
-  const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(CALS_YAML, "utf-8"))
+  const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(p, "utf-8"))
 
   if (cals.version !== 2) {
-    throw new Error(`Unexpected version in ${CALS_YAML}`)
+    throw new Error(`Unexpected version in ${p}`)
   }
 
-  return cals
+  return {
+    dir: path.dirname(p),
+    cals,
+  }
 }
 
 const command: CommandModule = {
@@ -305,7 +320,8 @@ const command: CommandModule = {
     yargs.usage(`cals github sync
 
 Synchronize all checked out GitHub repositories within the working directory
-grouped by the project in the resource definition file.
+grouped by the project in the resource definition file. The command can also
+be run in any subdirectory, and it will discover the correct root.
 
 A special file "${CALS_YAML}" must exist which describes how
 the directory should be synced. Template for the file:
@@ -342,10 +358,12 @@ will be stored there.`),
       createCacheProvider(config, argv),
     )
     const reporter = createReporter(argv)
-    const cals = loadCalsManifest(reporter)
-    if (cals === null) return
 
-    return sync(reporter, config, github, cals)
+    const manifest = await loadCalsManifest(config, reporter)
+    if (manifest === null) return
+    const { dir, cals } = manifest
+
+    return sync(reporter, github, cals, dir)
   },
 }
 
