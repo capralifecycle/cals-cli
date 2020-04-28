@@ -1,5 +1,3 @@
-import { Repo } from "../github/types"
-
 export function wasUpdated(output: string): boolean {
   return output.startsWith("Updating ")
 }
@@ -22,12 +20,11 @@ export function getCompareLink(
     from: string
     to: string
   },
-  repo: Repo,
-): string | null {
-  const owner = repo.owner.login
+  owner: string,
+  name: string,
+): string {
   const compare = `${range.from}...${range.to}`
-
-  return `https://github.com/${owner}/${repo.name}/compare/${compare}`
+  return `https://github.com/${owner}/${name}/compare/${compare}`
 }
 
 /**

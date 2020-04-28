@@ -2,26 +2,32 @@ import fs from "fs"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
 import path from "path"
-import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
+import { DefinitionFile, getRepos } from "../../../definition/definition"
+import { Definition } from "../../../definition/types"
 import { GitRepo, UpdateResult } from "../../../git/GitRepo"
 import { getCompareLink } from "../../../git/util"
 import { createGitHubService, GitHubService } from "../../../github/service"
-import { Repo as GitHubRepo } from "../../../github/types"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const CALS_YAML = ".cals.yaml"
 const CALS_LOG = ".cals.log"
 
-interface Repo {
-  github: GitHubRepo
-  git: GitRepo
+interface ExpectedRepo {
+  org: string
   name: string
+  group: string
+  relpath: string
+  archived: boolean
 }
 
-interface RepoWithUpdateResult extends Repo {
+interface ActualRepo extends ExpectedRepo {
+  git: GitRepo
+}
+
+interface RepoWithUpdateResult extends ActualRepo {
   updateResult: UpdateResult
 }
 
@@ -40,13 +46,21 @@ async function appendFile(path: string, data: string): Promise<void> {
  * Structure for CALS_YAML file.
  */
 interface CalsManifest {
-  version: 1
+  version: 2 // Bump this on breaking changes to manifest/command.
   githubOrganization: string
+  resourcesDefinition: {
+    path: string
+    /**
+     * If tags are specified, there must be overlap between these tags
+     * and the tags for a project.
+     */
+    tags?: string[]
+  }
 }
 
 async function updateRepos(
   reporter: Reporter,
-  items: Repo[],
+  items: ActualRepo[],
 ): Promise<RepoWithUpdateResult[]> {
   // Perform git operations in parallel, but limit how much.
   const semaphore = pLimit(30)
@@ -59,7 +73,7 @@ async function updateRepos(
           updateResult: await repo.git.update(),
         }
       } catch (e) {
-        reporter.error(`Failed for ${repo.name} - skipping. ${e}`)
+        reporter.error(`Failed for ${repo.relpath} - skipping. ${e}`)
         return null
       }
     }),
@@ -70,75 +84,133 @@ async function updateRepos(
   )
 }
 
-const sync = async (
+async function getDefinition(cals: CalsManifest): Promise<Definition> {
+  if (!fs.existsSync(cals.resourcesDefinition.path)) {
+    throw Error(`The file ${cals.resourcesDefinition.path} does not exist`)
+  }
+
+  return new DefinitionFile(cals.resourcesDefinition.path).getDefinition()
+}
+
+/**
+ * Get directory names within a directory.
+ */
+function getDirNames(parent: string): string[] {
+  return (
+    fs
+      .readdirSync(parent)
+      .filter((it) => fs.statSync(path.join(parent, it)).isDirectory())
+      // Skip hidden folders
+      .filter((it) => !it.startsWith("."))
+      .sort((a, b) => a.localeCompare(b))
+  )
+}
+
+async function getExpectedRepos(
   reporter: Reporter,
   config: Config,
   github: GitHubService,
   cals: CalsManifest,
-) => {
+): Promise<ExpectedRepo[]> {
   const githubRepos = await github.getOrgRepoList({
     org: cals.githubOrganization,
   })
 
-  const githubReposDict = githubRepos.reduce<{
-    [key: string]: GitHubRepo
-  }>((acc, cur) => ({ ...acc, [cur.name]: cur }), {})
+  const definition = await getDefinition(cals)
+  const expectedRepos: ExpectedRepo[] = []
 
-  const dirs = fs
-    .readdirSync(config.cwd)
-    .filter((it) => fs.statSync(path.join(config.cwd, it)).isDirectory())
-    // Skip hidden folders
-    .filter((it) => !it.startsWith("."))
-    .sort((a, b) => a.localeCompare(b))
+  const reposInOrg = getRepos(definition)
+    .filter((it) => it.orgName === cals.githubOrganization)
+    .filter(
+      (it) =>
+        cals.resourcesDefinition.tags === undefined ||
+        (it.project.tags || []).some((tag) =>
+          cals.resourcesDefinition.tags?.includes(tag),
+        ) ||
+        // Always include if already checked out to avoid stale state.
+        fs.existsSync(path.join(config.cwd, it.project.name, it.repo.name)),
+    )
 
-  const unknownDirs: string[] = []
-  const archivedRepos: Repo[] = []
-  const foundRepos: Repo[] = []
-
-  // Categorize all dirs.
-  for (const dirname of dirs) {
-    if (!(dirname in githubReposDict)) {
-      unknownDirs.push(dirname)
+  for (const item of reposInOrg) {
+    const githubRepo = githubRepos.find((it) => it.name === item.repo.name)
+    if (githubRepo === undefined) {
+      reporter.warn(`Repo not found in GitHub - ignoring: ${item.repo.name}`)
       continue
     }
 
-    const repoContainer: Repo = {
-      github: githubReposDict[dirname],
-      git: new GitRepo(dirname, async (result) => {
-        await appendFile(
-          CALS_LOG,
-          JSON.stringify({
-            time: new Date().toISOString(),
-            context: dirname,
-            type: "exec-result",
-            payload: result,
-          }) + "\n",
-        )
-      }),
-      name: dirname,
-    }
-
-    if (repoContainer.github.isArchived) {
-      archivedRepos.push(repoContainer)
-    }
-
-    foundRepos.push(repoContainer)
+    expectedRepos.push({
+      org: item.orgName,
+      name: item.repo.name,
+      group: item.project.name,
+      relpath: path.join(item.project.name, item.repo.name),
+      archived: !!item.repo.archived,
+    })
   }
 
-  for (const it of unknownDirs) {
-    reporter.warn(
-      sprintf(
-        "%-30s  <-- Not found in repository list (maybe changed name?)",
-        it,
-      ),
-    )
+  return expectedRepos
+}
+
+async function sync(
+  reporter: Reporter,
+  config: Config,
+  github: GitHubService,
+  cals: CalsManifest,
+) {
+  const expectedRepos = await getExpectedRepos(reporter, config, github, cals)
+
+  const unknownDirs: string[] = []
+  const foundRepos: ActualRepo[] = []
+
+  // Categorize all dirs.
+  for (const topdir of getDirNames(config.cwd)) {
+    const isGitDir = fs.existsSync(path.join(config.cwd, topdir, ".git"))
+    if (isGitDir) {
+      // Do not traverse deeper inside another Git repo, as that might
+      // mean we do not have the proper grouped structure.
+      unknownDirs.push(topdir)
+      continue
+    }
+
+    for (const subdir of getDirNames(path.join(config.cwd, topdir))) {
+      const p = path.join(topdir, subdir)
+
+      const expectedRepo = expectedRepos.find((it) => it.relpath === p)
+      if (expectedRepo === undefined) {
+        unknownDirs.push(p)
+        continue
+      }
+
+      foundRepos.push({
+        ...expectedRepo,
+        git: new GitRepo(p, async (result) => {
+          await appendFile(
+            CALS_LOG,
+            JSON.stringify({
+              time: new Date().toISOString(),
+              context: p,
+              type: "exec-result",
+              payload: result,
+            }) + "\n",
+          )
+        }),
+      })
+    }
+  }
+
+  // Report unknown directories.
+  if (unknownDirs.length > 0) {
+    reporter.warn("Directories not mapped - maybe renamed?")
+    for (const it of unknownDirs) {
+      reporter.warn(`  ${it}`)
+    }
   }
 
   // Report archived repos.
+  const archivedRepos = foundRepos.filter((it) => it.archived)
   if (archivedRepos.length > 0) {
     reporter.info("Archived repos:")
     for (const it of archivedRepos) {
-      reporter.info(`  ${it.name}`)
+      reporter.info(`  ${it.relpath}`)
     }
 
     const thisDirName = path.basename(process.cwd())
@@ -148,28 +220,33 @@ const sync = async (
     if (hasArchiveDir) {
       reporter.info("To move these:")
       for (const it of archivedRepos) {
-        reporter.info(`  mv ${it.name} ${archiveDir}/`)
+        // TODO: Grouped dir in archive?
+        reporter.info(`  mv ${it.relpath} ${archiveDir}/`)
       }
     }
   }
 
   // Report missing repos.
-  const missingRepos = githubRepos.filter(
-    (repo) => !repo.isArchived && !foundRepos.some((it) => it.github === repo),
+  const missingRepos = expectedRepos.filter(
+    (repo) =>
+      !repo.archived && !foundRepos.some((it) => it.relpath === repo.relpath),
   )
   if (missingRepos.length > 0) {
     reporter.info("Repositories not cloned:")
     for (const it of missingRepos) {
-      reporter.info(`  ${it.name}`)
+      reporter.info(`  ${it.relpath}`)
     }
     reporter.info("To clone these run:")
+    // TODO: Grouping for cloned repos.
     reporter.info(
       `  cals github generate-clone-commands --org ${cals.githubOrganization} --all -x | bash`,
     )
+    reporter.info("  TODO: Add grouping.")
   }
 
   // Handle identified repos.
 
+  reporter.info(`${foundRepos.length} repos identified`)
   const updateResults = await updateRepos(reporter, foundRepos)
 
   const dirtyList: RepoWithUpdateResult[] = []
@@ -185,21 +262,21 @@ const sync = async (
       continue
     }
 
-    reporter.info(`Updated: ${repo.name}`)
+    reporter.info(`Updated: ${repo.relpath}`)
     if (updatedRange) {
       const authors = (await repo.git.getAuthorsForRange(updatedRange))
         .map((it) => `${it.name} (${it.count})`)
         .join(", ")
 
       reporter.info(
-        `  ${getCompareLink(updatedRange, repo.github)} - ${authors}`,
+        `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
       )
     }
   }
 
   // Intentionally put dirty at the end, as the user needs to do something here.
   for (const repo of dirtyList) {
-    reporter.warn(`Dirty path: ${repo.name} - handle manually`)
+    reporter.warn(`Dirty path: ${repo.relpath} - handle manually`)
   }
 }
 
@@ -214,7 +291,7 @@ function loadCalsManifest(reporter: Reporter): CalsManifest | null {
   //  (Can we easily generate schema for type and verify?)
   const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(CALS_YAML, "utf-8"))
 
-  if (cals.version !== 1) {
+  if (cals.version !== 2) {
     throw new Error(`Unexpected version in ${CALS_YAML}`)
   }
 
@@ -227,15 +304,23 @@ const command: CommandModule = {
   builder: (yargs) =>
     yargs.usage(`cals github sync
 
-Synchronize all checked out GitHub repositories within the working directory.
+Synchronize all checked out GitHub repositories within the working directory
+grouped by the project in the resource definition file.
 
 A special file "${CALS_YAML}" must exist which describes how
 the directory should be synced. Template for the file:
 
-  version: 1
+  version: 2
   githubOrganization: <github-org-name>
+  resourcesDefinition:
+    path: <path-to-resources.yaml>
+    tags:  # optional, will filter by project tags
+      - tag1
 
 Only repositories for one GitHub organization is supported.
+
+If repositories are filtered by tags, already existing cloned repos
+will override the tag filter even when not matching the tags.
 
 This command will:
 

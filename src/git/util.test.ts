@@ -1,4 +1,3 @@
-import { Repo } from "../github/types"
 import { getCompareLink, getUpdateRange, parseShortlogSummary } from "./util"
 
 describe("getUpdateRange", () => {
@@ -17,17 +16,14 @@ describe("getUpdateRange", () => {
 })
 
 describe("getCompareLink", () => {
-  const repo: Repo = {
-    name: "reponame",
-    owner: {
-      login: "repoowner",
-    },
-  } as Repo
-
   it("should return compare link", () => {
-    expect(getCompareLink({ from: "ff4f0fa", to: "ccb7d01" }, repo)).toBe(
-      "https://github.com/repoowner/reponame/compare/ff4f0fa...ccb7d01",
-    )
+    expect(
+      getCompareLink(
+        { from: "ff4f0fa", to: "ccb7d01" },
+        "repoowner",
+        "reponame",
+      ),
+    ).toBe("https://github.com/repoowner/reponame/compare/ff4f0fa...ccb7d01")
   })
 })
 
