@@ -3,11 +3,12 @@ import fs from "fs"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
 import path from "path"
+import read from "read"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition/definition"
 import { Definition } from "../../../definition/types"
-import { GitRepo, UpdateResult } from "../../../git/GitRepo"
+import { CloneType, GitRepo, UpdateResult } from "../../../git/GitRepo"
 import { getCompareLink } from "../../../git/util"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { Reporter } from "../../reporter"
@@ -155,12 +156,60 @@ async function getExpectedRepos(
   return expectedRepos
 }
 
-async function sync(
-  reporter: Reporter,
-  github: GitHubService,
-  cals: CalsManifest,
-  rootdir: string,
-) {
+async function askCloneType(): Promise<CloneType | null> {
+  const cont = await new Promise<string>((resolve, reject) => {
+    read(
+      {
+        prompt:
+          "Clone repos? [h=using https, s=using ssh, other value to abort]: ",
+        timeout: 60000,
+      },
+      (err, answer) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(answer)
+      },
+    )
+  })
+
+  switch (cont) {
+    case "h":
+      return CloneType.HTTPS
+    case "s":
+      return CloneType.SSH
+    default:
+      return null
+  }
+}
+
+function getGitRepo(rootdir: string, relpath: string): GitRepo {
+  return new GitRepo(path.resolve(rootdir, relpath), async (result) => {
+    await appendFile(
+      path.resolve(rootdir, CALS_LOG),
+      JSON.stringify({
+        time: new Date().toISOString(),
+        context: relpath,
+        type: "exec-result",
+        payload: result,
+      }) + "\n",
+    )
+  })
+}
+
+async function sync({
+  reporter,
+  github,
+  cals,
+  rootdir,
+  askClone,
+}: {
+  reporter: Reporter
+  github: GitHubService
+  cals: CalsManifest
+  rootdir: string
+  askClone: boolean
+}) {
   const expectedRepos = await getExpectedRepos(reporter, github, cals, rootdir)
 
   const unknownDirs: string[] = []
@@ -187,17 +236,7 @@ async function sync(
 
       foundRepos.push({
         ...expectedRepo,
-        git: new GitRepo(path.resolve(rootdir, p), async (result) => {
-          await appendFile(
-            path.resolve(rootdir, CALS_LOG),
-            JSON.stringify({
-              time: new Date().toISOString(),
-              context: p,
-              type: "exec-result",
-              payload: result,
-            }) + "\n",
-          )
-        }),
+        git: getGitRepo(rootdir, p),
       })
     }
   }
@@ -241,17 +280,27 @@ async function sync(
     for (const it of missingRepos) {
       reporter.info(`  ${it.relpath}`)
     }
-    reporter.info("To clone these run:")
-    // TODO: Grouping for cloned repos.
-    reporter.info(
-      `  cals github generate-clone-commands --org ${cals.githubOrganization} --all -x | bash`,
-    )
-    reporter.info("  TODO: Add grouping.")
+
+    if (!askClone) {
+      reporter.info("To clone these repos add --ask-clone option for dialog")
+    } else {
+      reporter.info(
+        "You must already have working credentials for GitHub set up for clone to work",
+      )
+      const cloneType = await askCloneType()
+      if (cloneType !== null) {
+        for (const it of missingRepos) {
+          reporter.info(`Cloning ${it.relpath}`)
+          const git = getGitRepo(rootdir, it.relpath)
+          await git.cloneGitHubRepo(it.org, it.name, cloneType)
+        }
+      }
+    }
   }
 
   // Handle identified repos.
 
-  reporter.info(`${foundRepos.length} repos identified`)
+  reporter.info(`${foundRepos.length} repos identified to be updated`)
   const updateResults = await updateRepos(reporter, foundRepos)
 
   const dirtyList: RepoWithUpdateResult[] = []
@@ -317,7 +366,11 @@ const command: CommandModule = {
   command: "sync",
   describe: "Sync repositories for working directory",
   builder: (yargs) =>
-    yargs.usage(`cals github sync
+    yargs.option("ask-clone", {
+      alias: "c",
+      describe: "Ask to clone new missing repos",
+      type: "boolean",
+    }).usage(`cals github sync
 
 Synchronize all checked out GitHub repositories within the working directory
 grouped by the project in the resource definition file. The command can also
@@ -363,7 +416,13 @@ will be stored there.`),
     if (manifest === null) return
     const { dir, cals } = manifest
 
-    return sync(reporter, github, cals, dir)
+    return sync({
+      reporter,
+      github,
+      cals,
+      rootdir: dir,
+      askClone: !!argv["ask-clone"],
+    })
   },
 }
 

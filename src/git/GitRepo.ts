@@ -1,5 +1,12 @@
 import execa, { ExecaReturnValue } from "execa"
+import fs from "fs"
+import path from "path"
 import { getUpdateRange, parseShortlogSummary, wasUpdated } from "./util"
+
+export enum CloneType {
+  HTTPS,
+  SSH,
+}
 
 export interface UpdateResult {
   dirty: boolean
@@ -20,6 +27,32 @@ export class GitRepo {
   ) {
     this.path = path
     this.logCommand = logCommand
+  }
+
+  async cloneGitHubRepo(
+    org: string,
+    name: string,
+    cloneType: CloneType,
+  ): Promise<void> {
+    const parent = path.dirname(this.path)
+    if (!fs.existsSync(parent)) {
+      await fs.promises.mkdir(parent, { recursive: true })
+    }
+
+    const cloneUrl =
+      cloneType === CloneType.SSH
+        ? `git@github.com:${org}/${name}.git`
+        : `https://github.com/${org}/${name}.git`
+
+    try {
+      const result = await execa("git", ["clone", cloneUrl, this.path], {
+        cwd: parent,
+      })
+      await this.logCommand(result)
+    } catch (e) {
+      await this.logCommand(e)
+      throw e
+    }
   }
 
   private async git(args: string[]): Promise<ExecaReturnValue> {
