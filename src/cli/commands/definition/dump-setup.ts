@@ -5,6 +5,7 @@ import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import {
   DefinitionFile,
+  getGitHubOrgs,
   getRepoId,
   getRepos,
 } from "../../../definition/definition"
@@ -285,8 +286,8 @@ async function dumpSetup(
   definitionFile: DefinitionFile,
 ) {
   reporter.info("Fetching data. This might take some time")
-  const orgs = await getOrgs(github, ["capralifecycle", "capraconsulting"])
   const definition = await definitionFile.getDefinition()
+  const orgs = await getOrgs(github, getGitHubOrgs(definition))
 
   const teams = getTeams(github, orgs)
   const members = getMembers(github, orgs)
