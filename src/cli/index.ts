@@ -1,4 +1,5 @@
-import { version } from "package.json"
+import { engines, version } from "package.json"
+import semver from "semver"
 import yargs from "yargs"
 import definition from "./commands/definition"
 import deleteCache from "./commands/delete-cache"
@@ -10,6 +11,13 @@ import snyk from "./commands/snyk"
 declare const BUILD_TIMESTAMP: string
 
 export async function main(): Promise<void> {
+  if (!semver.satisfies(process.version, engines.node)) {
+    console.error(
+      `Required node version ${engines.node} not satisfied with current version ${process.version}.`,
+    )
+    process.exit(1)
+  }
+
   // http://patorjk.com/software/taag/#p=display&f=Slant&t=CALS
   const header = `
       _________    __   _____
