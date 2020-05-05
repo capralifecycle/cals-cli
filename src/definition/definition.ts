@@ -1,7 +1,7 @@
 import fs from "fs"
 import yaml from "js-yaml"
 import { uniq } from "lodash"
-import { Definition } from "./types"
+import { Definition, GetReposResponse } from "./types"
 
 function getTeamId(org: string, teamName: string) {
   return `${org}/${teamName}`
@@ -124,7 +124,7 @@ export class DefinitionFile {
   }
 }
 
-export function getRepos(definition: Definition) {
+export function getRepos(definition: Definition): GetReposResponse[] {
   return definition.projects.flatMap((project) =>
     project.github
       .map((org) =>

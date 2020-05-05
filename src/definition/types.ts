@@ -64,3 +64,10 @@ export interface Team {
   name: string
   members: string[] // Set
 }
+
+export interface GetReposResponse {
+  id: string
+  orgName: string
+  project: Project
+  repo: DefinitionRepo
+}

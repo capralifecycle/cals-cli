@@ -7,7 +7,7 @@ import read from "read"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition/definition"
-import { Definition } from "../../../definition/types"
+import { Definition, GetReposResponse } from "../../../definition/types"
 import { CloneType, GitRepo, UpdateResult } from "../../../git/GitRepo"
 import { getCompareLink } from "../../../git/util"
 import { createGitHubService, GitHubService } from "../../../github/service"
@@ -60,7 +60,7 @@ interface CalsManifest {
   }
 }
 
-async function updateRepos(
+async function updateReposInParallel(
   reporter: Reporter,
   items: ActualRepo[],
 ): Promise<RepoWithUpdateResult[]> {
@@ -84,6 +84,61 @@ async function updateRepos(
   return (await Promise.all(promises)).filter(
     (it): it is RepoWithUpdateResult => it !== null,
   )
+}
+
+async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
+  const updateResults = await updateReposInParallel(reporter, foundRepos)
+
+  const dirtyList: RepoWithUpdateResult[] = []
+
+  for (const repo of updateResults) {
+    const { updated, dirty, updatedRange } = repo.updateResult
+
+    if (dirty) {
+      dirtyList.push(repo)
+    }
+
+    if (!updated) {
+      continue
+    }
+
+    reporter.info(`Updated: ${repo.relpath}`)
+    if (updatedRange) {
+      const authors = (await repo.git.getAuthorsForRange(updatedRange))
+        .map((it) => `${it.name} (${it.count})`)
+        .join(", ")
+
+      reporter.info(
+        `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
+      )
+    }
+  }
+
+  // Intentionally report dirty after the loop, as the user needs to do something here.
+  for (const repo of dirtyList) {
+    reporter.warn(`Dirty path: ${repo.relpath} - handle manually`)
+  }
+}
+
+function guessDefinitionRepoName(
+  rootdir: string,
+  cals: CalsManifest,
+): string | null {
+  const p = path.resolve(rootdir, cals.resourcesDefinition.path)
+
+  const relativePath = path.relative(rootdir, p)
+  if (relativePath.slice(0, 1) == ".") {
+    return null
+  }
+
+  const parts = relativePath.split("/")
+  if (parts.length < 2) {
+    return null
+  }
+
+  // This will match the second directory name from the rootdir,
+  // which is supposed to be the repository name.
+  return parts[1]
 }
 
 async function getDefinition(
@@ -112,20 +167,12 @@ function getDirNames(parent: string): string[] {
   )
 }
 
-async function getExpectedRepos(
-  reporter: Reporter,
-  github: GitHubService,
+async function getReposInOrg(
   cals: CalsManifest,
   rootdir: string,
-): Promise<ExpectedRepo[]> {
-  const githubRepos = await github.getOrgRepoList({
-    org: cals.githubOrganization,
-  })
-
+): Promise<GetReposResponse[]> {
   const definition = await getDefinition(rootdir, cals)
-  const expectedRepos: ExpectedRepo[] = []
-
-  const reposInOrg = getRepos(definition)
+  return getRepos(definition)
     .filter((it) => it.orgName === cals.githubOrganization)
     .filter(
       (it) =>
@@ -136,6 +183,80 @@ async function getExpectedRepos(
         // Always include if already checked out to avoid stale state.
         fs.existsSync(path.join(rootdir, it.project.name, it.repo.name)),
     )
+}
+
+function getExpectedRepo(item: GetReposResponse): ExpectedRepo {
+  return {
+    org: item.orgName,
+    name: item.repo.name,
+    group: item.project.name,
+    relpath: path.join(item.project.name, item.repo.name),
+    archived: !!item.repo.archived,
+  }
+}
+
+function getGitRepo(rootdir: string, relpath: string): GitRepo {
+  return new GitRepo(path.resolve(rootdir, relpath), async (result) => {
+    await appendFile(
+      path.resolve(rootdir, CALS_LOG),
+      JSON.stringify({
+        time: new Date().toISOString(),
+        context: relpath,
+        type: "exec-result",
+        payload: result,
+      }) + "\n",
+    )
+  })
+}
+
+function getDefinitionRepo(
+  rootdir: string,
+  reposInOrg: GetReposResponse[],
+  cals: CalsManifest,
+): ActualRepo | null {
+  const definitionRepoName = guessDefinitionRepoName(rootdir, cals)
+  if (definitionRepoName == null) {
+    return null
+  }
+
+  const repo = reposInOrg.find((it) => it.repo.name === definitionRepoName)
+  if (repo === undefined) {
+    return null
+  }
+
+  const expectedRepo = getExpectedRepo(repo)
+
+  return {
+    ...expectedRepo,
+    git: getGitRepo(rootdir, expectedRepo.relpath),
+  }
+}
+
+async function getExpectedRepos(
+  reporter: Reporter,
+  github: GitHubService,
+  cals: CalsManifest,
+  rootdir: string,
+): Promise<{
+  expectedRepos: ExpectedRepo[]
+  definitionRepo: ExpectedRepo | null
+}> {
+  const githubRepos = await github.getOrgRepoList({
+    org: cals.githubOrganization,
+  })
+
+  // The resources-definition we will read might be out-of-sync.
+  // If the file is part of a repository we will be syncing, we
+  // do a pre-sync of this repo and re-read the file afterwards.
+  let reposInOrg = await getReposInOrg(cals, rootdir)
+  const definitionRepo = getDefinitionRepo(rootdir, reposInOrg, cals)
+  if (definitionRepo !== null) {
+    reporter.info("Pre-syncing resources-definition")
+    await updateRepos(reporter, [definitionRepo])
+    reposInOrg = await getReposInOrg(cals, rootdir)
+  }
+
+  const expectedRepos: ExpectedRepo[] = []
 
   for (const item of reposInOrg) {
     const githubRepo = githubRepos.find((it) => it.name === item.repo.name)
@@ -144,16 +265,13 @@ async function getExpectedRepos(
       continue
     }
 
-    expectedRepos.push({
-      org: item.orgName,
-      name: item.repo.name,
-      group: item.project.name,
-      relpath: path.join(item.project.name, item.repo.name),
-      archived: !!item.repo.archived,
-    })
+    expectedRepos.push(getExpectedRepo(item))
   }
 
-  return expectedRepos
+  return {
+    expectedRepos,
+    definitionRepo,
+  }
 }
 
 async function askCloneType(): Promise<CloneType | null> {
@@ -183,20 +301,6 @@ async function askCloneType(): Promise<CloneType | null> {
   }
 }
 
-function getGitRepo(rootdir: string, relpath: string): GitRepo {
-  return new GitRepo(path.resolve(rootdir, relpath), async (result) => {
-    await appendFile(
-      path.resolve(rootdir, CALS_LOG),
-      JSON.stringify({
-        time: new Date().toISOString(),
-        context: relpath,
-        type: "exec-result",
-        payload: result,
-      }) + "\n",
-    )
-  })
-}
-
 async function sync({
   reporter,
   github,
@@ -210,7 +314,12 @@ async function sync({
   rootdir: string
   askClone: boolean
 }) {
-  const expectedRepos = await getExpectedRepos(reporter, github, cals, rootdir)
+  const { expectedRepos, definitionRepo } = await getExpectedRepos(
+    reporter,
+    github,
+    cals,
+    rootdir,
+  )
 
   const unknownDirs: string[] = []
   const foundRepos: ActualRepo[] = []
@@ -298,46 +407,19 @@ async function sync({
     }
   }
 
-  // Handle identified repos.
-
-  reporter.info(`${foundRepos.length} repos identified to be updated`)
-  const updateResults = await updateRepos(reporter, foundRepos)
-
-  const dirtyList: RepoWithUpdateResult[] = []
-
-  for (const repo of updateResults) {
-    const { updated, dirty, updatedRange } = repo.updateResult
-
-    if (dirty) {
-      dirtyList.push(repo)
-    }
-
-    if (!updated) {
-      continue
-    }
-
-    reporter.info(`Updated: ${repo.relpath}`)
-    if (updatedRange) {
-      const authors = (await repo.git.getAuthorsForRange(updatedRange))
-        .map((it) => `${it.name} (${it.count})`)
-        .join(", ")
-
-      reporter.info(
-        `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
-      )
-    }
-  }
+  const reposToUpdate = foundRepos.filter(
+    (it) =>
+      // Avoid double-processing the defintion repo.
+      definitionRepo?.relpath != it.relpath,
+  )
+  reporter.info(`${reposToUpdate.length} repos identified to be updated`)
+  await updateRepos(reporter, reposToUpdate)
 
   // Report repos with changes ahead.
   for (const repo of foundRepos) {
     if (await repo.git.hasUnpushedCommits()) {
       reporter.warn(`Has unpushed commits: ${repo.relpath}`)
     }
-  }
-
-  // Intentionally put dirty at the end, as the user needs to do something here.
-  for (const repo of dirtyList) {
-    reporter.warn(`Dirty path: ${repo.relpath} - handle manually`)
   }
 }
 
