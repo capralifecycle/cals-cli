@@ -12,7 +12,7 @@ import { createGitHubService, GitHubService } from "../../../github/service"
 import { getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
 
-const generateCloneCommands = async ({
+async function generateCloneCommands({
   reporter,
   config,
   github,
@@ -30,7 +30,7 @@ const generateCloneCommands = async ({
   name: string | undefined
   topic: string | undefined
   org: string
-}) => {
+}) {
   if (!opt.listGroups && !opt.all && opt.group === undefined) {
     yargs.showHelp()
     return

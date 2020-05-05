@@ -4,7 +4,7 @@ import { createGitHubService, GitHubService } from "../../../github/service"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
-const setToken = async ({
+async function setToken({
   reporter,
   github,
   token,
@@ -12,7 +12,7 @@ const setToken = async ({
   reporter: Reporter
   github: GitHubService
   token: string | undefined
-}) => {
+}) {
   if (token === undefined) {
     reporter.info("Need API token to talk to GitHub")
     reporter.info(

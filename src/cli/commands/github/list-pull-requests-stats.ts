@@ -4,13 +4,13 @@ import { createGitHubService, GitHubService } from "../../../github/service"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
-const listPullRequestsStats = async ({
+async function listPullRequestsStats({
   reporter,
   github,
 }: {
   reporter: Reporter
   github: GitHubService
-}) => {
+}) {
   // This is only an initial attempt to get some insights into
   // open pull requests. Feel free to change.
 

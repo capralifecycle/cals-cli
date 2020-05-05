@@ -16,7 +16,7 @@ import {
   getDefinitionFile,
 } from "../../util"
 
-const sync = async ({
+async function sync({
   reporter,
   snyk,
   definitionFile,
@@ -24,7 +24,7 @@ const sync = async ({
   reporter: Reporter
   snyk: SnykService
   definitionFile: DefinitionFile
-}) => {
+}) {
   const definition = await definitionFile.getDefinition()
 
   const knownRepos = (await snyk.getProjects(definition))

@@ -4,7 +4,7 @@ import { createSnykService, SnykService } from "../../../snyk/service"
 import { Reporter } from "../../reporter"
 import { createConfig, createReporter } from "../../util"
 
-const setToken = async ({
+async function setToken({
   reporter,
   snyk,
   token,
@@ -12,7 +12,7 @@ const setToken = async ({
   reporter: Reporter
   snyk: SnykService
   token: string | undefined
-}) => {
+}) {
   if (token === undefined) {
     reporter.info("Need API token to talk to Snyk")
     reporter.info("See https://app.snyk.io/account")

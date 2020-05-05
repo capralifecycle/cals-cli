@@ -7,12 +7,12 @@ import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const e = encodeURIComponent
 
-const listWebhooks = async (
+async function listWebhooks(
   reporter: Reporter,
   cache: CacheProvider,
   github: GitHubService,
   org: string,
-) => {
+) {
   const repos = (await github.getOrgRepoList({ org })).filter(
     (it) => !it.isArchived,
   )

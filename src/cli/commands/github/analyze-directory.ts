@@ -12,12 +12,12 @@ import { Config } from "../../../config"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { Repo } from "../../../github/types"
 
-const analyzeDirectory = async (
+async function analyzeDirectory(
   reporter: Reporter,
   config: Config,
   github: GitHubService,
   org: string,
-) => {
+) {
   const repos = await github.getOrgRepoList({ org })
 
   const reposDict = repos.reduce<{

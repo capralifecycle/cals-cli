@@ -7,7 +7,7 @@ import {
 import { Reporter } from "../../reporter"
 import { createConfig, createReporter } from "../../util"
 
-const setToken = async ({
+async function setToken({
   reporter,
   detectify,
   token,
@@ -15,7 +15,7 @@ const setToken = async ({
   reporter: Reporter
   detectify: DetectifyService
   token: string | undefined
-}) => {
+}) {
   if (token === undefined) {
     reporter.info("Need API token to talk to Detectify")
     reporter.info("See API keys under https://detectify.com/dashboard/team")

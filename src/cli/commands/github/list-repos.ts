@@ -5,10 +5,11 @@ import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
-const getReposMissingGroup = (repos: Repo[]) =>
-  repos.filter((it) => getGroup(it) === null)
+function getReposMissingGroup(repos: Repo[]) {
+  return repos.filter((it) => getGroup(it) === null)
+}
 
-const getOldRepos = (repos: Repo[], days: number) => {
+function getOldRepos(repos: Repo[], days: number) {
   const ignoreAfter = new Date()
   ignoreAfter.setDate(ignoreAfter.getDate() - days)
 
@@ -20,7 +21,7 @@ const getOldRepos = (repos: Repo[], days: number) => {
     )
 }
 
-const listRepos = async ({
+async function listRepos({
   reporter,
   github,
   includeArchived,
@@ -38,7 +39,7 @@ const listRepos = async ({
   compact: boolean
   csv: boolean
   org: string
-}) => {
+}) {
   let repos = await github.getOrgRepoList({ org })
 
   if (!includeArchived) {

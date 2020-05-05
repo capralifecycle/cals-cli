@@ -1,6 +1,6 @@
 import { Repo } from "./types"
 
-export const getGroup = (repo: Repo) => {
+export function getGroup(repo: Repo) {
   const projectTopics: string[] = []
   let isInfra = false
 
@@ -36,10 +36,12 @@ export const getGroup = (repo: Repo) => {
   return null
 }
 
-const ifnull = <T>(a: T | null, other: T) => (a === null ? other : a)
+function ifnull<T>(a: T | null, other: T) {
+  return a === null ? other : a
+}
 
-export const getGroupedRepos = (repos: Repo[]) =>
-  Object.values(
+export function getGroupedRepos(repos: Repo[]) {
+  return Object.values(
     repos.reduce<{
       [key: string]: {
         name: string
@@ -58,13 +60,15 @@ export const getGroupedRepos = (repos: Repo[]) =>
       }
     }, {}),
   ).sort((a, b) => a.name.localeCompare(b.name))
+}
 
-export const includesTopic = (repo: Repo, topic: string) =>
-  repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
+export function includesTopic(repo: Repo, topic: string) {
+  return repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
+}
 
-export const undefinedForNotFound = async <T>(
+export async function undefinedForNotFound<T>(
   value: Promise<T>,
-): Promise<T | undefined> => {
+): Promise<T | undefined> {
   try {
     return await value
   } catch (e) {
