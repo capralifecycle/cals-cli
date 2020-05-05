@@ -7,6 +7,7 @@
     "module": "es6",
     "moduleResolution": "node",
     "noImplicitReturns": true,
+    "resolveJsonModule": true,
     "strict": true,
     "target": "ES2019"
   }

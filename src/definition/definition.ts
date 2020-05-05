@@ -1,7 +1,11 @@
+import AJV from "ajv"
 import fs from "fs"
 import yaml from "js-yaml"
 import { uniq } from "lodash"
+import schema from "../../definition-schema.json"
 import { Definition, GetReposResponse } from "./types"
+
+export { schema }
 
 function getTeamId(org: string, teamName: string) {
   return `${org}/${teamName}`
@@ -11,7 +15,18 @@ export function getRepoId(orgName: string, repoName: string) {
   return `${orgName}/${repoName}`
 }
 
-function validateDefinition(definition: Definition) {
+async function checkAgainstSchema(
+  value: unknown,
+): Promise<{ error: string } | { definition: Definition }> {
+  const ajv = new AJV({ allErrors: true })
+  const valid = await ajv.validate(schema, value)
+
+  return valid
+    ? { definition: value as Definition }
+    : { error: ajv.errorsText() ?? "Unknown error" }
+}
+
+function requireValidDefinition(definition: Definition) {
   // Verify no duplicates in users and extract known logins.
   const loginList = definition.github.users.reduce<string[]>((acc, user) => {
     if (acc.includes(user.login)) {
@@ -118,9 +133,16 @@ export class DefinitionFile {
   }
 
   public async getDefinition(): Promise<Definition> {
-    const definition = yaml.safeLoad(await this.getContents()) as Definition
-    validateDefinition(definition)
-    return definition
+    const result = await checkAgainstSchema(
+      yaml.safeLoad(await this.getContents()),
+    )
+
+    if ("error" in result) {
+      throw new Error("Definition file invalid: " + result.error)
+    }
+
+    requireValidDefinition(result.definition)
+    return result.definition
   }
 }
 

@@ -24,6 +24,10 @@ buildConfig([
         sh 'npm run lint'
       }
 
+      stage('Prepare') {
+        sh 'npm run prepare'
+      }
+
       stage('Tests') {
         sh 'npm test'
       }

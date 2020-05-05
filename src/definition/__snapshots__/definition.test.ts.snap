@@ -1,0 +1,278 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`definition should match expected schema 1`] = `
+Object {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": Object {
+    "DefinitionRepo": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "archived": Object {
+          "type": "boolean",
+        },
+        "issues": Object {
+          "type": "boolean",
+        },
+        "name": Object {
+          "type": "string",
+        },
+        "public": Object {
+          "type": "boolean",
+        },
+        "snyk": Object {
+          "type": "boolean",
+        },
+        "teams": Object {
+          "items": Object {
+            "$ref": "#/definitions/RepoTeam",
+          },
+          "type": "array",
+        },
+        "wiki": Object {
+          "type": "boolean",
+        },
+      },
+      "required": Array [
+        "name",
+      ],
+      "type": "object",
+    },
+    "Permission": Object {
+      "enum": Array [
+        "admin",
+        "pull",
+        "push",
+      ],
+      "type": "string",
+    },
+    "Project": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "github": Object {
+          "items": Object {
+            "additionalProperties": false,
+            "properties": Object {
+              "organization": Object {
+                "type": "string",
+              },
+              "repos": Object {
+                "items": Object {
+                  "$ref": "#/definitions/DefinitionRepo",
+                },
+                "type": "array",
+              },
+              "teams": Object {
+                "items": Object {
+                  "$ref": "#/definitions/RepoTeam",
+                },
+                "type": "array",
+              },
+            },
+            "required": Array [
+              "organization",
+            ],
+            "type": "object",
+          },
+          "type": "array",
+        },
+        "name": Object {
+          "type": "string",
+        },
+        "tags": Object {
+          "items": Object {
+            "type": "string",
+          },
+          "type": "array",
+        },
+      },
+      "required": Array [
+        "github",
+        "name",
+      ],
+      "type": "object",
+    },
+    "RepoTeam": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "name": Object {
+          "type": "string",
+        },
+        "permission": Object {
+          "$ref": "#/definitions/Permission",
+        },
+      },
+      "required": Array [
+        "name",
+        "permission",
+      ],
+      "type": "object",
+    },
+    "Team": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "members": Object {
+          "items": Object {
+            "type": "string",
+          },
+          "type": "array",
+        },
+        "name": Object {
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "members",
+        "name",
+      ],
+      "type": "object",
+    },
+    "UserBot": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "login": Object {
+          "type": "string",
+        },
+        "name": Object {
+          "type": "string",
+        },
+        "type": Object {
+          "enum": Array [
+            "bot",
+          ],
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "login",
+        "name",
+        "type",
+      ],
+      "type": "object",
+    },
+    "UserEmployee": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "capraUsername": Object {
+          "type": "string",
+        },
+        "login": Object {
+          "type": "string",
+        },
+        "name": Object {
+          "type": "string",
+        },
+        "type": Object {
+          "enum": Array [
+            "employee",
+          ],
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "capraUsername",
+        "login",
+        "name",
+        "type",
+      ],
+      "type": "object",
+    },
+    "UserExternal": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "login": Object {
+          "type": "string",
+        },
+        "name": Object {
+          "type": "string",
+        },
+        "type": Object {
+          "enum": Array [
+            "external",
+          ],
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "login",
+        "name",
+        "type",
+      ],
+      "type": "object",
+    },
+  },
+  "properties": Object {
+    "github": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "teams": Object {
+          "items": Object {
+            "additionalProperties": false,
+            "properties": Object {
+              "organization": Object {
+                "type": "string",
+              },
+              "teams": Object {
+                "items": Object {
+                  "$ref": "#/definitions/Team",
+                },
+                "type": "array",
+              },
+            },
+            "required": Array [
+              "organization",
+              "teams",
+            ],
+            "type": "object",
+          },
+          "type": "array",
+        },
+        "users": Object {
+          "items": Object {
+            "anyOf": Array [
+              Object {
+                "$ref": "#/definitions/UserBot",
+              },
+              Object {
+                "$ref": "#/definitions/UserEmployee",
+              },
+              Object {
+                "$ref": "#/definitions/UserExternal",
+              },
+            ],
+          },
+          "type": "array",
+        },
+      },
+      "required": Array [
+        "teams",
+        "users",
+      ],
+      "type": "object",
+    },
+    "projects": Object {
+      "items": Object {
+        "$ref": "#/definitions/Project",
+      },
+      "type": "array",
+    },
+    "snyk": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "accountId": Object {
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "accountId",
+      ],
+      "type": "object",
+    },
+  },
+  "required": Array [
+    "github",
+    "projects",
+  ],
+  "type": "object",
+}
+`;

@@ -23,6 +23,7 @@ Use NPM to link this repo as a global package:
 
 ```bash
 npm install
+npm run prepare
 npm run build
 npm link
 ```
