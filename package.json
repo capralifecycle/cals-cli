@@ -68,7 +68,7 @@
     "semantic-release": "17.0.7",
     "tempy": "0.5.0",
     "ts-jest": "25.5.1",
-    "typescript": "3.8.3",
+    "typescript": "3.9.2",
     "typescript-json-schema": "0.42.0"
   },
   "files": [
