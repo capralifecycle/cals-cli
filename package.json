@@ -40,7 +40,7 @@
     "yargs": "^15.1.0"
   },
   "devDependencies": {
-    "@octokit/types": "2.16.2",
+    "@octokit/types": "3.0.3",
     "@types/jest": "25.2.2",
     "@types/js-yaml": "3.12.3",
     "@types/lodash": "4.14.150",
