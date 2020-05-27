@@ -102,14 +102,16 @@ async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
       continue
     }
 
-    reporter.info(`Updated: ${repo.relpath}`)
+    reporter.info(`Updated: ${reporter.format.greenBright(repo.relpath)}`)
     if (updatedRange) {
       const authors = (await repo.git.getAuthorsForRange(updatedRange))
         .map((it) => `${it.name} (${it.count})`)
         .join(", ")
 
       reporter.info(
-        `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
+        reporter.format.grey(
+          `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
+        ),
       )
     }
   }
