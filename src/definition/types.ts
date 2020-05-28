@@ -47,12 +47,18 @@ export interface UserExternal {
 
 export interface DefinitionRepo {
   name: string
+  previousNames?: DefinitionRepoPreviousName[]
   archived?: boolean
   issues?: boolean
   wiki?: boolean
   teams?: RepoTeam[]
   snyk?: boolean
   public?: boolean
+}
+
+export interface DefinitionRepoPreviousName {
+  name: string
+  project: string
 }
 
 export interface RepoTeam {

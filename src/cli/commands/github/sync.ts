@@ -7,7 +7,11 @@ import read from "read"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition/definition"
-import { Definition, GetReposResponse } from "../../../definition/types"
+import {
+  Definition,
+  DefinitionRepo,
+  GetReposResponse,
+} from "../../../definition/types"
 import { CloneType, GitRepo, UpdateResult } from "../../../git/GitRepo"
 import { getCompareLink } from "../../../git/util"
 import { createGitHubService, GitHubService } from "../../../github/service"
@@ -17,20 +21,35 @@ import { createCacheProvider, createConfig, createReporter } from "../../util"
 const CALS_YAML = ".cals.yaml"
 const CALS_LOG = ".cals.log"
 
-interface ExpectedRepo {
-  org: string
-  name: string
+interface Alias {
   group: string
-  relpath: string
+  name: string
+}
+
+interface ExpectedRepo {
+  id: string
+  org: string
+  group: string
+  name: string
   archived: boolean
+  aliases: Alias[]
 }
 
 interface ActualRepo extends ExpectedRepo {
+  actualRelpath: string
   git: GitRepo
 }
 
 interface RepoWithUpdateResult extends ActualRepo {
   updateResult: UpdateResult
+}
+
+/**
+ * The contents here will be different on Windows due to
+ * backward slashes in paths.
+ */
+function getRelpath(it: { group: string; name: string }): string {
+  return path.join(it.group, it.name)
 }
 
 async function appendFile(path: string, data: string): Promise<void> {
@@ -60,6 +79,13 @@ interface CalsManifest {
   }
 }
 
+export function getAliases(repo: DefinitionRepo): Alias[] {
+  return (repo.previousNames ?? []).map((it) => ({
+    group: it.project,
+    name: it.name,
+  }))
+}
+
 async function updateReposInParallel(
   reporter: Reporter,
   items: ActualRepo[],
@@ -75,7 +101,7 @@ async function updateReposInParallel(
           updateResult: await repo.git.update(),
         }
       } catch (e) {
-        reporter.error(`Failed for ${repo.relpath} - skipping. ${e}`)
+        reporter.error(`Failed for ${repo.actualRelpath} - skipping. ${e}`)
         return null
       }
     }),
@@ -102,7 +128,7 @@ async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
       continue
     }
 
-    reporter.info(`Updated: ${reporter.format.greenBright(repo.relpath)}`)
+    reporter.info(`Updated: ${reporter.format.greenBright(repo.id)}`)
     if (updatedRange) {
       const authors = (await repo.git.getAuthorsForRange(updatedRange))
         .map((it) => `${it.name} (${it.count})`)
@@ -118,7 +144,7 @@ async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
 
   // Intentionally report dirty after the loop, as the user needs to do something here.
   for (const repo of dirtyList) {
-    reporter.warn(`Dirty path: ${repo.relpath} - handle manually`)
+    reporter.warn(`Dirty path: ${repo.actualRelpath} - handle manually`)
   }
 }
 
@@ -189,11 +215,12 @@ async function getReposInOrg(
 
 function getExpectedRepo(item: GetReposResponse): ExpectedRepo {
   return {
+    id: `${item.project.name}/${item.repo.name}`,
     org: item.orgName,
-    name: item.repo.name,
     group: item.project.name,
-    relpath: path.join(item.project.name, item.repo.name),
+    name: item.repo.name,
     archived: !!item.repo.archived,
+    aliases: getAliases(item.repo),
   }
 }
 
@@ -230,7 +257,8 @@ function getDefinitionRepo(
 
   return {
     ...expectedRepo,
-    git: getGitRepo(rootdir, expectedRepo.relpath),
+    actualRelpath: getRelpath(expectedRepo),
+    git: getGitRepo(rootdir, getRelpath(expectedRepo)),
   }
 }
 
@@ -276,12 +304,11 @@ async function getExpectedRepos(
   }
 }
 
-async function askCloneType(): Promise<CloneType | null> {
-  const cont = await new Promise<string>((resolve, reject) => {
+async function getInput(prompt: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     read(
       {
-        prompt:
-          "Clone repos? [h=using https, s=using ssh, other value to abort]: ",
+        prompt,
         timeout: 60000,
       },
       (err, answer) => {
@@ -292,6 +319,12 @@ async function askCloneType(): Promise<CloneType | null> {
       },
     )
   })
+}
+
+async function askCloneType(): Promise<CloneType | null> {
+  const cont = await getInput(
+    "Clone repos? [h=using https, s=using ssh, other value to abort]: ",
+  )
 
   switch (cont) {
     case "h":
@@ -303,18 +336,31 @@ async function askCloneType(): Promise<CloneType | null> {
   }
 }
 
+async function askMoveConfirm(): Promise<boolean> {
+  const cont = await getInput("Move repos? [y/n]: ")
+
+  switch (cont) {
+    case "y":
+      return true
+    default:
+      return false
+  }
+}
+
 async function sync({
   reporter,
   github,
   cals,
   rootdir,
   askClone,
+  askMove,
 }: {
   reporter: Reporter
   github: GitHubService
   cals: CalsManifest
   rootdir: string
   askClone: boolean
+  askMove: boolean
 }) {
   const { expectedRepos, definitionRepo } = await getExpectedRepos(
     reporter,
@@ -339,7 +385,11 @@ async function sync({
     for (const subdir of getDirNames(path.join(rootdir, topdir))) {
       const p = path.join(topdir, subdir)
 
-      const expectedRepo = expectedRepos.find((it) => it.relpath === p)
+      const expectedRepo = expectedRepos.find(
+        (it) =>
+          getRelpath(it) === p ||
+          it.aliases.some((alias) => getRelpath(alias) === p),
+      )
       if (expectedRepo === undefined) {
         unknownDirs.push(p)
         continue
@@ -347,6 +397,7 @@ async function sync({
 
       foundRepos.push({
         ...expectedRepo,
+        actualRelpath: p,
         git: getGitRepo(rootdir, p),
       })
     }
@@ -365,7 +416,7 @@ async function sync({
   if (archivedRepos.length > 0) {
     reporter.info("Archived repos:")
     for (const it of archivedRepos) {
-      reporter.info(`  ${it.relpath}`)
+      reporter.info(`  ${it.actualRelpath}`)
     }
 
     const thisDirName = path.basename(process.cwd())
@@ -376,20 +427,61 @@ async function sync({
       reporter.info("To move these:")
       for (const it of archivedRepos) {
         // TODO: Grouped dir in archive?
-        reporter.info(`  mv ${it.relpath} ${archiveDir}/`)
+        reporter.info(`  mv ${it.actualRelpath} ${archiveDir}/`)
+      }
+    }
+  }
+
+  // Report renamed/moved repos.
+  const movedRepos = foundRepos.filter(
+    (it) => getRelpath(it) !== it.actualRelpath,
+  )
+  if (movedRepos.length > 0) {
+    reporter.info("Repositories renamed:")
+    for (const it of movedRepos) {
+      reporter.info(`  ${it.actualRelpath} -> ${getRelpath(it)}`)
+    }
+
+    if (!askMove) {
+      reporter.info("To move these repos on disk add --ask-move option")
+    } else {
+      const shouldMove = await askMoveConfirm()
+      if (shouldMove) {
+        for (const it of movedRepos) {
+          const src = path.join(rootdir, it.actualRelpath)
+          const dest = path.join(rootdir, getRelpath(it))
+          const destParent = path.join(rootdir, it.group)
+          if (fs.existsSync(dest)) {
+            throw new Error(
+              `Target directory already exists: ${dest} - cannot move ${it.actualRelpath}`,
+            )
+          }
+
+          reporter.info(`Moving ${it.actualRelpath} -> ${getRelpath(it)}`)
+
+          if (!fs.existsSync(destParent)) {
+            await fs.promises.mkdir(destParent, { recursive: true })
+          }
+
+          await fs.promises.rename(src, dest)
+        }
+
+        // We would have to update expectedRepos if we want to continue.
+        // Let's try keeping this simple.
+        reporter.info("Not doing more work - rerun to continue")
+        return
       }
     }
   }
 
   // Report missing repos.
   const missingRepos = expectedRepos.filter(
-    (repo) =>
-      !repo.archived && !foundRepos.some((it) => it.relpath === repo.relpath),
+    (repo) => !repo.archived && !foundRepos.some((it) => it.id === repo.id),
   )
   if (missingRepos.length > 0) {
     reporter.info("Repositories not cloned:")
     for (const it of missingRepos) {
-      reporter.info(`  ${it.relpath}`)
+      reporter.info(`  ${it.id}`)
     }
 
     if (!askClone) {
@@ -401,8 +493,8 @@ async function sync({
       const cloneType = await askCloneType()
       if (cloneType !== null) {
         for (const it of missingRepos) {
-          reporter.info(`Cloning ${it.relpath}`)
-          const git = getGitRepo(rootdir, it.relpath)
+          reporter.info(`Cloning ${it.id}`)
+          const git = getGitRepo(rootdir, getRelpath(it))
           await git.cloneGitHubRepo(it.org, it.name, cloneType)
         }
       }
@@ -412,7 +504,7 @@ async function sync({
   const reposToUpdate = foundRepos.filter(
     (it) =>
       // Avoid double-processing the defintion repo.
-      definitionRepo?.relpath != it.relpath,
+      definitionRepo?.id !== it.id,
   )
   reporter.info(`${reposToUpdate.length} repos identified to be updated`)
   await updateRepos(reporter, reposToUpdate)
@@ -420,7 +512,7 @@ async function sync({
   // Report repos with changes ahead.
   for (const repo of foundRepos) {
     if (await repo.git.hasUnpushedCommits()) {
-      reporter.warn(`Has unpushed commits: ${repo.relpath}`)
+      reporter.warn(`Has unpushed commits: ${repo.actualRelpath}`)
     }
   }
 }
@@ -457,11 +549,16 @@ const command: CommandModule = {
   command: "sync",
   describe: "Sync repositories for working directory",
   builder: (yargs) =>
-    yargs.option("ask-clone", {
-      alias: "c",
-      describe: "Ask to clone new missing repos",
-      type: "boolean",
-    }).usage(`cals github sync
+    yargs
+      .option("ask-clone", {
+        alias: "c",
+        describe: "Ask to clone new missing repos",
+        type: "boolean",
+      })
+      .option("ask-move", {
+        describe: "Ask to actual move renamed repos",
+        type: "boolean",
+      }).usage(`cals github sync
 
 Synchronize all checked out GitHub repositories within the working directory
 grouped by the project in the resource definition file. The command can also
@@ -513,6 +610,7 @@ will be stored there.`),
       cals,
       rootdir: dir,
       askClone: !!argv["ask-clone"],
+      askMove: !!argv["ask-move"],
     })
   },
 }

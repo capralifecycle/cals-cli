@@ -17,6 +17,12 @@ Object {
         "name": Object {
           "type": "string",
         },
+        "previousNames": Object {
+          "items": Object {
+            "$ref": "#/definitions/DefinitionRepoPreviousName",
+          },
+          "type": "array",
+        },
         "public": Object {
           "type": "boolean",
         },
@@ -35,6 +41,22 @@ Object {
       },
       "required": Array [
         "name",
+      ],
+      "type": "object",
+    },
+    "DefinitionRepoPreviousName": Object {
+      "additionalProperties": false,
+      "properties": Object {
+        "name": Object {
+          "type": "string",
+        },
+        "project": Object {
+          "type": "string",
+        },
+      },
+      "required": Array [
+        "name",
+        "project",
       ],
       "type": "object",
     },
