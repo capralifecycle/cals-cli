@@ -112,6 +112,22 @@ async function updateReposInParallel(
   )
 }
 
+const botAuthors = ["renovate", "jenkins", "snyk-"]
+
+function formatAuthorAndCount(
+  reporter: Reporter,
+  name: string,
+  count: number,
+): string {
+  const text = `${name} (${count})`
+
+  if (botAuthors.some((author) => name.toLowerCase().includes(author))) {
+    return reporter.format.grey(text)
+  } else {
+    return reporter.format.greenBright(text)
+  }
+}
+
 async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
   const updateResults = await updateReposInParallel(reporter, foundRepos)
 
@@ -131,13 +147,13 @@ async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
     reporter.info(`Updated: ${reporter.format.greenBright(repo.id)}`)
     if (updatedRange) {
       const authors = (await repo.git.getAuthorsForRange(updatedRange))
-        .map((it) => `${it.name} (${it.count})`)
-        .join(", ")
+        .map((it) => formatAuthorAndCount(reporter, it.name, it.count))
+        .join(reporter.format.grey(", "))
 
       reporter.info(
         reporter.format.grey(
-          `  ${getCompareLink(updatedRange, repo.org, repo.name)} - ${authors}`,
-        ),
+          `  ${getCompareLink(updatedRange, repo.org, repo.name)} - `,
+        ) + authors,
       )
     }
   }
