@@ -19,7 +19,7 @@ describe("definition", () => {
     await expect(
       definitionFile.getDefinition(),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Definition file invalid: data should NOT have additional properties, data should have required property 'github', data should have required property 'projects'"`,
+      `"Definition file invalid: data should have required property 'github', data should have required property 'projects'"`,
     )
 
     await del(tmp, { force: true })

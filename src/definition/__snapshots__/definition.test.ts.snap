@@ -3,10 +3,8 @@
 exports[`definition should match expected schema 1`] = `
 Object {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": false,
   "definitions": Object {
     "DefinitionRepo": Object {
-      "additionalProperties": false,
       "properties": Object {
         "archived": Object {
           "type": "boolean",
@@ -45,7 +43,6 @@ Object {
       "type": "object",
     },
     "DefinitionRepoPreviousName": Object {
-      "additionalProperties": false,
       "properties": Object {
         "name": Object {
           "type": "string",
@@ -69,11 +66,9 @@ Object {
       "type": "string",
     },
     "Project": Object {
-      "additionalProperties": false,
       "properties": Object {
         "github": Object {
           "items": Object {
-            "additionalProperties": false,
             "properties": Object {
               "organization": Object {
                 "type": "string",
@@ -115,7 +110,6 @@ Object {
       "type": "object",
     },
     "RepoTeam": Object {
-      "additionalProperties": false,
       "properties": Object {
         "name": Object {
           "type": "string",
@@ -131,7 +125,6 @@ Object {
       "type": "object",
     },
     "Team": Object {
-      "additionalProperties": false,
       "properties": Object {
         "members": Object {
           "items": Object {
@@ -150,7 +143,6 @@ Object {
       "type": "object",
     },
     "UserBot": Object {
-      "additionalProperties": false,
       "properties": Object {
         "login": Object {
           "type": "string",
@@ -173,7 +165,6 @@ Object {
       "type": "object",
     },
     "UserEmployee": Object {
-      "additionalProperties": false,
       "properties": Object {
         "capraUsername": Object {
           "type": "string",
@@ -200,7 +191,6 @@ Object {
       "type": "object",
     },
     "UserExternal": Object {
-      "additionalProperties": false,
       "properties": Object {
         "login": Object {
           "type": "string",
@@ -225,11 +215,9 @@ Object {
   },
   "properties": Object {
     "github": Object {
-      "additionalProperties": false,
       "properties": Object {
         "teams": Object {
           "items": Object {
-            "additionalProperties": false,
             "properties": Object {
               "organization": Object {
                 "type": "string",
@@ -279,7 +267,6 @@ Object {
       "type": "array",
     },
     "snyk": Object {
-      "additionalProperties": false,
       "properties": Object {
         "accountId": Object {
           "type": "string",

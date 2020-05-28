@@ -12,7 +12,6 @@ const program = tjs.getProgramFromFiles(
 
 const schema = tjs.generateSchema(program, "Definition", {
   required: true,
-  noExtraProps: true,
 })
 
 fs.writeFileSync(
