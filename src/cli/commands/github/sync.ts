@@ -114,6 +114,10 @@ async function updateReposInParallel(
 
 const botAuthors = ["renovate", "jenkins", "snyk-"]
 
+function isBotAuthor(name: string): boolean {
+  return botAuthors.some((author) => name.toLowerCase().includes(author))
+}
+
 function formatAuthorAndCount(
   reporter: Reporter,
   name: string,
@@ -121,7 +125,7 @@ function formatAuthorAndCount(
 ): string {
   const text = `${name} (${count})`
 
-  if (botAuthors.some((author) => name.toLowerCase().includes(author))) {
+  if (isBotAuthor(name)) {
     return reporter.format.grey(text)
   } else {
     return reporter.format.greenBright(text)
@@ -144,16 +148,26 @@ async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
       continue
     }
 
-    reporter.info(`Updated: ${reporter.format.greenBright(repo.id)}`)
-    if (updatedRange) {
-      const authors = (await repo.git.getAuthorsForRange(updatedRange))
+    const authors = updatedRange
+      ? await repo.git.getAuthorsForRange(updatedRange)
+      : undefined
+
+    // We only focus on changes made by humans, which we make
+    // green while keeping the other changes gray.
+    const repoNameFormat = authors?.every(({ name }) => isBotAuthor(name))
+      ? reporter.format.gray
+      : reporter.format.greenBright
+
+    reporter.info(`Updated: ${repoNameFormat(repo.id)}`)
+    if (updatedRange && authors) {
+      const authorsFormatted = authors
         .map((it) => formatAuthorAndCount(reporter, it.name, it.count))
         .join(reporter.format.grey(", "))
 
       reporter.info(
         reporter.format.grey(
           `  ${getCompareLink(updatedRange, repo.org, repo.name)} - `,
-        ) + authors,
+        ) + authorsFormatted,
       )
     }
   }
