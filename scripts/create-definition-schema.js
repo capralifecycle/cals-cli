@@ -15,6 +15,6 @@ const schema = tjs.generateSchema(program, "Definition", {
 })
 
 fs.writeFileSync(
-  "definition-schema.json",
+  "src/definition-schema.json",
   JSON.stringify(schema, undefined, "  "),
 )

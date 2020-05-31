@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "rootDir": "./src",
     "declaration": true,
     "esModuleInterop": true,
     "lib": ["esnext"],
