@@ -1,9 +1,9 @@
+import alias from "@rollup/plugin-alias"
+import json from "@rollup/plugin-json"
+import replace from "@rollup/plugin-replace"
+import typescript from "rollup-plugin-typescript2"
 import dateFormat from "dateformat"
 import path from "path"
-import alias from "rollup-plugin-alias"
-import json from "rollup-plugin-json"
-import replace from "rollup-plugin-replace"
-import typescript from "rollup-plugin-typescript2"
 import pkg from "./package.json"
 
 const external = [
