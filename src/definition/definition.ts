@@ -11,7 +11,7 @@ function getTeamId(org: string, teamName: string) {
   return `${org}/${teamName}`
 }
 
-export function getRepoId(orgName: string, repoName: string) {
+export function getRepoId(orgName: string, repoName: string): string {
   return `${orgName}/${repoName}`
 }
 
@@ -19,7 +19,7 @@ async function checkAgainstSchema(
   value: unknown,
 ): Promise<{ error: string } | { definition: Definition }> {
   const ajv = new AJV({ allErrors: true })
-  const valid = await ajv.validate(schema, value)
+  const valid = (await ajv.validate(schema, value)) as boolean
 
   return valid
     ? { definition: value as Definition }
@@ -161,7 +161,7 @@ export function getRepos(definition: Definition): GetReposResponse[] {
   )
 }
 
-export function getGitHubOrgs(definition: Definition) {
+export function getGitHubOrgs(definition: Definition): string[] {
   return uniq(
     definition.projects.flatMap((project) =>
       project.github.map((it) => it.organization),

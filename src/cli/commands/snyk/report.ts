@@ -135,7 +135,7 @@ const command: CommandModule = {
   handler: async (argv) =>
     report({
       reporter: createReporter(argv),
-      snyk: await createSnykService(createConfig()),
+      snyk: createSnykService(createConfig()),
       definitionFile: getDefinitionFile(argv),
     }),
 }

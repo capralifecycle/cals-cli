@@ -50,7 +50,7 @@ const command: CommandModule = {
   handler: async (argv) =>
     setToken({
       reporter: createReporter(argv),
-      detectify: await createDetectifyService(createConfig()),
+      detectify: createDetectifyService(createConfig()),
       token: argv.token as string | undefined,
     }),
 }

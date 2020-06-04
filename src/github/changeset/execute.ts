@@ -187,7 +187,7 @@ export async function executeChangeSet(
   github: GitHubService,
   changes: ChangeSetItem[],
   reporter: Reporter,
-) {
+): Promise<void> {
   const lookup = buildLookup(github)
   for (const changeItem of changes) {
     reporter.info(`Executing ${JSON.stringify(changeItem)}`)

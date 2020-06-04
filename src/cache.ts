@@ -38,7 +38,7 @@ export class CacheProvider {
   /**
    * Save data to cache.
    */
-  public storeJson<T>(cachekey: string, data: T) {
+  public storeJson<T>(cachekey: string, data: T): void {
     const cachefile = path.join(this.config.cacheDir, `${cachekey}.json`)
 
     if (!fs.existsSync(this.config.cacheDir)) {
@@ -52,7 +52,7 @@ export class CacheProvider {
     cachekey: string,
     block: () => Promise<T>,
     cachetime: number = this.defaultCacheTime,
-  ) {
+  ): Promise<T> {
     const cacheItem = this.mustValidate
       ? undefined
       : this.retrieveJson<T>(cachekey)

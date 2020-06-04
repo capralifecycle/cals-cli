@@ -10,7 +10,7 @@ import snyk from "./commands/snyk"
 
 declare const BUILD_TIMESTAMP: string
 
-export async function main(): Promise<void> {
+export function main(): void {
   if (!semver.satisfies(process.version, engines.node)) {
     console.error(
       `Required node version ${engines.node} not satisfied with current version ${process.version}.`,

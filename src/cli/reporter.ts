@@ -1,5 +1,5 @@
-import readline from "readline"
 import chalk from "chalk"
+import readline from "readline"
 
 const CLEAR_WHOLE_LINE = 0
 
@@ -28,27 +28,27 @@ export class Reporter {
   public format: typeof chalk = chalk
   public startTime = Date.now()
 
-  public error(msg: string) {
+  public error(msg: string): void {
     clearLine(this.stderr)
     this.stderr.write(`${this.format.red("error")} ${msg}\n`)
   }
 
-  public log(msg: string) {
+  public log(msg: string): void {
     clearLine(this.stdout)
     this.stdout.write(`${msg}\n`)
   }
 
-  public warn(msg: string) {
+  public warn(msg: string): void {
     clearLine(this.stderr)
     this.stderr.write(`${this.format.yellow("warning")} ${msg}\n`)
   }
 
-  public success(msg: string) {
+  public success(msg: string): void {
     clearLine(this.stdout)
     this.stdout.write(`${this.format.green("success")} ${msg}\n`)
   }
 
-  public info(msg: string) {
+  public info(msg: string): void {
     clearLine(this.stdout)
     this.stdout.write(`${this.format.blue("info")} ${msg}\n`)
   }

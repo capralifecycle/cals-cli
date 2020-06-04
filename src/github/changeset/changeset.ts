@@ -185,7 +185,7 @@ export async function createChangeSetItemsForProjects(
   github: GitHubService,
   definition: Definition,
   limitToOrg: string | undefined,
-) {
+): Promise<ChangeSetItem[]> {
   const changes: ChangeSetItem[] = []
 
   const orgs = definition.projects
@@ -240,7 +240,7 @@ export async function createChangeSetItemsForMembers(
   github: GitHubService,
   definition: Definition,
   org: OrgsGetResponse,
-) {
+): Promise<ChangeSetItem[]> {
   const changes: ChangeSetItem[] = []
   const users = getUsersForOrg(definition, org.login)
 
@@ -278,7 +278,7 @@ export async function createChangeSetItemsForTeams(
   github: GitHubService,
   definition: Definition,
   org: OrgsGetResponse,
-) {
+): Promise<ChangeSetItem[]> {
   const changes: ChangeSetItem[] = []
 
   const teams = (
@@ -328,6 +328,7 @@ export async function createChangeSetItemsForTeams(
   )
 
   await pMap(overlappingTeams, async (actualTeam) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const wantedTeam = teams.find((it) => it.name === actualTeam.name)!
     const actualMembers = await github.getTeamMemberListIncludingInvited(
       org,
@@ -370,7 +371,7 @@ export async function createChangeSetItemsForTeams(
  * Remove redundant change set items due to effects by other
  * change set items.
  */
-export function cleanupChangeSetItems(items: ChangeSetItem[]) {
+export function cleanupChangeSetItems(items: ChangeSetItem[]): ChangeSetItem[] {
   const hasTeamRemove = ({ org, team }: { org: string; team: string }) =>
     items.some(
       (it) => it.type === "team-remove" && it.org === org && it.team === team,

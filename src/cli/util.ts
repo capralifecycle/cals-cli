@@ -6,14 +6,17 @@ import { Config } from "../config"
 import { DefinitionFile } from "../definition/definition"
 import { Reporter } from "./reporter"
 
-export function createReporter(argv: Arguments) {
+export function createReporter(argv: Arguments): Reporter {
   return new Reporter({
     verbose: !!argv.verbose,
     nonInteractive: !!argv.nonInteractive,
   })
 }
 
-export function createCacheProvider(config: Config, argv: Arguments) {
+export function createCacheProvider(
+  config: Config,
+  argv: Arguments,
+): CacheProvider {
   const cache = new CacheProvider(config)
 
   // --validate-cache
@@ -31,7 +34,7 @@ export function createCacheProvider(config: Config, argv: Arguments) {
   return cache
 }
 
-export function createConfig() {
+export function createConfig(): Config {
   return new Config()
 }
 

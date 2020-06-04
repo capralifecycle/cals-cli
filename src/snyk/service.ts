@@ -18,7 +18,7 @@ export class SnykService {
     await keytar.deletePassword(keyringService, keyringAccount)
   }
 
-  public async setToken(value: string) {
+  public async setToken(value: string): Promise<void> {
     await keytar.setPassword(keyringService, keyringAccount, value)
   }
 
@@ -44,6 +44,11 @@ export class SnykService {
       return []
     }
 
+    const token = await SnykService.getToken()
+    if (token === undefined) {
+      throw new Error("Missing token for Snyk")
+    }
+
     const response = await fetch(
       `https://snyk.io/api/v1/org/${encodeURIComponent(
         snykAccountId,
@@ -52,7 +57,7 @@ export class SnykService {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `token ${await SnykService.getToken()}`,
+          Authorization: `token ${token}`,
         },
         agent: this.config.agent,
       },
@@ -71,10 +76,11 @@ export class SnykService {
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return (await response.json()).projects as SnykProject[]
   }
 }
 
-export async function createSnykService(config: Config) {
+export function createSnykService(config: Config): SnykService {
   return new SnykService(config)
 }

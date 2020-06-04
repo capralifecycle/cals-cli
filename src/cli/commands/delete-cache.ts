@@ -4,7 +4,7 @@ import { createCacheProvider, createConfig, createReporter } from "../util"
 const command: CommandModule = {
   command: "delete-cache",
   describe: "Delete cached data",
-  handler: async (argv) => {
+  handler: (argv) => {
     const config = createConfig()
     const cache = createCacheProvider(config, argv)
     const reporter = createReporter(argv)

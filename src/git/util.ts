@@ -5,7 +5,7 @@ export function wasUpdated(output: string): boolean {
 export function getUpdateRange(
   output: string,
 ): { from: string; to: string } | null {
-  const match = output.match(/Updating ([a-f0-9]+)\.\.([a-f0-9]+)\n/)
+  const match = /Updating ([a-f0-9]+)\.\.([a-f0-9]+)\n/.exec(output)
   if (match === null) {
     return null
   }

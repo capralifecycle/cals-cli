@@ -101,6 +101,7 @@ async function updateReposInParallel(
           updateResult: await repo.git.update(),
         }
       } catch (e) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         reporter.error(`Failed for ${repo.actualRelpath} - skipping. ${e}`)
         return null
       }
@@ -563,6 +564,7 @@ async function loadCalsManifest(
 
   // TODO: Verify file has expected contents.
   //  (Can we easily generate schema for type and verify?)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(p, "utf-8"))
 
   if (cals.version !== 2) {

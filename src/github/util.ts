@@ -1,6 +1,6 @@
 import { Repo } from "./types"
 
-export function getGroup(repo: Repo) {
+export function getGroup(repo: Repo): string | null {
   const projectTopics: string[] = []
   let isInfra = false
 
@@ -40,7 +40,12 @@ function ifnull<T>(a: T | null, other: T) {
   return a === null ? other : a
 }
 
-export function getGroupedRepos(repos: Repo[]) {
+export function getGroupedRepos(
+  repos: Repo[],
+): {
+  name: string
+  items: Repo[]
+}[] {
   return Object.values(
     repos.reduce<{
       [key: string]: {
@@ -62,7 +67,7 @@ export function getGroupedRepos(repos: Repo[]) {
   ).sort((a, b) => a.name.localeCompare(b.name))
 }
 
-export function includesTopic(repo: Repo, topic: string) {
+export function includesTopic(repo: Repo, topic: string): boolean {
   return repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
 }
 
@@ -72,6 +77,7 @@ export async function undefinedForNotFound<T>(
   try {
     return await value
   } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (e.name === "HttpError" && e.status === 404) {
       return undefined
     } else {

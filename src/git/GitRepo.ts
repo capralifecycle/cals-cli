@@ -68,7 +68,7 @@ export class GitRepo {
     }
   }
 
-  async getCurrentBranch() {
+  async getCurrentBranch(): Promise<string> {
     return (await this.git(["rev-parse", "--abbrev-ref", "HEAD"])).stdout
   }
 
@@ -79,7 +79,7 @@ export class GitRepo {
     return result.stdout.replace(/^\?\?.+$/gm, "").length > 0
   }
 
-  async hasUnpushedCommits() {
+  async hasUnpushedCommits(): Promise<boolean> {
     const result = await this.git(["status", "-sb"])
     return result.stdout.includes("[ahead")
   }

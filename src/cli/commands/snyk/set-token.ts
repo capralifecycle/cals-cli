@@ -47,7 +47,7 @@ const command: CommandModule = {
   handler: async (argv) =>
     setToken({
       reporter: createReporter(argv),
-      snyk: await createSnykService(createConfig()),
+      snyk: createSnykService(createConfig()),
       token: argv.token as string | undefined,
     }),
 }

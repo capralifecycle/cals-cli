@@ -36,7 +36,7 @@ const command: CommandModule = {
   handler: async (argv) =>
     report({
       reporter: createReporter(argv),
-      detectify: await createDetectifyService(createConfig()),
+      detectify: createDetectifyService(createConfig()),
     }),
 }
 

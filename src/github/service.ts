@@ -1,5 +1,10 @@
 import { Octokit } from "@octokit/rest"
-import { EndpointOptions, OctokitResponse } from "@octokit/types"
+import {
+  EndpointOptions,
+  OctokitResponse,
+  OrgsGetResponseData,
+  ReposGetResponseData,
+} from "@octokit/types"
 import keytar from "keytar"
 import fetch from "node-fetch"
 import pLimit, { Limit } from "p-limit"
@@ -25,6 +30,59 @@ import { undefinedForNotFound } from "./util"
 const keyringService = "cals"
 const keyringAccount = "github-token"
 
+interface SearchedPullRequestListQueryResult {
+  search: {
+    pageInfo: {
+      hasNextPage: boolean
+      endCursor: string | null
+    }
+    edges: {
+      node: {
+        __typename: string
+        number: number
+        baseRepository: {
+          name: string
+          owner: {
+            login: string
+          }
+          defaultBranchRef: {
+            name: string
+          }
+        }
+        author: {
+          login: string
+        }
+        title: string
+        commits: {
+          nodes: {
+            commit: {
+              messageHeadline: string
+            }
+          }[]
+        }
+        createdAt: string
+        updatedAt: string
+      }
+    }[]
+  }
+}
+
+type SearchedPullRequestListItem = SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
+
+interface VulnerabilityAlertsQueryResult {
+  repository: {
+    vulnerabilityAlerts: {
+      pageInfo: {
+        hasNextPage: boolean
+        endCursor: string | null
+      }
+      edges: Array<{
+        node: VulerabilityAlert
+      }> | null
+    }
+  } | null
+}
+
 interface EtagCacheItem<T> {
   etag: string
   data: T
@@ -41,15 +99,18 @@ export class GitHubService {
     this.semaphore = pLimit(6)
 
     this.octokit.hook.wrap("request", async (request, options) => {
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       this._requestCount++
 
       if (options.method !== "GET") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.semaphore(() => request(options))
       }
 
       // Try to cache ETag for GET requests to save on rate limiting.
       // Hits on ETag does not count towards rate limiting.
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const rest = {
         ...options,
       }
@@ -73,6 +134,7 @@ export class GitHubService {
         allowRetry = true,
       ): Promise<OctokitResponse<unknown> | undefined> => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return await request(options)
         } catch (e) {
           // Handle no change in ETag.
@@ -94,8 +156,14 @@ export class GitHubService {
       })
 
       if (response === undefined) {
+        // Undefined is returned for cached data.
+
+        if (cacheItem === undefined) {
+          throw new Error("Missing expected cache item")
+        }
+
         // Use previous value.
-        return cacheItem!!.data.data
+        return cacheItem.data.data
       }
 
       // New value. Store Etag.
@@ -107,6 +175,7 @@ export class GitHubService {
       }
 
       return response
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     })
   }
 
@@ -125,7 +194,7 @@ export class GitHubService {
     await keytar.deletePassword(keyringService, keyringAccount)
   }
 
-  public async setToken(value: string) {
+  public async setToken(value: string): Promise<void> {
     await keytar.setPassword(keyringService, keyringAccount, value)
   }
 
@@ -145,10 +214,15 @@ export class GitHubService {
     return result
   }
 
-  public async runGraphqlQuery<T>(query: string) {
+  public async runGraphqlQuery<T>(query: string): Promise<T> {
+    const token = await GitHubService.getToken()
+    if (token === undefined) {
+      throw new Error("Missing token for GitHub")
+    }
+
     const url = "https://api.github.com/graphql"
     const headers = {
-      Authorization: `Bearer ${await GitHubService.getToken()}`,
+      Authorization: `Bearer ${token}`,
     }
 
     const response = await this.semaphore(() =>
@@ -194,7 +268,7 @@ export class GitHubService {
     return json.data
   }
 
-  public async getOrgRepoList({ org }: { org: string }) {
+  public async getOrgRepoList({ org }: { org: string }): Promise<Repo[]> {
     interface QueryResult {
       organization: {
         repositories: {
@@ -250,20 +324,30 @@ export class GitHubService {
         const query = getQuery(after)
         const res = await this.runGraphqlQuery<QueryResult>(query)
 
-        repos.push(...res.organization!.repositories.nodes!)
+        if (res.organization == null) {
+          throw new Error("Missing organization")
+        }
+        if (res.organization.repositories.nodes == null) {
+          throw new Error("Missing organization nodes")
+        }
 
-        if (!res.organization!.repositories.pageInfo.hasNextPage) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        repos.push(...res.organization.repositories.nodes)
+
+        if (!res.organization.repositories.pageInfo.hasNextPage) {
           break
         }
 
-        after = res.organization!.repositories.pageInfo.endCursor
+        after = res.organization.repositories.pageInfo.endCursor
       }
 
       return repos.sort((a, b) => a.name.localeCompare(b.name))
     })
   }
 
-  public async getOrgMembersList(org: string) {
+  public async getOrgMembersList(
+    org: string,
+  ): Promise<OrgsListMembersResponseItem[]> {
     const options = this.octokit.orgs.listMembers.endpoint.merge({
       org,
     })
@@ -274,7 +358,9 @@ export class GitHubService {
     )
   }
 
-  public async getOrgMembersInvitedList(org: string) {
+  public async getOrgMembersInvitedList(
+    org: string,
+  ): Promise<OrgsListPendingInvitationsResponseItem[]> {
     const options = this.octokit.orgs.listPendingInvitations.endpoint.merge({
       org,
     })
@@ -304,7 +390,10 @@ export class GitHubService {
     ]
   }
 
-  public async getRepository(owner: string, repo: string) {
+  public async getRepository(
+    owner: string,
+    repo: string,
+  ): Promise<ReposGetResponseData | undefined> {
     return this.cache.json(`get-repository-${owner}-${repo}`, async () => {
       const response = await undefinedForNotFound(
         this.octokit.repos.get({
@@ -317,7 +406,9 @@ export class GitHubService {
     })
   }
 
-  public async getRepositoryTeamsList(repo: ReposGetResponse) {
+  public async getRepositoryTeamsList(
+    repo: ReposGetResponse,
+  ): Promise<ReposListTeamsResponseItem[]> {
     return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
       const options = this.octokit.repos.listTeams.endpoint.merge({
         owner: repo.owner.login,
@@ -331,7 +422,10 @@ export class GitHubService {
     })
   }
 
-  public async getRepositoryHooks(owner: string, repo: string) {
+  public async getRepositoryHooks(
+    owner: string,
+    repo: string,
+  ): Promise<ReposListHooksResponseItem[]> {
     return this.cache.json(`repository-hooks-${owner}-${repo}`, async () => {
       const options = this.octokit.repos.listHooks.endpoint.merge({
         owner,
@@ -345,14 +439,16 @@ export class GitHubService {
     })
   }
 
-  public async getOrg(org: string) {
+  public async getOrg(org: string): Promise<OrgsGetResponseData> {
     const orgResponse = await this.octokit.orgs.get({
       org,
     })
     return orgResponse.data
   }
 
-  public async getTeamList(org: OrgsGetResponse) {
+  public async getTeamList(
+    org: OrgsGetResponse,
+  ): Promise<TeamsListResponseItem[]> {
     return this.cache.json(`team-list-${org.login}`, async () => {
       const options = this.octokit.teams.list.endpoint.merge({
         org: org.login,
@@ -366,7 +462,7 @@ export class GitHubService {
   public async getTeamMemberList(
     org: OrgsGetResponse,
     team: TeamsListResponseItem,
-  ) {
+  ): Promise<TeamsListMembersResponseItem[]> {
     return this.cache.json(`team-member-list-${team.id}`, async () => {
       const options = this.octokit.teams.listMembersInOrg.endpoint.merge({
         org: org.login,
@@ -381,7 +477,7 @@ export class GitHubService {
   public async getTeamMemberInvitedList(
     org: OrgsGetResponse,
     team: TeamsListResponseItem,
-  ) {
+  ): Promise<TeamsListPendingInvitationsResponseItem[]> {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
       const options = this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge(
         {
@@ -417,44 +513,10 @@ export class GitHubService {
     ]
   }
 
-  public async getSearchedPullRequestList() {
-    interface QueryResult {
-      search: {
-        pageInfo: {
-          hasNextPage: boolean
-          endCursor: string | null
-        }
-        edges: {
-          node: {
-            __typename: string
-            number: number
-            baseRepository: {
-              name: string
-              owner: {
-                login: string
-              }
-              defaultBranchRef: {
-                name: string
-              }
-            }
-            author: {
-              login: string
-            }
-            title: string
-            commits: {
-              nodes: {
-                commit: {
-                  messageHeadline: string
-                }
-              }[]
-            }
-            createdAt: string
-            updatedAt: string
-          }
-        }[]
-      }
-    }
-
+  public async getSearchedPullRequestList(): Promise<
+    SearchedPullRequestListItem[]
+  > {
+    // NOTE: Changes to this must by synced with SearchedPullRequestListQueryResult.
     const getQuery = (after: string | null) => `{
   search(
     query: "is:open is:pr user:capralifecycle user:capraconsulting archived:false",
@@ -503,12 +565,14 @@ export class GitHubService {
   }
 }`
 
-    const pulls: QueryResult["search"]["edges"][0]["node"][] = []
+    const pulls: SearchedPullRequestListItem[] = []
     let after = null
 
     while (true) {
       const query = getQuery(after)
-      const res = await this.runGraphqlQuery<QueryResult>(query)
+      const res = await this.runGraphqlQuery<
+        SearchedPullRequestListQueryResult
+      >(query)
 
       pulls.push(...res.search.edges.map((it) => it.node))
 
@@ -539,6 +603,7 @@ export class GitHubService {
 
       return true
     } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (e.status === 404) {
         return false
       }
@@ -559,21 +624,11 @@ export class GitHubService {
   /**
    * Get the vulernability alerts for a repository.
    */
-  public async getVulnerabilityAlerts(owner: string, repo: string) {
-    interface QueryResult {
-      repository: {
-        vulnerabilityAlerts: {
-          pageInfo: {
-            hasNextPage: boolean
-            endCursor: string | null
-          }
-          edges: Array<{
-            node: VulerabilityAlert
-          }> | null
-        }
-      } | null
-    }
-
+  public async getVulnerabilityAlerts(
+    owner: string,
+    repo: string,
+  ): Promise<VulerabilityAlert[]> {
+    // NOTE: Changes to this must by synced with VulnerabilityAlertsQueryResult.
     const getQuery = (after: string | null) => `{
   repository(owner: "${owner}", name: "${repo}") {
     vulnerabilityAlerts(first: 100${
@@ -614,7 +669,9 @@ export class GitHubService {
 
         while (true) {
           const query = getQuery(after)
-          const res = await this.runGraphqlQuery<QueryResult>(query)
+          const res = await this.runGraphqlQuery<
+            VulnerabilityAlertsQueryResult
+          >(query)
 
           result.push(
             ...(res.repository?.vulnerabilityAlerts.edges?.map(
@@ -626,7 +683,7 @@ export class GitHubService {
             break
           }
 
-          after = res.repository!.vulnerabilityAlerts.pageInfo.endCursor
+          after = res.repository?.vulnerabilityAlerts.pageInfo.endCursor
         }
 
         return result
@@ -647,6 +704,6 @@ async function createOctokit(config: Config) {
 export async function createGitHubService(
   config: Config,
   cache: CacheProvider,
-) {
+): Promise<GitHubService> {
   return new GitHubService(config, await createOctokit(config), cache)
 }

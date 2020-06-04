@@ -197,7 +197,7 @@ async function getProjects(
       [project: string]: {
         name: string
         repos: {
-          [owner: string]: typeof repos | undefined
+          [owner: string]: typeof repos
         }
       }
     }>((acc, cur) => {
@@ -225,11 +225,11 @@ async function getProjects(
       name: project.name,
       github: Object.entries(project.repos)
         .map(([org, list]) => {
-          const commonTeams = getCommonTeams(list!)
+          const commonTeams = getCommonTeams(list)
           return {
             organization: org,
             teams: getFormattedTeams(commonTeams),
-            repos: list!
+            repos: list
               .map<DefinitionRepo>((repo) => ({
                 name: repo.basic.name,
                 archived: repo.repository.archived ? true : undefined,
@@ -318,9 +318,13 @@ async function dumpSetup(
   //  package. However it often produced invalid yaml, so we have removed
   //  it. We might want to revisit it to preserve comments.
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const doc = yaml.safeLoad(await definitionFile.getContents())
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.snyk = generatedDefinition.snyk
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.projects = generatedDefinition.projects
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.github = generatedDefinition.github
 
   // Convert to/from plain JSON so that undefined elements are removed.
@@ -347,7 +351,7 @@ const command: CommandModule = {
       config,
       createCacheProvider(config, argv),
     )
-    const snyk = await createSnykService(config)
+    const snyk = createSnykService(config)
     await reportRateLimit(reporter, github, () =>
       dumpSetup(
         config,

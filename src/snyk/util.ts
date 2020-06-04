@@ -7,9 +7,9 @@ export function getGitHubRepo(
     return undefined
   }
 
-  const match = snykProject.name.match(/^([^/]+)\/([^:]+):(.+)$/)
+  const match = /^([^/]+)\/([^:]+):(.+)$/.exec(snykProject.name)
   if (match === null) {
-    throw Error(`Unexpected value: ${match}`)
+    throw Error(`Unexpected value: ${JSON.stringify(match)}`)
   }
 
   return {
@@ -19,6 +19,8 @@ export function getGitHubRepo(
   }
 }
 
-export function getGitHubRepoId(repo: SnykGitHubRepo | undefined) {
+export function getGitHubRepoId(
+  repo: SnykGitHubRepo | undefined,
+): string | undefined {
   return repo ? `${repo.owner}/${repo.name}` : undefined
 }

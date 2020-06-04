@@ -26,7 +26,7 @@ export class DetectifyService {
     await keytar.deletePassword(keyringService, keyringAccount)
   }
 
-  public async setToken(value: string) {
+  public async setToken(value: string): Promise<void> {
     await keytar.setPassword(keyringService, keyringAccount, value)
   }
 
@@ -47,11 +47,16 @@ export class DetectifyService {
   }
 
   private async getRequest<T>(url: string): Promise<ApiResponse<T>> {
+    const token = await DetectifyService.getToken()
+    if (token === undefined) {
+      throw new Error("Missing token for Detectify")
+    }
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "X-Detectify-Key": `${await DetectifyService.getToken()}`,
+        "X-Detectify-Key": `${token}`,
       },
       agent: this.config.agent,
     })
@@ -102,11 +107,11 @@ export class DetectifyService {
     } else if (response.error === "not-found") {
       return null
     } else {
-      throw new Error(`Unknown response: ${response}`)
+      throw new Error(`Unknown response: ${JSON.stringify(response)}`)
     }
   }
 }
 
-export async function createDetectifyService(config: Config) {
+export function createDetectifyService(config: Config): DetectifyService {
   return new DetectifyService(config)
 }
