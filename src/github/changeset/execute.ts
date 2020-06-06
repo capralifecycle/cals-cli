@@ -108,7 +108,7 @@ async function executeChangeSetItem(
       return true
 
     case "team-member-permission":
-      await github.octokit.teams.addOrUpdateMembershipInOrg({
+      await github.octokit.teams.addOrUpdateMembershipForUserInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
           .slug,
@@ -118,7 +118,7 @@ async function executeChangeSetItem(
       return true
 
     case "team-member-remove":
-      await github.octokit.teams.removeMembershipInOrg({
+      await github.octokit.teams.removeMembershipForUserInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
           .slug,
@@ -127,7 +127,7 @@ async function executeChangeSetItem(
       return true
 
     case "team-member-add":
-      await github.octokit.teams.addOrUpdateMembershipInOrg({
+      await github.octokit.teams.addOrUpdateMembershipForUserInOrg({
         org: changeItem.org,
         team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
           .slug,
@@ -168,7 +168,7 @@ async function executeChangeSetItem(
 
     case "repo-team-add":
     case "repo-team-permission":
-      await github.octokit.teams.addOrUpdateRepoInOrg({
+      await github.octokit.teams.addOrUpdateRepoPermissionsInOrg({
         org: changeItem.org,
         owner: changeItem.org,
         repo: changeItem.repo,
