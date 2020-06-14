@@ -427,7 +427,7 @@ export class GitHubService {
     repo: string,
   ): Promise<ReposListHooksResponseItem[]> {
     return this.cache.json(`repository-hooks-${owner}-${repo}`, async () => {
-      const options = this.octokit.repos.listHooks.endpoint.merge({
+      const options = this.octokit.repos.listWebhooks.endpoint.merge({
         owner,
         repo,
       })

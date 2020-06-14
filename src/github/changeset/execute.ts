@@ -77,14 +77,14 @@ async function executeChangeSetItem(
 
   switch (changeItem.type) {
     case "member-remove":
-      await github.octokit.orgs.removeMembership({
+      await github.octokit.orgs.removeMembershipForUser({
         org: changeItem.org,
         username: changeItem.user,
       })
       return true
 
     case "member-add":
-      await github.octokit.orgs.addOrUpdateMembership({
+      await github.octokit.orgs.setMembershipForUser({
         org: changeItem.org,
         username: changeItem.user,
         role: "member",
