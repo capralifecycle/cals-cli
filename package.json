@@ -20,7 +20,7 @@
     "cals": "lib/cals-cli.js"
   },
   "dependencies": {
-    "@octokit/rest": "^17.0.0",
+    "@octokit/rest": "^18.0.0",
     "ajv": "^6.12.2",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
