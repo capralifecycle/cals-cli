@@ -564,8 +564,8 @@ async function loadCalsManifest(
 
   // TODO: Verify file has expected contents.
   //  (Can we easily generate schema for type and verify?)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(p, "utf-8"))
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any
+  const cals: CalsManifest = yaml.safeLoad(fs.readFileSync(p, "utf-8")) as any
 
   if (cals.version !== 2) {
     throw new Error(`Unexpected version in ${p}`)
