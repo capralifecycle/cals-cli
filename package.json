@@ -14,6 +14,7 @@
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w"
   },
+  "license": "Apache-2.0",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
   "bin": {
