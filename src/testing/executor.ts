@@ -1,6 +1,6 @@
 import { strict as assert } from "assert"
 
-export class ExecutorState {
+export class TestExecutor {
   private shutdown = false
   private cleanupTask: Promise<void> | null = null
   private usingWithCleanupTasks = false
@@ -56,7 +56,7 @@ export class ExecutorState {
    * this method.
    */
   public async runWithCleanupTasks(
-    body: (executor: ExecutorState) => Promise<void>,
+    body: (executor: TestExecutor) => Promise<void>,
   ): Promise<void> {
     try {
       try {
@@ -98,6 +98,6 @@ export class ExecutorState {
   }
 }
 
-export function createExecutor(): ExecutorState {
-  return new ExecutorState()
+export function createTestExecutor(): TestExecutor {
+  return new TestExecutor()
 }

@@ -1,14 +1,14 @@
 import execa from "execa"
 import { performance } from "perf_hooks"
 import { Transform } from "stream"
-import { ExecutorState } from "./executor"
+import { TestExecutor } from "./executor"
 
 export interface Container {
   id: string
   name: string
   network: Network
   process: execa.ExecaChildProcess
-  executor: ExecutorState
+  executor: TestExecutor
 }
 
 export interface Network {
@@ -45,7 +45,7 @@ function generateName(extra?: string): string {
 /**
  * Create a new Docker network.
  */
-export async function createNetwork(executor: ExecutorState): Promise<Network> {
+export async function createNetwork(executor: TestExecutor): Promise<Network> {
   executor.checkCanContinue()
   const networkName = generateName()
 
@@ -76,7 +76,7 @@ export async function createNetwork(executor: ExecutorState): Promise<Network> {
  * Execute curl within the Docker network.
  */
 export async function curl(
-  executor: ExecutorState,
+  executor: TestExecutor,
   network: Network,
   ...args: string[]
 ): Promise<string> {
@@ -211,7 +211,7 @@ export async function waitForPostgresAvailable({
 }
 
 async function isRunning(
-  executor: ExecutorState,
+  executor: TestExecutor,
   container: Container,
 ): Promise<boolean> {
   executor.checkCanContinue()
@@ -298,7 +298,7 @@ export async function startContainer({
   env,
   dockerArgs = [],
 }: {
-  executor: ExecutorState
+  executor: TestExecutor
   network: Network
   imageId: string
   alias?: string

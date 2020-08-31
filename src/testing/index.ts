@@ -1,4 +1,4 @@
-export { createExecutor } from "./executor"
+export { createTestExecutor, TestExecutor } from "./executor"
 export {
   createNetwork,
   curl,
