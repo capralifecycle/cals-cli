@@ -7,11 +7,14 @@ import path from "path"
 import pkg from "./package.json"
 
 const external = [
+  "assert",
   "fs",
   "readline",
   "path",
   "https",
   "os",
+  "perf_hooks",
+  "stream",
   "util",
   ...Object.keys(pkg.dependencies || {}),
   ...Object.keys(pkg.peerDependencies || {}),
