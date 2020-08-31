@@ -7,7 +7,7 @@ export interface Container {
   id: string
   name: string
   network: Network
-  process: execa.ExecaChildProcess<string>
+  process: execa.ExecaChildProcess
 }
 
 export interface Network {
@@ -262,7 +262,7 @@ class OutputPrefixTransform extends Transform {
   }
 }
 
-function pipeToConsole(result: execa.ExecaChildProcess<string>, name: string) {
+function pipeToConsole(result: execa.ExecaChildProcess, name: string) {
   result.stdout
     ?.pipe(new OutputPrefixTransform(`${name}: `))
     .pipe(process.stdout)

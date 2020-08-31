@@ -4,7 +4,7 @@ export class ExecutorState {
   private shutdown = false
   private cleanupTask: Promise<void> | null = null
   private usingWithCleanupTasks = false
-  private tasks: (() => Promise<void>)[] = []
+  private readonly tasks: (() => Promise<void>)[] = []
 
   /**
    * Check if we are currently in shutdown state due to user
@@ -70,7 +70,9 @@ export class ExecutorState {
         // can stop earlier by calling checkCanContinue.
         process.on("SIGINT", () => {
           console.warn("Caught interrupt signal - forcing termination")
-          if (this.cleanupTask != null) return
+          if (this.cleanupTask != null) {
+            return
+          }
 
           this.shutdown = true
           this.cleanupTask = this.runTasks().then(() => {
