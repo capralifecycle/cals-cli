@@ -1,5 +1,6 @@
 import execa from "execa"
 import { performance } from "perf_hooks"
+import read from "read"
 import { Transform } from "stream"
 import { TestExecutor } from "./executor"
 
@@ -362,4 +363,23 @@ export async function runNpmRunScript(name: string): Promise<void> {
   const result = execa("npm", ["run", name])
   pipeToConsole(result, `npm run ${name}`)
   await result
+}
+
+export async function waitForEnterToContinue(
+  prompt = "Press enter to continue",
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    read(
+      {
+        prompt,
+        silent: true,
+      },
+      (err) => {
+        if (err) {
+          reject(err)
+        }
+        resolve()
+      },
+    )
+  })
 }

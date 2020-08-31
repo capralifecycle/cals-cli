@@ -5,6 +5,7 @@ export {
   pollForCondition,
   runNpmRunScript,
   startContainer,
+  waitForEnterToContinue,
   waitForHttpOk,
   waitForPostgresAvailable,
 } from "./lib"
