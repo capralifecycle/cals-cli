@@ -182,7 +182,7 @@ export async function waitForPostgresAvailable({
   waitIntervalSec = 1,
   username = "user",
   password = "password",
-  dbName,
+  dbname,
 }: {
   executor: ExecutorState
   container: Container
@@ -190,7 +190,7 @@ export async function waitForPostgresAvailable({
   waitIntervalSec?: number
   username?: string
   password?: string
-  dbName: string
+  dbname: string
 }): Promise<void> {
   await pollForCondition({
     executor,
@@ -210,7 +210,7 @@ export async function waitForPostgresAvailable({
         username,
         "-c",
         "select 1",
-        dbName,
+        dbname,
       ])
       return true
     },
