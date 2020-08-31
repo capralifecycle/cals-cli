@@ -55,7 +55,9 @@ export class ExecutorState {
    * The main method of the program should be executed by using
    * this method.
    */
-  public async runWithCleanupTasks(body: () => Promise<void>): Promise<void> {
+  public async runWithCleanupTasks(
+    body: (executor: ExecutorState) => Promise<void>,
+  ): Promise<void> {
     try {
       try {
         assert.strictEqual(this.usingWithCleanupTasks, false)
@@ -80,7 +82,7 @@ export class ExecutorState {
           })
         })
 
-        await body()
+        await body(this)
       } finally {
         this.usingWithCleanupTasks = false
         if (this.cleanupTask == null) {
