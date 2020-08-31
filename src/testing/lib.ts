@@ -382,6 +382,34 @@ export async function runNpmRunScript(name: string): Promise<void> {
   await result
 }
 
+/**
+ * This likely does not cover all situations.
+ */
+export async function getDockerHostAddress(): Promise<string> {
+  if (process.platform === "darwin" || process.platform === "win32") {
+    return "host.docker.internal"
+  }
+
+  if (fs.existsSync("/.dockerenv")) {
+    const process = execa("ip", ["route"])
+    pipeToConsole(process, "ip route")
+    const res = await process
+    try {
+      return (
+        res.stdout
+          .split("\n")
+          .filter((it) => it.includes("default via"))
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          .map((it) => /default via ([\d\.]+) /.exec(it)![1])[0]
+      )
+    } catch (e) {
+      throw new Error("Failed to extract docker host address")
+    }
+  }
+
+  return "localhost"
+}
+
 export async function waitForEnterToContinue(
   prompt = "Press enter to continue",
 ): Promise<void> {
