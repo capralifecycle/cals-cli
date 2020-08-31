@@ -8,6 +8,7 @@ export interface Container {
   name: string
   network: Network
   process: execa.ExecaChildProcess
+  executor: ExecutorState
 }
 
 export interface Network {
@@ -99,13 +100,11 @@ export async function curl(
  * To abort the condition must return false.
  */
 export async function pollForCondition({
-  executor,
   container,
   attempts,
   waitIntervalSec,
   condition,
 }: {
-  executor: ExecutorState
   container: Container
   attempts: number
   waitIntervalSec: number
@@ -115,7 +114,7 @@ export async function pollForCondition({
     console.log(`${container.name} (poll): ${value}`)
   }
 
-  executor.checkCanContinue()
+  container.executor.checkCanContinue()
   log(
     `Waiting for condition.. Checking ${attempts} times by ${waitIntervalSec} sec`,
   )
@@ -127,8 +126,8 @@ export async function pollForCondition({
   }
 
   for (let i = 0; i < attempts; i++) {
-    executor.checkCanContinue()
-    if (!(await isRunning(executor, container))) {
+    container.executor.checkCanContinue()
+    if (!(await isRunning(container.executor, container))) {
       throw new Error(`Container ${container.name} not running as expected`)
     }
     try {
@@ -151,32 +150,28 @@ export async function pollForCondition({
 }
 
 export async function waitForHttpOk({
-  executor,
   container,
   url,
   attempts = 30,
   waitIntervalSec = 1,
 }: {
-  executor: ExecutorState
   container: Container
   url: string
   attempts?: number
   waitIntervalSec?: number
 }): Promise<void> {
   await pollForCondition({
-    executor,
     container,
     attempts,
     waitIntervalSec,
     condition: async () => {
-      await curl(executor, container.network, "-fsS", url)
+      await curl(container.executor, container.network, "-fsS", url)
       return true
     },
   })
 }
 
 export async function waitForPostgresAvailable({
-  executor,
   container,
   attempts = 30,
   waitIntervalSec = 1,
@@ -184,7 +179,6 @@ export async function waitForPostgresAvailable({
   password = "password",
   dbname,
 }: {
-  executor: ExecutorState
   container: Container
   attempts?: number
   waitIntervalSec?: number
@@ -193,7 +187,6 @@ export async function waitForPostgresAvailable({
   dbname: string
 }): Promise<void> {
   await pollForCondition({
-    executor,
     container,
     attempts,
     waitIntervalSec,
@@ -361,6 +354,7 @@ export async function startContainer({
     name: containerName,
     network,
     process,
+    executor,
   }
 }
 
