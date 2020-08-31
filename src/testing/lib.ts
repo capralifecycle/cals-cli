@@ -1,4 +1,5 @@
 import execa from "execa"
+import fs from "fs"
 import { performance } from "perf_hooks"
 import read from "read"
 import { Transform } from "stream"
@@ -376,8 +377,15 @@ export async function startContainer({
   }
 }
 
-export async function runNpmRunScript(name: string): Promise<void> {
-  const result = execa("npm", ["run", name])
+export async function runNpmRunScript(
+  name: string,
+  options?: {
+    env: NodeJS.ProcessEnv
+  },
+): Promise<void> {
+  const result = execa("npm", ["run", name], {
+    env: options?.env,
+  })
   pipeToConsole(result, `npm run ${name}`)
   await result
 }
