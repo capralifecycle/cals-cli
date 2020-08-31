@@ -17,3 +17,5 @@ export {
   GitHubService,
   Reporter,
 }
+
+export * from "./testing"
