@@ -291,6 +291,13 @@ async function getContainerId(name: string) {
   throw new Error(`Could not find ID for container with name ${name}`)
 }
 
+async function pullImage({ imageId }: { imageId: string }): Promise<void> {
+  console.log(`Pulling ${imageId}`)
+  const process = execa("docker", ["pull", imageId])
+  pipeToConsole(process, `pull-image (${imageId})`)
+  await process
+}
+
 export async function startContainer({
   executor,
   network,
@@ -298,6 +305,7 @@ export async function startContainer({
   alias,
   env,
   dockerArgs = [],
+  pull = false,
 }: {
   executor: TestExecutor
   network: Network
@@ -305,9 +313,18 @@ export async function startContainer({
   alias?: string
   env?: Record<string, string>
   dockerArgs?: string[]
+  pull?: boolean
 }): Promise<Container> {
   executor.checkCanContinue()
   const containerName = generateName(alias)
+
+  // Prefer pulling image here so that the call on getContainerId
+  // will not time out due to pulling the image.
+  if (pull) {
+    await pullImage({
+      imageId,
+    })
+  }
 
   const args = [
     "run",
