@@ -8,8 +8,6 @@ buildConfig {
     dockerNode {
       checkout scm
 
-      // There is actually a race condition here as multiple builds might
-      // build the same tag.
       def img = docker.build('cals-cli')
       img.inside {
         stage('Install dependencies') {
