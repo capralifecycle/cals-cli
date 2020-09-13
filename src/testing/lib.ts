@@ -266,7 +266,15 @@ function pipeToConsole(result: execa.ExecaChildProcess, name: string) {
     .pipe(process.stderr)
 }
 
-async function getContainerId(name: string) {
+async function getContainerId({
+  executor,
+  name,
+  hasFailed,
+}: {
+  executor: TestExecutor
+  name: string
+  hasFailed(): boolean
+}) {
   async function check() {
     try {
       return (await execa("docker", ["inspect", name, "-f", "{{.Id}}"])).stdout
@@ -275,16 +283,28 @@ async function getContainerId(name: string) {
     }
   }
 
+  function log(value: string) {
+    console.log(`${name} (get-container-id): ${value}`)
+  }
+
   // If the container is not running, retry a few times to cover
   // the initial starting where we might check before the container
   // is running.
   for (let i = 0; i < 25; i++) {
     if (i > 0) {
       // Delay a bit before checking again.
+      log("Retrying in a bit...")
       await new Promise((resolve) => setTimeout(resolve, 200))
     }
+
+    executor.checkCanContinue()
+    if (hasFailed()) {
+      break
+    }
+
     const id = await check()
     if (id !== null) {
+      log(`Resolved to ${id}`)
       return id
     }
   }
@@ -352,7 +372,16 @@ export async function startContainer({
   const process = execa("docker", args)
   pipeToConsole(process, alias ?? containerName)
 
-  const id = await getContainerId(containerName)
+  let failed = false
+  process.catch(() => {
+    failed = true
+  })
+
+  const id = await getContainerId({
+    executor,
+    name: containerName,
+    hasFailed: () => failed,
+  })
 
   executor.registerCleanupTask(async () => {
     console.log(`Stopping container ${containerName}`)
