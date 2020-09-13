@@ -8,20 +8,8 @@ import {
   Team,
 } from "../../definition/types"
 import { GitHubService } from "../service"
-import {
-  OrgsGetResponse,
-  Permission,
-  ReposGetResponse,
-  TeamsListResponseItem,
-} from "../types"
+import { OrgsGetResponse, Permission, ReposGetResponse } from "../types"
 import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
-
-type GetOrg = (
-  orgName: string,
-) => Promise<{
-  org: OrgsGetResponse
-  teams: TeamsListResponseItem[]
-}>
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
