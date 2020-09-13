@@ -59,41 +59,39 @@ export class TestExecutor {
     body: (executor: TestExecutor) => Promise<void>,
   ): Promise<void> {
     try {
-      try {
-        assert.strictEqual(this.usingWithCleanupTasks, false)
-        this.usingWithCleanupTasks = true
+      assert.strictEqual(this.usingWithCleanupTasks, false)
+      this.usingWithCleanupTasks = true
 
-        // We capture Ctrl+C so that we can perform cleanup task,
-        // since the cleanup tasks involve async code which is not
-        // supported during NodeJS normal exit handling.
-        //
-        // This will not abort the running tasks until after
-        // we have completed the cleanup tasks. The running tasks
-        // can stop earlier by calling checkCanContinue.
-        process.on("SIGINT", () => {
-          console.warn("Caught interrupt signal - forcing termination")
-          if (this.cleanupTask != null) {
-            return
-          }
-
-          this.shutdown = true
-          this.cleanupTask = this.runTasks().then(() => {
-            process.exit(1)
-          })
-        })
-
-        await body(this)
-      } finally {
-        this.usingWithCleanupTasks = false
-        if (this.cleanupTask == null) {
-          this.cleanupTask = this.runTasks()
+      // We capture Ctrl+C so that we can perform cleanup task,
+      // since the cleanup tasks involve async code which is not
+      // supported during NodeJS normal exit handling.
+      //
+      // This will not abort the running tasks until after
+      // we have completed the cleanup tasks. The running tasks
+      // can stop earlier by calling checkCanContinue.
+      process.on("SIGINT", () => {
+        console.warn("Caught interrupt signal - forcing termination")
+        if (this.cleanupTask != null) {
+          return
         }
-        await this.cleanupTask
-      }
+
+        this.shutdown = true
+        this.cleanupTask = this.runTasks().then(() => {
+          process.exit(1)
+        })
+      })
+
+      await body(this)
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       console.error(error.stack || error.message || error)
       process.exitCode = 1
+    } finally {
+      this.usingWithCleanupTasks = false
+      if (this.cleanupTask == null) {
+        this.cleanupTask = this.runTasks()
+      }
+      await this.cleanupTask
     }
   }
 }
