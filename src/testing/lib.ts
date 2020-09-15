@@ -369,6 +369,7 @@ export async function startContainer({
 
   args.push(imageId)
 
+  console.log(`Starting ${imageId}`)
   const process = execa("docker", args)
   pipeToConsole(process, alias ?? containerName)
 

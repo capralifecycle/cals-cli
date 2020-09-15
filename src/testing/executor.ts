@@ -87,6 +87,7 @@ export class TestExecutor {
       console.error(error.stack || error.message || error)
       process.exitCode = 1
     } finally {
+      console.log(`Reached finally block`)
       this.usingWithCleanupTasks = false
       if (this.cleanupTask == null) {
         this.cleanupTask = this.runTasks()
