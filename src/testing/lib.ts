@@ -319,6 +319,21 @@ async function pullImage({ imageId }: { imageId: string }): Promise<void> {
   await process
 }
 
+async function checkImageExistsLocally({
+  imageId,
+}: {
+  imageId: string
+}): Promise<boolean> {
+  const result = await execa("docker", ["images", "-q", imageId])
+  const found = result.stdout != ""
+  console.log(
+    `image ${imageId} ${
+      found ? "was present locally" : "was not found locally"
+    }`,
+  )
+  return found
+}
+
 export async function startContainer({
   executor,
   network,
@@ -341,7 +356,9 @@ export async function startContainer({
 
   // Prefer pulling image here so that the call on getContainerId
   // will not time out due to pulling the image.
-  if (pull) {
+  // If pull is false, we will still fallback to pulling if we cannot
+  // find the image locally.
+  if (pull || !(await checkImageExistsLocally({ imageId }))) {
     await pullImage({
       imageId,
     })
