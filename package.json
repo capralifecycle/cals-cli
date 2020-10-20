@@ -68,7 +68,7 @@
     "jest": "26.5.3",
     "jest-sonar-reporter": "2.0.0",
     "prettier": "2.1.2",
-    "rollup": "2.29.0",
+    "rollup": "2.32.0",
     "rollup-plugin-typescript2": "0.27.3",
     "semantic-release": "17.2.1",
     "tempy": "0.7.1",
