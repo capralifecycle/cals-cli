@@ -24,6 +24,12 @@ Object {
         "public": Object {
           "type": "boolean",
         },
+        "responsible": Object {
+          "description": "Some external-defined entity being responsible for the repository.
+
+Will override the project-defined responsible.",
+          "type": "string",
+        },
         "snyk": Object {
           "type": "boolean",
         },
@@ -94,6 +100,10 @@ Object {
           "type": "array",
         },
         "name": Object {
+          "type": "string",
+        },
+        "responsible": Object {
+          "description": "Some external-defined entity being responsible for the project.",
           "type": "string",
         },
         "tags": Object {

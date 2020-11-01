@@ -1,5 +1,6 @@
 import fs from "fs"
 import yaml from "js-yaml"
+import { keyBy } from "lodash"
 import pMap from "p-map"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
@@ -181,16 +182,10 @@ async function getProjects(
 ) {
   const snykReposPromise = getSnykRepos(snyk, definition)
 
-  const projectMap = getRepos(definition).reduce<Record<string, string>>(
-    (acc, cur) => ({
-      ...acc,
-      [cur.id]: cur.project.name,
-    }),
-    {},
-  )
-
   const repos = await getReposFromGitHub(github, orgs)
   const snykRepos = await snykReposPromise
+
+  const definitionRepos = keyBy(getRepos(definition), (it) => it.id)
 
   const projects = Object.values(
     repos.reduce<{
@@ -202,8 +197,9 @@ async function getProjects(
       }
     }>((acc, cur) => {
       const org = cur.repository.owner.login
-      const projectName =
-        projectMap[getRepoId(org, cur.repository.name)] || "Unknown"
+      const repoId = getRepoId(org, cur.repository.name)
+
+      const projectName = definitionRepos[repoId]?.project?.name ?? "Unknown"
       const project = acc[projectName] || {
         name: projectName,
         repos: [],
@@ -230,21 +226,26 @@ async function getProjects(
             organization: org,
             teams: getFormattedTeams(commonTeams),
             repos: list
-              .map<DefinitionRepo>((repo) => ({
-                name: repo.basic.name,
-                archived: repo.repository.archived ? true : undefined,
-                issues: repo.repository.has_issues ? undefined : false,
-                wiki: repo.repository.has_wiki ? undefined : false,
-                teams: getFormattedTeams(
-                  getSpecificTeams(repo.teams, commonTeams),
-                ),
-                snyk: snykRepos.includes(
-                  getRepoId(repo.basic.owner.login, repo.basic.name),
+              .map<DefinitionRepo>((repo) => {
+                const repoId = getRepoId(
+                  repo.basic.owner.login,
+                  repo.basic.name,
                 )
-                  ? true
-                  : undefined,
-                public: repo.repository.private ? undefined : true,
-              }))
+                const definitionRepo = definitionRepos[repoId]
+
+                return {
+                  name: repo.basic.name,
+                  archived: repo.repository.archived ? true : undefined,
+                  issues: repo.repository.has_issues ? undefined : false,
+                  wiki: repo.repository.has_wiki ? undefined : false,
+                  teams: getFormattedTeams(
+                    getSpecificTeams(repo.teams, commonTeams),
+                  ),
+                  snyk: snykRepos.includes(repoId) ? true : undefined,
+                  public: repo.repository.private ? undefined : true,
+                  responsible: definitionRepo?.repo?.responsible,
+                }
+              })
               .sort((a, b) => a.name.localeCompare(b.name)),
           }
         })

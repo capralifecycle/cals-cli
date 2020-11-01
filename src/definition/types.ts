@@ -22,6 +22,10 @@ export interface Project {
     teams?: RepoTeam[]
   }[]
   tags?: string[]
+  /**
+   * Some external-defined entity being responsible for the project.
+   */
+  responsible?: string
 }
 
 export type User = UserBot | UserEmployee | UserExternal
@@ -54,6 +58,12 @@ export interface DefinitionRepo {
   teams?: RepoTeam[]
   snyk?: boolean
   public?: boolean
+  /**
+   * Some external-defined entity being responsible for the repository.
+   *
+   * Will override the project-defined responsible.
+   */
+  responsible?: string
 }
 
 export interface DefinitionRepoPreviousName {
