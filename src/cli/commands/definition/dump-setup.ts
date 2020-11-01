@@ -235,6 +235,7 @@ async function getProjects(
 
                 return {
                   name: repo.basic.name,
+                  previousNames: definitionRepo?.repo?.previousNames,
                   archived: repo.repository.archived ? true : undefined,
                   issues: repo.repository.has_issues ? undefined : false,
                   wiki: repo.repository.has_wiki ? undefined : false,
