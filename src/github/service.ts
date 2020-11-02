@@ -15,6 +15,7 @@ import {
   OrgsGetResponse,
   OrgsListMembersResponseItem,
   OrgsListPendingInvitationsResponseItem,
+  RenovateDependencyDashboardIssue,
   Repo,
   ReposGetResponse,
   ReposListHooksResponseItem,
@@ -68,6 +69,26 @@ interface SearchedPullRequestListQueryResult {
 }
 
 export type SearchedPullRequestListItem = SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
+
+interface RenovateDependencyDashboardIssueQueryResult {
+  repository: {
+    issues: {
+      pageInfo: {
+        hasNextPage: boolean
+        endCursor: string | null
+      }
+      edges: {
+        node: {
+          __typename: string
+          number: number
+          state: string
+          title: string
+          body: string
+        }
+      }[]
+    }
+  }
+}
 
 interface VulnerabilityAlertsQueryResult {
   repository: {
@@ -689,6 +710,79 @@ export class GitHubService {
         return result
       },
     )
+  }
+
+  /**
+   * Get the Renovate Dependency Dashboard issue.
+   */
+  public async getRenovateDependencyDashboardIssue(
+    owner: string,
+    repo: string,
+  ): Promise<RenovateDependencyDashboardIssue | undefined> {
+    // NOTE: Changes to this must by synced with RenovateDependencyDashboardIssueQueryResult.
+    const getQuery = (after: string | null) => `{
+  repository(owner: "${owner}", name: "${repo}") {
+    issues(
+      orderBy: {field: UPDATED_AT, direction: DESC},
+      filterBy: {createdBy: "renovate[bot]"},
+      states: [OPEN],
+      first: 100${after === null ? "" : `, after: "${after}"`}
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          number
+          state
+          title
+          body
+        }
+      }
+    }
+  }
+}`
+
+    const issues = await this.cache.json(
+      `renovate-bot-issues-${owner}-${repo}`,
+      async () => {
+        const result: RenovateDependencyDashboardIssue[] = []
+        let after = null
+
+        while (true) {
+          const query = getQuery(after)
+          const res = await this.runGraphqlQuery<
+            RenovateDependencyDashboardIssueQueryResult
+          >(query)
+
+          const nodes = res.repository?.issues.edges?.map((it) => it.node) ?? []
+
+          result.push(
+            ...nodes
+              .filter((it) => it.title === "Dependency Dashboard")
+              .map((it) => ({
+                number: it.number,
+                body: it.body,
+              })),
+          )
+
+          if (!res.repository?.issues.pageInfo.hasNextPage) {
+            break
+          }
+
+          after = res.repository?.issues.pageInfo.endCursor
+        }
+
+        return result
+      },
+    )
+
+    if (issues.length == 0) {
+      return undefined
+    }
+
+    return issues[0]
   }
 }
 

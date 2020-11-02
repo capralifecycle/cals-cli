@@ -96,3 +96,8 @@ export type OrgMemberOrInvited =
       login: string
       data: OrgsListPendingInvitationsResponseItem
     }
+
+export interface RenovateDependencyDashboardIssue {
+  number: number
+  body: string
+}

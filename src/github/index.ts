@@ -3,4 +3,4 @@ export {
   GitHubService,
   SearchedPullRequestListItem,
 } from "./service"
-export { VulnerabilityAlert } from "./types"
+export { RenovateDependencyDashboardIssue, VulnerabilityAlert } from "./types"
