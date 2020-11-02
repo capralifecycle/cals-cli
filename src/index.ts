@@ -10,6 +10,7 @@ import { createGitHubService, GitHubService } from "./github/service"
 
 export const VERSION = version
 
+export * as snyk from "./snyk"
 export * from "./testing"
 // Consider removing old exports later.
 export {
