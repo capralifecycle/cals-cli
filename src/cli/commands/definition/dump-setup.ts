@@ -13,6 +13,7 @@ import {
 import {
   Definition,
   DefinitionRepo,
+  GetReposResponse,
   Project,
   RepoTeam,
   Team,
@@ -41,6 +42,7 @@ import {
   getDefinitionFile,
 } from "../../util"
 import { reportRateLimit } from "../github/util"
+import { reorderListToSimilarAsBefore } from "./util"
 
 interface DetailedProject {
   name: string
@@ -126,15 +128,21 @@ function getSpecificTeams(
   )
 }
 
-function getFormattedTeams(teams: ReposListTeamsResponseItem[]) {
-  return teams.length === 0
-    ? undefined
-    : teams
-        .map<RepoTeam>((it) => ({
+function getFormattedTeams(
+  oldTeams: RepoTeam[],
+  teams: ReposListTeamsResponseItem[],
+) {
+  const result =
+    teams.length === 0
+      ? undefined
+      : teams.map<RepoTeam>((it) => ({
           name: it.name,
           permission: it.permission as Permission,
         }))
-        .sort((a, b) => a.name.localeCompare(b.name))
+
+  return result
+    ? reorderListToSimilarAsBefore(oldTeams ?? [], result, (it) => it.name)
+    : undefined
 }
 
 async function getOrgs(github: GitHubService, orgs: string[]) {
@@ -187,10 +195,11 @@ async function getProjects(
 
   const definitionRepos = keyBy(getRepos(definition), (it) => it.id)
 
-  const projects = Object.values(
+  const projectGroups = Object.values(
     repos.reduce<{
       [project: string]: {
         name: string
+        definition?: Project
         repos: {
           [owner: string]: typeof repos
         }
@@ -202,6 +211,7 @@ async function getProjects(
       const projectName = definitionRepos[repoId]?.project?.name ?? "Unknown"
       const project = acc[projectName] || {
         name: projectName,
+        definition: definitionRepos[repoId]?.project,
         repos: [],
       }
 
@@ -217,47 +227,77 @@ async function getProjects(
       }
     }, {}),
   )
-    .map<Project>((project) => ({
+
+  const projects = projectGroups.map<Project>((project) => {
+    const github = Object.entries(project.repos).map(([org, list]) => {
+      const commonTeams = getCommonTeams(list)
+      const oldOrg = project.definition?.github?.find(
+        (it) => it.organization == org,
+      )
+
+      const repos = list.map<DefinitionRepo>((repo) => {
+        const repoId = getRepoId(repo.basic.owner.login, repo.basic.name)
+        const definitionRepo: GetReposResponse | undefined =
+          definitionRepos[repoId]
+
+        const result: DefinitionRepo = {
+          name: repo.basic.name,
+          previousNames: definitionRepo?.repo.previousNames,
+          archived: repo.repository.archived ? true : undefined,
+          issues: repo.repository.has_issues ? undefined : false,
+          wiki: repo.repository.has_wiki ? undefined : false,
+          teams: getFormattedTeams(
+            definitionRepo?.repo?.teams ?? [],
+            getSpecificTeams(repo.teams, commonTeams),
+          ),
+          snyk: snykRepos.includes(repoId) ? true : undefined,
+          public: repo.repository.private ? undefined : true,
+          responsible: definitionRepo?.repo.responsible,
+        }
+
+        // Try to preserve property order.
+        return Object.fromEntries(
+          reorderListToSimilarAsBefore(
+            Object.entries(definitionRepo.repo),
+            Object.entries(result),
+            (it) => it[0],
+            true,
+          ),
+        ) as DefinitionRepo
+      })
+
+      const teams = getFormattedTeams(oldOrg?.teams ?? [], commonTeams)
+
+      return {
+        organization: org,
+        teams: teams,
+        repos: reorderListToSimilarAsBefore(
+          oldOrg?.repos ?? [],
+          repos,
+          (it) => it.name,
+        ),
+      }
+    })
+
+    return {
       name: project.name,
-      github: Object.entries(project.repos)
-        .map(([org, list]) => {
-          const commonTeams = getCommonTeams(list)
-          return {
-            organization: org,
-            teams: getFormattedTeams(commonTeams),
-            repos: list
-              .map<DefinitionRepo>((repo) => {
-                const repoId = getRepoId(
-                  repo.basic.owner.login,
-                  repo.basic.name,
-                )
-                const definitionRepo = definitionRepos[repoId]
+      github: reorderListToSimilarAsBefore(
+        project.definition?.github ?? [],
+        github,
+        (it) => it.organization,
+      ),
+    }
+  })
 
-                return {
-                  name: repo.basic.name,
-                  previousNames: definitionRepo?.repo?.previousNames,
-                  archived: repo.repository.archived ? true : undefined,
-                  issues: repo.repository.has_issues ? undefined : false,
-                  wiki: repo.repository.has_wiki ? undefined : false,
-                  teams: getFormattedTeams(
-                    getSpecificTeams(repo.teams, commonTeams),
-                  ),
-                  snyk: snykRepos.includes(repoId) ? true : undefined,
-                  public: repo.repository.private ? undefined : true,
-                  responsible: definitionRepo?.repo?.responsible,
-                }
-              })
-              .sort((a, b) => a.name.localeCompare(b.name)),
-          }
-        })
-        .sort((a, b) => a.organization.localeCompare(b.organization)),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-
-  return projects
+  return reorderListToSimilarAsBefore(
+    definition.projects,
+    projects,
+    (it) => it.name,
+  )
 }
 
-function buildTeamsList(
+function buildGitHubTeamsList(
+  definition: Definition,
   list: Record<
     string,
     {
@@ -266,17 +306,42 @@ function buildTeamsList(
     }[]
   >,
 ) {
-  return Object.entries(list)
-    .map(([org, teams]) => ({
-      organization: org,
-      teams: teams.map<Team>((team) => ({
-        name: team.team.name,
-        members: team.users
-          .map((it) => it.login)
-          .sort((a, b) => a.localeCompare(b)),
-      })),
-    }))
-    .sort((a, b) => a.organization.localeCompare(b.organization))
+  const result = Object.entries(list).map(([org, teams]) => ({
+    organization: org,
+    teams: teams.map<Team>((team) => ({
+      name: team.team.name,
+      members: team.users
+        .map((it) => it.login)
+        .sort((a, b) => a.localeCompare(b)),
+    })),
+  }))
+
+  return reorderListToSimilarAsBefore(
+    definition.github.teams,
+    result,
+    (it) => it.organization,
+  )
+}
+
+function buildGitHubUsersList(
+  definition: Definition,
+  members: string[],
+): User[] {
+  const result = members.map<User>(
+    (memberLogin) =>
+      definition.github.users.find((user) => user.login === memberLogin) || {
+        type: "external",
+        login: memberLogin,
+        // TODO: Fetch name from GitHub?
+        name: "*Unknown*",
+      },
+  )
+
+  return reorderListToSimilarAsBefore(
+    definition.github.users,
+    result,
+    (it) => it.login,
+  )
 }
 
 async function dumpSetup(
@@ -298,20 +363,8 @@ async function dumpSetup(
   const generatedDefinition: Definition = {
     snyk: definition.snyk,
     github: {
-      users: (await members)
-        .map<User>(
-          (memberLogin) =>
-            definition.github.users.find(
-              (user) => user.login === memberLogin,
-            ) || {
-              type: "external",
-              login: memberLogin,
-              // TODO: Fetch name from GitHub?
-              name: "*Unknown*",
-            },
-        )
-        .sort((a, b) => a.login.localeCompare(b.login)),
-      teams: buildTeamsList(await teams),
+      users: buildGitHubUsersList(definition, await members),
+      teams: buildGitHubTeamsList(definition, await teams),
     },
     projects: await projects,
   }
