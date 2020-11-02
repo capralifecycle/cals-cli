@@ -36,7 +36,7 @@ export interface Repo {
 }
 
 // See https://developer.github.com/v4/object/repositoryvulnerabilityalert/
-export interface VulerabilityAlert {
+export interface VulnerabilityAlert {
   dismissReason: string | null
   vulnerableManifestFilename: string
   vulnerableManifestPath: string

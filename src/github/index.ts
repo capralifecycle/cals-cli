@@ -1,3 +1,2 @@
-import { createGitHubService, GitHubService } from "./service"
-
-export { createGitHubService, GitHubService }
+export { createGitHubService, GitHubService } from "./service"
+export { VulnerabilityAlert } from "./types"

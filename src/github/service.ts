@@ -23,7 +23,7 @@ import {
   TeamsListMembersResponseItem,
   TeamsListPendingInvitationsResponseItem,
   TeamsListResponseItem,
-  VulerabilityAlert,
+  VulnerabilityAlert,
 } from "./types"
 import { undefinedForNotFound } from "./util"
 
@@ -77,7 +77,7 @@ interface VulnerabilityAlertsQueryResult {
         endCursor: string | null
       }
       edges: Array<{
-        node: VulerabilityAlert
+        node: VulnerabilityAlert
       }> | null
     }
   } | null
@@ -622,12 +622,12 @@ export class GitHubService {
   }
 
   /**
-   * Get the vulernability alerts for a repository.
+   * Get the vulnerability alerts for a repository.
    */
   public async getVulnerabilityAlerts(
     owner: string,
     repo: string,
-  ): Promise<VulerabilityAlert[]> {
+  ): Promise<VulnerabilityAlert[]> {
     // NOTE: Changes to this must by synced with VulnerabilityAlertsQueryResult.
     const getQuery = (after: string | null) => `{
   repository(owner: "${owner}", name: "${repo}") {
@@ -664,7 +664,7 @@ export class GitHubService {
     return this.cache.json(
       `vulnerability-alerts-${owner}-${repo}`,
       async () => {
-        const result: VulerabilityAlert[] = []
+        const result: VulnerabilityAlert[] = []
         let after = null
 
         while (true) {
