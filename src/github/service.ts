@@ -67,7 +67,7 @@ interface SearchedPullRequestListQueryResult {
   }
 }
 
-type SearchedPullRequestListItem = SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
+export type SearchedPullRequestListItem = SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
 
 interface VulnerabilityAlertsQueryResult {
   repository: {

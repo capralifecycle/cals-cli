@@ -1,2 +1,6 @@
-export { createGitHubService, GitHubService } from "./service"
+export {
+  createGitHubService,
+  GitHubService,
+  SearchedPullRequestListItem,
+} from "./service"
 export { VulnerabilityAlert } from "./types"
