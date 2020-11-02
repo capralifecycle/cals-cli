@@ -1,2 +1,13 @@
-export { DefinitionFile } from "./definition"
-export { Definition, DefinitionRepo, Project, RepoTeam } from "./types"
+export {
+  DefinitionFile,
+  getGitHubOrgs,
+  getRepoId,
+  getRepos,
+} from "./definition"
+export {
+  Definition,
+  DefinitionRepo,
+  GetReposResponse,
+  Project,
+  RepoTeam,
+} from "./types"
