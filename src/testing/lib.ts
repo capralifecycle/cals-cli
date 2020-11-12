@@ -266,25 +266,49 @@ function pipeToConsole(result: execa.ExecaChildProcess, name: string) {
     .pipe(process.stderr)
 }
 
+function checkPidRunning(pid: number): boolean {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
 async function getContainerId({
   executor,
   name,
   hasFailed,
+  pid,
 }: {
   executor: TestExecutor
   name: string
   hasFailed(): boolean
+  pid: number
 }) {
+  function log(value: string) {
+    console.log(`${name} (get-container-id): ${value}`)
+  }
+
   async function check() {
     try {
-      return (await execa("docker", ["inspect", name, "-f", "{{.Id}}"])).stdout
+      const result = (await execa("docker", ["inspect", name, "-f", "{{.Id}}"]))
+        .stdout
+
+      // Debugging to help us solve CALS-366.
+      const ps = execa("docker", ["ps"])
+      pipeToConsole(ps, `${name} (ps)`)
+      await ps
+
+      // Debugging to help us solve CALS-366.
+      if (!checkPidRunning(pid)) {
+        log("Process not running")
+      }
+
+      return result
     } catch (e) {
       return null
     }
-  }
-
-  function log(value: string) {
-    console.log(`${name} (get-container-id): ${value}`)
   }
 
   // If the container is not running, retry a few times to cover
@@ -399,6 +423,7 @@ export async function startContainer({
     executor,
     name: containerName,
     hasFailed: () => failed,
+    pid: process.pid,
   })
 
   executor.registerCleanupTask(async () => {
