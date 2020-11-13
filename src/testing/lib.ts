@@ -291,24 +291,26 @@ async function getContainerId({
   }
 
   async function check() {
+    let result: string | null
+
     try {
-      const result = (await execa("docker", ["inspect", name, "-f", "{{.Id}}"]))
+      result = (await execa("docker", ["inspect", name, "-f", "{{.Id}}"]))
         .stdout
-
-      // Debugging to help us solve CALS-366.
-      const ps = execa("docker", ["ps"])
-      pipeToConsole(ps, `${name} (ps)`)
-      await ps
-
-      // Debugging to help us solve CALS-366.
-      if (!checkPidRunning(pid)) {
-        log("Process not running")
-      }
-
-      return result
     } catch (e) {
-      return null
+      result = null
     }
+
+    // Debugging to help us solve CALS-366.
+    const ps = execa("docker", ["ps"])
+    pipeToConsole(ps, `${name} (ps)`)
+    await ps
+
+    // Debugging to help us solve CALS-366.
+    if (!checkPidRunning(pid)) {
+      log("Process not running")
+    }
+
+    return result
   }
 
   // If the container is not running, retry a few times to cover
