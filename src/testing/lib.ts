@@ -316,7 +316,8 @@ async function getContainerId({
   // If the container is not running, retry a few times to cover
   // the initial starting where we might check before the container
   // is running.
-  for (let i = 0; i < 25; i++) {
+  // Increased from 25 to 100 to see if it helps for solving CALS-366.
+  for (let i = 0; i < 100; i++) {
     if (i > 0) {
       // Delay a bit before checking again.
       log("Retrying in a bit...")
