@@ -5,6 +5,7 @@ import {
   Definition,
   DefinitionRepo,
   Project,
+  RepoTeam,
   Team,
 } from "../../definition/types"
 import { GitHubService } from "../service"
@@ -66,6 +67,22 @@ async function getUnknownRepos(
   )
 }
 
+/**
+ * Get teams from both the project level and the repository level
+ * and ensure that repository level override project level.
+ */
+function getExpectedTeams(
+  projectTeams: RepoTeam[],
+  repoTeams: RepoTeam[],
+): RepoTeam[] {
+  return [
+    ...repoTeams,
+    ...projectTeams.filter(
+      (it) => !repoTeams.find((repoTeam) => repoTeam.name === it.name),
+    ),
+  ]
+}
+
 async function getRepoTeamChanges({
   github,
   org,
@@ -78,7 +95,10 @@ async function getRepoTeamChanges({
   repo: ReposGetResponse
 }) {
   const changes: ChangeSetItem[] = []
-  const expectedTeams = [...(org.teams || []), ...(projectRepo.teams || [])]
+  const expectedTeams = getExpectedTeams(
+    org.teams ?? [],
+    projectRepo.teams ?? [],
+  )
   const existingTeams = await github.getRepositoryTeamsList(repo)
 
   // Check for teams to be added / modified.

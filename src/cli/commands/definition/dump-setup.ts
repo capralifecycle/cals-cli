@@ -124,7 +124,10 @@ function getSpecificTeams(
   commonTeams: ReposListTeamsResponseItem[],
 ) {
   return teams.filter(
-    (team) => !commonTeams.some((it) => it.name === team.name),
+    (team) =>
+      !commonTeams.some(
+        (it) => it.name === team.name && it.permission === team.permission,
+      ),
   )
 }
 
