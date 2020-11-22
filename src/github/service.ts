@@ -84,6 +84,16 @@ interface RenovateDependencyDashboardIssueQueryResult {
           state: string
           title: string
           body: string
+          userContentEdits: {
+            nodes:
+              | {
+                  createdAt: string
+                  editor: {
+                    login: string
+                  } | null
+                }[]
+              | null
+          } | null
         }
       }[]
     }
@@ -738,6 +748,14 @@ export class GitHubService {
           state
           title
           body
+          userContentEdits(first: 5) {
+            nodes {
+              createdAt
+              editor {
+                login
+              }
+            }
+          }
         }
       }
     }
@@ -764,6 +782,10 @@ export class GitHubService {
               .map((it) => ({
                 number: it.number,
                 body: it.body,
+                lastUpdatedByRenovate:
+                  it.userContentEdits?.nodes?.filter(
+                    (it) => it.editor?.login === "renovate",
+                  )?.[0]?.createdAt ?? null,
               })),
           )
 

@@ -100,4 +100,5 @@ export type OrgMemberOrInvited =
 export interface RenovateDependencyDashboardIssue {
   number: number
   body: string
+  lastUpdatedByRenovate: string | null
 }
