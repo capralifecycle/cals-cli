@@ -240,8 +240,7 @@ async function getProjects(
 
       const repos = list.map<DefinitionRepo>((repo) => {
         const repoId = getRepoId(repo.basic.owner.login, repo.basic.name)
-        const definitionRepo: GetReposResponse | undefined =
-          definitionRepos[repoId]
+        const definitionRepo: GetReposResponse = definitionRepos[repoId]
 
         const result: DefinitionRepo = {
           name: repo.basic.name,
@@ -261,7 +260,7 @@ async function getProjects(
         // Try to preserve property order.
         return Object.fromEntries(
           reorderListToSimilarAsBefore(
-            Object.entries(definitionRepo.repo),
+            definitionRepo ? Object.entries(definitionRepo.repo) : [],
             Object.entries(result),
             (it) => it[0],
             true,
