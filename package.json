@@ -60,7 +60,7 @@
     "@typescript-eslint/parser": "4.9.0",
     "dateformat": "3.0.3",
     "del": "6.0.0",
-    "eslint": "7.14.0",
+    "eslint": "7.15.0",
     "eslint-config-prettier": "6.15.0",
     "eslint-plugin-deprecation": "1.1.0",
     "eslint-plugin-prettier": "3.2.0",
