@@ -157,10 +157,10 @@ const command: CommandModule = {
   handler: async (argv) => {
     const reporter = createReporter(argv)
     const config = createConfig()
-    const github = await createGitHubService(
+    const github = await createGitHubService({
       config,
-      createCacheProvider(config, argv),
-    )
+      cache: createCacheProvider(config, argv),
+    })
     const definition = await getDefinitionFile(argv).getDefinition()
 
     await reportRateLimit(reporter, github, async () => {

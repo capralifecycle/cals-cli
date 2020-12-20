@@ -166,10 +166,10 @@ const command: CommandModule = {
     const config = createConfig()
     await listRepos({
       reporter: createReporter(argv),
-      github: await createGitHubService(
+      github: await createGitHubService({
         config,
-        createCacheProvider(config, argv),
-      ),
+        cache: createCacheProvider(config, argv),
+      }),
       includeArchived: !!argv["include-archived"],
       name: argv.name as string | undefined,
       topic: argv.topic as string | undefined,

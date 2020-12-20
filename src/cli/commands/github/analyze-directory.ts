@@ -83,10 +83,10 @@ const command: CommandModule = {
     }),
   handler: async (argv) => {
     const config = createConfig()
-    const github = await createGitHubService(
+    const github = await createGitHubService({
       config,
-      createCacheProvider(config, argv),
-    )
+      cache: createCacheProvider(config, argv),
+    })
     const reporter = createReporter(argv)
     return analyzeDirectory(reporter, config, github, argv["org"] as string)
   },

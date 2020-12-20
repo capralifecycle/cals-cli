@@ -626,10 +626,10 @@ for what has happened. The Git output when changes are seen
 will be stored there.`),
   handler: async (argv) => {
     const config = createConfig()
-    const github = await createGitHubService(
+    const github = await createGitHubService({
       config,
-      createCacheProvider(config, argv),
-    )
+      cache: createCacheProvider(config, argv),
+    })
     const reporter = createReporter(argv)
 
     const manifest = await loadCalsManifest(config, reporter)

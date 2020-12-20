@@ -1,17 +1,17 @@
 import read from "read"
 import { CommandModule } from "yargs"
-import { createSnykService, SnykService } from "../../../snyk/service"
+import { SnykTokenCliProvider } from "../../../snyk/token"
 import { Reporter } from "../../reporter"
-import { createConfig, createReporter } from "../../util"
+import { createReporter } from "../../util"
 
 async function setToken({
   reporter,
-  snyk,
   token,
+  tokenProvider,
 }: {
   reporter: Reporter
-  snyk: SnykService
   token: string | undefined
+  tokenProvider: SnykTokenCliProvider
 }) {
   if (token === undefined) {
     reporter.info("Need API token to talk to Snyk")
@@ -33,7 +33,7 @@ async function setToken({
     })
   }
 
-  await snyk.setToken(token)
+  await tokenProvider.setToken(token)
   reporter.info("Token saved")
 }
 
@@ -47,8 +47,8 @@ const command: CommandModule = {
   handler: async (argv) =>
     setToken({
       reporter: createReporter(argv),
-      snyk: createSnykService(createConfig()),
       token: argv.token as string | undefined,
+      tokenProvider: new SnykTokenCliProvider(),
     }),
 }
 

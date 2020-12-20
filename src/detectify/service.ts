@@ -1,10 +1,7 @@
-import keytar from "keytar"
 import fetch from "node-fetch"
 import { Config } from "../config"
+import { DetectifyTokenCliProvider, DetectifyTokenProvider } from "./token"
 import { DetectifyScanProfile, DetectifyScanReport } from "./types"
-
-const keyringService = "cals"
-const keyringAccount = "detectify-token"
 
 type ApiResponse<T> = { ok: T } | { error: "not-found" }
 
@@ -15,39 +12,22 @@ function requireOk<T>(response: ApiResponse<T>) {
   return response.ok
 }
 
+interface DetectifyServiceProps {
+  config: Config
+  tokenProvider: DetectifyTokenProvider
+}
+
 export class DetectifyService {
-  public constructor(config: Config) {
-    this.config = config
-  }
-
   private config: Config
+  private tokenProvider: DetectifyTokenProvider
 
-  private async removeToken() {
-    await keytar.deletePassword(keyringService, keyringAccount)
-  }
-
-  public async setToken(value: string): Promise<void> {
-    await keytar.setPassword(keyringService, keyringAccount, value)
-  }
-
-  public static async getToken(): Promise<string | undefined> {
-    if (process.env.CALS_DETECTIFY_TOKEN) {
-      return process.env.CALS_DETECTIFY_TOKEN
-    }
-
-    const result = await keytar.getPassword(keyringService, keyringAccount)
-    if (result == null) {
-      process.stderr.write(
-        "No token found. Register using `cals detectify set-token`\n",
-      )
-      return undefined
-    }
-
-    return result
+  public constructor(props: DetectifyServiceProps) {
+    this.config = props.config
+    this.tokenProvider = props.tokenProvider
   }
 
   private async getRequest<T>(url: string): Promise<ApiResponse<T>> {
-    const token = await DetectifyService.getToken()
+    const token = await this.tokenProvider.getToken()
     if (token === undefined) {
       throw new Error("Missing token for Detectify")
     }
@@ -63,7 +43,7 @@ export class DetectifyService {
 
     if (response.status === 401) {
       process.stderr.write("Unauthorized - removing token\n")
-      await this.removeToken()
+      await this.tokenProvider.markInvalid()
     }
 
     if (response.status === 404) {
@@ -112,6 +92,16 @@ export class DetectifyService {
   }
 }
 
-export function createDetectifyService(config: Config): DetectifyService {
-  return new DetectifyService(config)
+interface CreateDetectifyServiceProps {
+  config: Config
+  tokenProvider?: DetectifyTokenProvider
+}
+
+export function createDetectifyService(
+  props: CreateDetectifyServiceProps,
+): DetectifyService {
+  return new DetectifyService({
+    config: props.config,
+    tokenProvider: props.tokenProvider ?? new DetectifyTokenCliProvider(),
+  })
 }

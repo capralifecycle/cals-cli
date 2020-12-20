@@ -91,7 +91,7 @@ const command: CommandModule = {
     await listWebhooks(
       createReporter(argv),
       cacheProvider,
-      await createGitHubService(config, cacheProvider),
+      await createGitHubService({ config, cache: cacheProvider }),
       argv["org"] as string,
     )
   },

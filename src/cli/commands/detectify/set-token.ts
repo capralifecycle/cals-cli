@@ -1,20 +1,17 @@
 import read from "read"
 import { CommandModule } from "yargs"
-import {
-  createDetectifyService,
-  DetectifyService,
-} from "../../../detectify/service"
+import { DetectifyTokenCliProvider } from "../../../detectify/token"
 import { Reporter } from "../../reporter"
-import { createConfig, createReporter } from "../../util"
+import { createReporter } from "../../util"
 
 async function setToken({
   reporter,
-  detectify,
   token,
+  tokenProvider,
 }: {
   reporter: Reporter
-  detectify: DetectifyService
   token: string | undefined
+  tokenProvider: DetectifyTokenCliProvider
 }) {
   if (token === undefined) {
     reporter.info("Need API token to talk to Detectify")
@@ -36,7 +33,7 @@ async function setToken({
     })
   }
 
-  await detectify.setToken(token)
+  await tokenProvider.setToken(token)
   reporter.info("Token saved")
 }
 
@@ -47,12 +44,13 @@ const command: CommandModule = {
     yargs.positional("token", {
       describe: "Token. If not provided it will be requested as input",
     }),
-  handler: async (argv) =>
-    setToken({
+  handler: async (argv) => {
+    return setToken({
       reporter: createReporter(argv),
-      detectify: createDetectifyService(createConfig()),
       token: argv.token as string | undefined,
-    }),
+      tokenProvider: new DetectifyTokenCliProvider(),
+    })
+  },
 }
 
 export default command

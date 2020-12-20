@@ -5,11 +5,11 @@ import {
   OrgsGetResponseData,
   ReposGetResponseData,
 } from "@octokit/types"
-import keytar from "keytar"
 import fetch from "node-fetch"
 import pLimit, { Limit } from "p-limit"
 import { CacheProvider } from "../cache"
 import { Config } from "../config"
+import { GitHubTokenCliProvider, GitHubTokenProvider } from "./token"
 import {
   OrgMemberOrInvited,
   OrgsGetResponse,
@@ -27,9 +27,6 @@ import {
   VulnerabilityAlert,
 } from "./types"
 import { undefinedForNotFound } from "./util"
-
-const keyringService = "cals"
-const keyringAccount = "github-token"
 
 interface SearchedPullRequestListQueryResult {
   search: {
@@ -119,11 +116,25 @@ interface EtagCacheItem<T> {
   data: T
 }
 
+interface GitHubServiceProps {
+  config: Config
+  octokit: Octokit
+  cache: CacheProvider
+  tokenProvider: GitHubTokenProvider
+}
+
 export class GitHubService {
-  public constructor(config: Config, octokit: Octokit, cache: CacheProvider) {
-    this.config = config
-    this.octokit = octokit
-    this.cache = cache
+  private config: Config
+  public octokit: Octokit
+  private cache: CacheProvider
+  private tokenProvider: GitHubTokenProvider
+  private semaphore: Limit
+
+  public constructor(props: GitHubServiceProps) {
+    this.config = props.config
+    this.octokit = props.octokit
+    this.cache = props.cache
+    this.tokenProvider = props.tokenProvider
 
     // Control concurrency to GitHub API at service level so we
     // can maximize concurrency all other places.
@@ -210,43 +221,14 @@ export class GitHubService {
     })
   }
 
-  private config: Config
-  public octokit: Octokit
-  private cache: CacheProvider
-  private semaphore: Limit
-
   private _requestCount = 0
 
   public get requestCount(): number {
     return this._requestCount
   }
 
-  private async removeToken() {
-    await keytar.deletePassword(keyringService, keyringAccount)
-  }
-
-  public async setToken(value: string): Promise<void> {
-    await keytar.setPassword(keyringService, keyringAccount, value)
-  }
-
-  public static async getToken(): Promise<string | undefined> {
-    if (process.env.CALS_GITHUB_TOKEN) {
-      return process.env.CALS_GITHUB_TOKEN
-    }
-
-    const result = await keytar.getPassword(keyringService, keyringAccount)
-    if (result == null) {
-      process.stderr.write(
-        "No token found. Register using `cals github set-token`\n",
-      )
-      return undefined
-    }
-
-    return result
-  }
-
   public async runGraphqlQuery<T>(query: string): Promise<T> {
-    const token = await GitHubService.getToken()
+    const token = await this.tokenProvider.getToken()
     if (token === undefined) {
       throw new Error("Missing token for GitHub")
     }
@@ -266,8 +248,8 @@ export class GitHubService {
     )
 
     if (response.status === 401) {
-      process.stderr.write("Unauthorized - removing token\n")
-      await this.removeToken()
+      process.stderr.write("Unauthorized\n")
+      await this.tokenProvider.markInvalid()
     }
 
     if (!response.ok) {
@@ -808,18 +790,33 @@ export class GitHubService {
   }
 }
 
-async function createOctokit(config: Config) {
+async function createOctokit(
+  config: Config,
+  tokenProvider: GitHubTokenProvider,
+) {
   return new Octokit({
-    auth: await GitHubService.getToken(),
+    auth: await tokenProvider.getToken(),
     request: {
       agent: config.agent,
     },
   })
 }
 
+interface CreateGitHubServiceProps {
+  config: Config
+  cache: CacheProvider
+  tokenProvider?: GitHubTokenProvider
+}
+
 export async function createGitHubService(
-  config: Config,
-  cache: CacheProvider,
+  props: CreateGitHubServiceProps,
 ): Promise<GitHubService> {
-  return new GitHubService(config, await createOctokit(config), cache)
+  const tokenProvider = props.tokenProvider ?? new GitHubTokenCliProvider()
+
+  return new GitHubService({
+    config: props.config,
+    octokit: await createOctokit(props.config, tokenProvider),
+    cache: props.cache,
+    tokenProvider,
+  })
 }

@@ -1,41 +1,21 @@
-import keytar from "keytar"
 import fetch from "node-fetch"
 import { Config } from "../config"
 import { Definition } from "../definition/types"
+import { SnykTokenCliProvider, SnykTokenProvider } from "./token"
 import { SnykProject } from "./types"
 
-const keyringService = "cals"
-const keyringAccount = "snyk-token"
+interface SnykServiceProps {
+  config: Config
+  tokenProvider: SnykTokenProvider
+}
 
 export class SnykService {
-  public constructor(config: Config) {
-    this.config = config
-  }
-
   private config: Config
+  private tokenProvider: SnykTokenProvider
 
-  private async removeToken() {
-    await keytar.deletePassword(keyringService, keyringAccount)
-  }
-
-  public async setToken(value: string): Promise<void> {
-    await keytar.setPassword(keyringService, keyringAccount, value)
-  }
-
-  public static async getToken(): Promise<string | undefined> {
-    if (process.env.CALS_SNYK_TOKEN) {
-      return process.env.CALS_SNYK_TOKEN
-    }
-
-    const result = await keytar.getPassword(keyringService, keyringAccount)
-    if (result == null) {
-      process.stderr.write(
-        "No token found. Register using `cals snyk set-token`\n",
-      )
-      return undefined
-    }
-
-    return result
+  public constructor(props: SnykServiceProps) {
+    this.config = props.config
+    this.tokenProvider = props.tokenProvider
   }
 
   public async getProjects(definition: Definition): Promise<SnykProject[]> {
@@ -44,7 +24,7 @@ export class SnykService {
       return []
     }
 
-    const token = await SnykService.getToken()
+    const token = await this.tokenProvider.getToken()
     if (token === undefined) {
       throw new Error("Missing token for Snyk")
     }
@@ -65,7 +45,7 @@ export class SnykService {
 
     if (response.status === 401) {
       process.stderr.write("Unauthorized - removing token\n")
-      await this.removeToken()
+      await this.tokenProvider.markInvalid()
     }
 
     if (!response.ok) {
@@ -81,6 +61,14 @@ export class SnykService {
   }
 }
 
-export function createSnykService(config: Config): SnykService {
-  return new SnykService(config)
+interface CreateSnykServiceProps {
+  config: Config
+  tokenProvider?: SnykTokenProvider
+}
+
+export function createSnykService(props: CreateSnykServiceProps): SnykService {
+  return new SnykService({
+    config: props.config,
+    tokenProvider: props.tokenProvider ?? new SnykTokenCliProvider(),
+  })
 }

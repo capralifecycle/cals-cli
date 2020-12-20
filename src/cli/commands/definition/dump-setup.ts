@@ -404,11 +404,11 @@ const command: CommandModule = {
   handler: async (argv) => {
     const reporter = createReporter(argv)
     const config = createConfig()
-    const github = await createGitHubService(
+    const github = await createGitHubService({
       config,
-      createCacheProvider(config, argv),
-    )
-    const snyk = createSnykService(config)
+      cache: createCacheProvider(config, argv),
+    })
+    const snyk = createSnykService({ config })
     await reportRateLimit(reporter, github, () =>
       dumpSetup(
         config,

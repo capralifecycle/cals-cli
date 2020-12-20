@@ -70,7 +70,7 @@ const command: CommandModule = {
   handler: async (argv) =>
     sync({
       reporter: createReporter(argv),
-      snyk: createSnykService(createConfig()),
+      snyk: createSnykService({ config: createConfig() }),
       definitionFile: getDefinitionFile(argv),
     }),
 }

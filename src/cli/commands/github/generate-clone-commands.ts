@@ -117,10 +117,10 @@ const command: CommandModule = {
     return generateCloneCommands({
       reporter: createReporter(argv),
       config,
-      github: await createGitHubService(
+      github: await createGitHubService({
         config,
-        createCacheProvider(config, argv),
-      ),
+        cache: createCacheProvider(config, argv),
+      }),
       all: !!argv.all,
       listGroups: !!argv["list-groups"],
       includeArchived: !!argv["include-archived"],
