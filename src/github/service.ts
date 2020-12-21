@@ -516,9 +516,9 @@ export class GitHubService {
           data: it,
         }),
       ),
-      ...(await this.getTeamMemberInvitedList(org, team)).map<
-        TeamMemberOrInvited
-      >((it) => ({
+      ...(
+        await this.getTeamMemberInvitedList(org, team)
+      ).map<TeamMemberOrInvited>((it) => ({
         type: "invited",
         login: it.login,
         data: it,
@@ -583,9 +583,9 @@ export class GitHubService {
 
     while (true) {
       const query = getQuery(after)
-      const res = await this.runGraphqlQuery<
-        SearchedPullRequestListQueryResult
-      >(query)
+      const res = await this.runGraphqlQuery<SearchedPullRequestListQueryResult>(
+        query,
+      )
 
       pulls.push(...res.search.edges.map((it) => it.node))
 
@@ -682,9 +682,9 @@ export class GitHubService {
 
         while (true) {
           const query = getQuery(after)
-          const res = await this.runGraphqlQuery<
-            VulnerabilityAlertsQueryResult
-          >(query)
+          const res = await this.runGraphqlQuery<VulnerabilityAlertsQueryResult>(
+            query,
+          )
 
           result.push(
             ...(res.repository?.vulnerabilityAlerts.edges?.map(
@@ -752,9 +752,9 @@ export class GitHubService {
 
         while (true) {
           const query = getQuery(after)
-          const res = await this.runGraphqlQuery<
-            RenovateDependencyDashboardIssueQueryResult
-          >(query)
+          const res = await this.runGraphqlQuery<RenovateDependencyDashboardIssueQueryResult>(
+            query,
+          )
 
           const nodes = res.repository?.issues.edges?.map((it) => it.node) ?? []
 
