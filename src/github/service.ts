@@ -1,10 +1,5 @@
 import { Octokit } from "@octokit/rest"
-import {
-  EndpointOptions,
-  OctokitResponse,
-  OrgsGetResponseData,
-  ReposGetResponseData,
-} from "@octokit/types"
+import { EndpointOptions, OctokitResponse } from "@octokit/types"
 import fetch from "node-fetch"
 import pLimit, { Limit } from "p-limit"
 import { CacheProvider } from "../cache"
@@ -406,7 +401,7 @@ export class GitHubService {
   public async getRepository(
     owner: string,
     repo: string,
-  ): Promise<ReposGetResponseData | undefined> {
+  ): Promise<ReposGetResponse | undefined> {
     return this.cache.json(`get-repository-${owner}-${repo}`, async () => {
       const response = await undefinedForNotFound(
         this.octokit.repos.get({
@@ -424,7 +419,8 @@ export class GitHubService {
   ): Promise<ReposListTeamsResponseItem[]> {
     return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
       const options = this.octokit.repos.listTeams.endpoint.merge({
-        owner: repo.owner.login,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        owner: repo.owner!.login,
         repo: repo.name,
       })
       return (
@@ -452,7 +448,7 @@ export class GitHubService {
     })
   }
 
-  public async getOrg(org: string): Promise<OrgsGetResponseData> {
+  public async getOrg(org: string): Promise<OrgsGetResponse> {
     const orgResponse = await this.octokit.orgs.get({
       org,
     })
