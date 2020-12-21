@@ -133,17 +133,19 @@ export class DefinitionFile {
   }
 
   public async getDefinition(): Promise<Definition> {
-    const result = await checkAgainstSchema(
-      yaml.safeLoad(await this.getContents()),
-    )
-
-    if ("error" in result) {
-      throw new Error("Definition file invalid: " + result.error)
-    }
-
-    requireValidDefinition(result.definition)
-    return result.definition
+    return await parseDefinition(await this.getContents())
   }
+}
+
+export async function parseDefinition(value: string): Promise<Definition> {
+  const result = await checkAgainstSchema(yaml.safeLoad(value))
+
+  if ("error" in result) {
+    throw new Error("Definition content invalid: " + result.error)
+  }
+
+  requireValidDefinition(result.definition)
+  return result.definition
 }
 
 export function getRepos(definition: Definition): GetReposResponse[] {

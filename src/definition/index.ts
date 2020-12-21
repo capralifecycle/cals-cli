@@ -3,6 +3,7 @@ export {
   getGitHubOrgs,
   getRepoId,
   getRepos,
+  parseDefinition,
 } from "./definition"
 export {
   Definition,
