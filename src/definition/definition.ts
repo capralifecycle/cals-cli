@@ -15,11 +15,11 @@ export function getRepoId(orgName: string, repoName: string): string {
   return `${orgName}/${repoName}`
 }
 
-async function checkAgainstSchema(
+function checkAgainstSchema(
   value: unknown,
-): Promise<{ error: string } | { definition: Definition }> {
+): { error: string } | { definition: Definition } {
   const ajv = new AJV({ allErrors: true })
-  const valid = (await ajv.validate(schema, value)) as boolean
+  const valid = ajv.validate(schema, value)
 
   return valid
     ? { definition: value as Definition }
@@ -133,12 +133,12 @@ export class DefinitionFile {
   }
 
   public async getDefinition(): Promise<Definition> {
-    return await parseDefinition(await this.getContents())
+    return parseDefinition(await this.getContents())
   }
 }
 
-export async function parseDefinition(value: string): Promise<Definition> {
-  const result = await checkAgainstSchema(yaml.safeLoad(value))
+export function parseDefinition(value: string): Definition {
+  const result = checkAgainstSchema(yaml.safeLoad(value))
 
   if ("error" in result) {
     throw new Error("Definition content invalid: " + result.error)

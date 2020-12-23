@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.0.0",
-    "ajv": "^6.12.2",
+    "ajv": "^7.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
     "execa": "^5.0.0",
