@@ -24,6 +24,12 @@ export class SnykService {
       return []
     }
 
+    return this.getProjectsByAccountId(snykAccountId)
+  }
+
+  public async getProjectsByAccountId(
+    snykAccountId: string,
+  ): Promise<SnykProject[]> {
     const token = await this.tokenProvider.getToken()
     if (token === undefined) {
       throw new Error("Missing token for Snyk")
