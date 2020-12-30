@@ -12,8 +12,7 @@ buildConfig([
   dockerNode {
     checkout scm
 
-    def img = docker.build('cals-cli')
-    img.inside {
+    insideToolImage('node:14') {
       stage('Install dependencies') {
         sh 'npm ci'
       }
