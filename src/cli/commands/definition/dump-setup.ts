@@ -377,7 +377,7 @@ async function dumpSetup(
   //  it. We might want to revisit it to preserve comments.
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any
-  const doc = yaml.safeLoad(await definitionFile.getContents()) as any
+  const doc = yaml.load(await definitionFile.getContents()) as any
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.snyk = generatedDefinition.snyk
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -386,7 +386,7 @@ async function dumpSetup(
   doc.github = generatedDefinition.github
 
   // Convert to/from plain JSON so that undefined elements are removed.
-  fs.writeFileSync(outfile, yaml.safeDump(JSON.parse(JSON.stringify(doc))))
+  fs.writeFileSync(outfile, yaml.dump(JSON.parse(JSON.stringify(doc))))
   reporter.info(`Saved to ${outfile}`)
   reporter.info(`Number of GitHub requests: ${github.requestCount}`)
 }

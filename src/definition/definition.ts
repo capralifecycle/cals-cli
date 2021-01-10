@@ -138,7 +138,7 @@ export class DefinitionFile {
 }
 
 export function parseDefinition(value: string): Definition {
-  const result = checkAgainstSchema(yaml.safeLoad(value))
+  const result = checkAgainstSchema(yaml.load(value))
 
   if ("error" in result) {
     throw new Error("Definition content invalid: " + result.error)
