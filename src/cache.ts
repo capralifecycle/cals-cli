@@ -29,9 +29,11 @@ export class CacheProvider {
       return undefined
     }
 
+    const data = fs.readFileSync(cachefile, "utf-8")
+
     return {
       cacheTime: fs.statSync(cachefile).mtime.getTime(),
-      data: JSON.parse(fs.readFileSync(cachefile, "utf-8")) as T,
+      data: (data === "undefined" ? undefined : JSON.parse(data)) as T,
     }
   }
 
@@ -45,7 +47,10 @@ export class CacheProvider {
       fs.mkdirSync(this.config.cacheDir, { recursive: true })
     }
 
-    fs.writeFileSync(cachefile, JSON.stringify(data))
+    fs.writeFileSync(
+      cachefile,
+      data === undefined ? "undefined" : JSON.stringify(data),
+    )
   }
 
   public async json<T>(
