@@ -48,7 +48,7 @@
     "@rollup/plugin-replace": "2.3.4",
     "@types/jest": "26.0.20",
     "@types/js-yaml": "4.0.0",
-    "@types/lodash": "4.14.167",
+    "@types/lodash": "4.14.168",
     "@types/node": "11.15.44",
     "@types/node-fetch": "2.5.8",
     "@types/read": "0.0.28",
