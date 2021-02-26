@@ -72,7 +72,7 @@
     "rollup-plugin-typescript2": "0.30.0",
     "semantic-release": "17.3.9",
     "tempy": "1.0.0",
-    "ts-jest": "26.5.1",
+    "ts-jest": "26.5.2",
     "typescript": "4.1.5",
     "typescript-json-schema": "0.49.0"
   },
