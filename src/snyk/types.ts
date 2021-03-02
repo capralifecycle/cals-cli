@@ -6,12 +6,16 @@ export interface SnykProject {
   origin: string
   type: string
   testFrequency: string
+  isMonitored: boolean
   totalDependencies: number
   issueCountsBySeverity: {
     low: number
     high: number
     medium: number
   }
+  // TODO: Check if lastTestedDate is actually always given - just to be safe now.
+  lastTestedDate?: string | null
+  browseUrl: string
   // undocumented
   // imageTag: string
 }
