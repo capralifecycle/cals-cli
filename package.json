@@ -50,7 +50,7 @@
     "@types/js-yaml": "4.0.0",
     "@types/lodash": "4.14.168",
     "@types/node": "11.15.50",
-    "@types/node-fetch": "2.5.9",
+    "@types/node-fetch": "2.5.10",
     "@types/read": "0.0.28",
     "@types/rimraf": "3.0.0",
     "@types/semver": "7.3.4",
