@@ -150,7 +150,8 @@ export class GitHubService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const rest = {
         ...options,
-      }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any
       delete rest.method
       delete rest.baseUrl
       delete rest.headers
@@ -160,7 +161,9 @@ export class GitHubService {
       // Build a key that is used to identify this request.
       const key = Buffer.from(JSON.stringify(rest)).toString("base64")
 
-      const cacheItem = this.cache.retrieveJson<EtagCacheItem<unknown>>(key)
+      const cacheItem = this.cache.retrieveJson<
+        EtagCacheItem<ReturnType<typeof request>>
+      >(key)
 
       if (cacheItem !== undefined) {
         // Copying doesn't work, seems we need to mutate this.
