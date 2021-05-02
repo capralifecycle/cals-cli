@@ -3,7 +3,7 @@
   "version": "0.0.0-development",
   "description": "CLI for repeatable tasks in CALS",
   "scripts": {
-    "prepare": "node scripts/create-definition-schema.js",
+    "prepare": "node scripts/create-definition-schema.js && husky install",
     "build": "rollup -c",
     "test": "jest --coverage src",
     "test:watch": "jest --watch src",
@@ -86,10 +86,5 @@
   "types": "lib/index.d.ts",
   "engines": {
     "node": ">=12.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   }
 }
