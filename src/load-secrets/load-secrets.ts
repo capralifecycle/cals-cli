@@ -18,11 +18,11 @@ import { createReporter } from "../cli/util"
 import { JsonSecret, Secret, SecretGroup } from "./types"
 
 class LoadSecrets {
-  private smClientForRegions: Record<string, SecretsManagerClient> = {}
-  private stsClient: STSClient
+  private readonly smClientForRegions: Record<string, SecretsManagerClient> = {}
+  private readonly stsClient: STSClient
 
-  private reporter: Reporter
-  private silent: boolean
+  private readonly reporter: Reporter
+  private readonly silent: boolean
 
   constructor(props: { reporter: Reporter; silent: boolean }) {
     this.stsClient = new STSClient({
@@ -123,7 +123,7 @@ class LoadSecrets {
   ) {
     const keysToRemove = secret
       .Tags!.filter(
-        (existingTag) => !tags.some((it) => it.Key! == existingTag.Key!),
+        (existingTag) => !tags.some((it) => it.Key! === existingTag.Key!),
       )
       .map((it) => it.Key!)
 
@@ -138,7 +138,7 @@ class LoadSecrets {
     }
 
     const tagsToUpdate = tags.filter((expectedTag) => {
-      const existing = secret.Tags!.find((it) => it.Key! == expectedTag.Key!)
+      const existing = secret.Tags!.find((it) => it.Key! === expectedTag.Key!)
       return existing == null || existing.Value != expectedTag.Value
     })
 
@@ -193,7 +193,15 @@ class LoadSecrets {
     let secretValue: string
 
     if (secret.type === "json") {
-      secretValue = await this.handleJsonUpdate(secret)
+      try {
+        secretValue = await this.handleJsonUpdate(secret)
+      } catch (e) {
+        if (e instanceof Error && e.message === "canceled") {
+          this.reporter.log("Aborted")
+          return
+        }
+        throw e
+      }
     } else {
       throw new Error(`Unsupported type`)
     }
@@ -272,6 +280,74 @@ class LoadSecrets {
     }
   }
 
+  getSecretDescription(details: DescribeSecretResponse | null) {
+    return details == null
+      ? "not yet created"
+      : details?.DeletedDate != null
+      ? `scheduled for deletion ${details.DeletedDate.toISOString()}`
+      : `last changed ${details.LastChangedDate?.toISOString() ?? "unknown"}`
+  }
+
+  /**
+   * Returns false if aborted.
+   */
+  async selectAndUpdate(secretGroups: SecretGroup[]): Promise<boolean> {
+    const secrets: { secretGroup: SecretGroup; secret: Secret }[] = []
+
+    this.reporter.log("Select secret to write:")
+    this.reporter.log("")
+
+    for (const secretGroup of secretGroups) {
+      this.reporter.log(
+        `${secretGroup.description} (prefix: ${secretGroup.namePrefix})`,
+      )
+
+      for (let i = 0; i < secretGroup.secrets.length; i++) {
+        const offset = secrets.length
+        const secret = secretGroup.secrets[i]
+
+        secrets.push({
+          secret: secret,
+          secretGroup,
+        })
+
+        const client = this.getSmClient(secretGroup.region)
+        const details = await this.getSecretDetails(
+          client,
+          this.getFullName(secretGroup, secret),
+        )
+        const desc = this.getSecretDescription(details)
+
+        this.reporter.log(`  (${offset}) ${secret.name} (${desc})`)
+      }
+      this.reporter.log("")
+    }
+
+    let index: number
+    try {
+      const answer = await this.getInput({
+        prompt: "Enter index (or enter to quit): ",
+      })
+      if (answer.trim() === "") {
+        return false
+      }
+
+      index = parseInt(answer)
+      if (!secrets[index]) {
+        throw new Error()
+      }
+    } catch (e) {
+      this.reporter.warn("Secret not found - aborting")
+      return false
+    }
+
+    this.reporter.log("")
+    await this.handleUpdate(secrets[index].secretGroup, secrets[index].secret)
+    this.reporter.log("")
+
+    return true
+  }
+
   async process(secretGroups: SecretGroup[]) {
     this.reporter.info("Checking account for current credentials")
     this.reporter.info(
@@ -287,7 +363,7 @@ class LoadSecrets {
     const matchedSecretGroups = secretGroups.filter(
       (it) => it.accountId === currentAccount.Account!,
     )
-    if (matchedSecretGroups.length == 0) {
+    if (matchedSecretGroups.length === 0) {
       this.reporter.error(`No secrets specified for this account - aborting`)
       return
     }
@@ -296,75 +372,7 @@ class LoadSecrets {
       this.checkSecretGroup(secretGroup)
     }
 
-    while (true) {
-      const secrets: { secretGroup: SecretGroup; secret: Secret }[] = []
-
-      this.reporter.log("Select secret to write:")
-      this.reporter.log("")
-
-      for (const secretGroup of matchedSecretGroups) {
-        this.reporter.log(
-          `${secretGroup.description} (prefix: ${secretGroup.namePrefix})`,
-        )
-
-        for (let i = 0; i < secretGroup.secrets.length; i++) {
-          const offset = secrets.length
-          const secret = secretGroup.secrets[i]
-
-          secrets.push({
-            secret,
-            secretGroup,
-          })
-
-          const client = this.getSmClient(secretGroup.region)
-
-          const details = await this.getSecretDetails(
-            client,
-            this.getFullName(secretGroup, secret),
-          )
-          const desc =
-            details == null
-              ? "not yet created"
-              : details?.DeletedDate != null
-              ? `scheduled for deletion ${details.DeletedDate.toISOString()}`
-              : `last changed ${
-                  details.LastChangedDate?.toISOString() ?? "unknown"
-                }`
-
-          this.reporter.log(`  (${offset}) ${secret.name} (${desc})`)
-        }
-        this.reporter.log("")
-      }
-
-      let secretGroup: SecretGroup
-      let secret: Secret
-
-      let index: number
-      try {
-        const answer = await this.getInput({
-          prompt: "Enter index (or enter to quit): ",
-        })
-        if (answer.trim() == "") {
-          return
-        }
-
-        index = parseInt(answer)
-
-        if (!secrets[index]) {
-          throw new Error()
-        }
-
-        secretGroup = secrets[index].secretGroup
-        secret = secrets[index].secret
-      } catch (e) {
-        this.reporter.warn("Secret not found - aborting")
-        return
-      }
-
-      this.reporter.log("")
-      await this.handleUpdate(secretGroup, secret)
-      this.reporter.log("")
-    }
+    while (await this.selectAndUpdate(matchedSecretGroups)) {}
   }
 }
 
