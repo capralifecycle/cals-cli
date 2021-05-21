@@ -6,7 +6,7 @@ import { Config } from "../config"
 import { DefinitionFile } from "../definition/definition"
 import { Reporter } from "./reporter"
 
-export function createReporter(argv: Arguments): Reporter {
+export function createReporter(argv: Record<string, unknown>): Reporter {
   return new Reporter({
     verbose: !!argv.verbose,
     nonInteractive: !!argv.nonInteractive,
@@ -15,7 +15,7 @@ export function createReporter(argv: Arguments): Reporter {
 
 export function createCacheProvider(
   config: Config,
-  argv: Arguments,
+  argv: Record<string, unknown>,
 ): CacheProvider {
   const cache = new CacheProvider(config)
 
