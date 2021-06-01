@@ -24,7 +24,7 @@
     "@aws-sdk/client-secrets-manager": "^3.16.0",
     "@aws-sdk/client-sts": "^3.16.0",
     "@octokit/rest": "^18.0.0",
-    "ajv": "^7.2.1",
+    "ajv": "^8.0.0",
     "cachedir": "^2.3.0",
     "chalk": "^4.0.0",
     "execa": "^5.0.0",
