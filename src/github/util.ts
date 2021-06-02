@@ -40,9 +40,7 @@ function ifnull<T>(a: T | null, other: T) {
   return a === null ? other : a
 }
 
-export function getGroupedRepos(
-  repos: Repo[],
-): {
+export function getGroupedRepos(repos: Repo[]): {
   name: string
   items: Repo[]
 }[] {

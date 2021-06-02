@@ -30,9 +30,7 @@ export function getCompareLink(
 /**
  * Parse output from `git shortlog -c`.
  */
-export function parseShortlogSummary(
-  value: string,
-): {
+export function parseShortlogSummary(value: string): {
   name: string
   count: number
 }[] {

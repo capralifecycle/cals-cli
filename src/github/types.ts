@@ -7,24 +7,31 @@ export type OrgsListMembersResponseItem = Exclude<
   null
 >
 
-export type OrgsListPendingInvitationsResponseItem = Endpoints["GET /orgs/{org}/invitations"]["response"]["data"][0]
+export type OrgsListPendingInvitationsResponseItem =
+  Endpoints["GET /orgs/{org}/invitations"]["response"]["data"][0]
 
-export type ReposGetResponse = Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
+export type ReposGetResponse =
+  Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
 
-export type ReposListTeamsResponseItem = Endpoints["GET /repos/{owner}/{repo}/teams"]["response"]["data"][0]
+export type ReposListTeamsResponseItem =
+  Endpoints["GET /repos/{owner}/{repo}/teams"]["response"]["data"][0]
 
-export type ReposListHooksResponseItem = Endpoints["GET /repos/{owner}/{repo}/hooks"]["response"]["data"][0]
+export type ReposListHooksResponseItem =
+  Endpoints["GET /repos/{owner}/{repo}/hooks"]["response"]["data"][0]
 
-export type ReposUpdateParams = Endpoints["PATCH /repos/{owner}/{repo}"]["parameters"]
+export type ReposUpdateParams =
+  Endpoints["PATCH /repos/{owner}/{repo}"]["parameters"]
 
 export type TeamsListMembersResponseItem = Exclude<
   Endpoints["GET /teams/{team_id}/members"]["response"]["data"][0],
   null
 >
 
-export type TeamsListPendingInvitationsResponseItem = Endpoints["GET /teams/{team_id}/invitations"]["response"]["data"][0]
+export type TeamsListPendingInvitationsResponseItem =
+  Endpoints["GET /teams/{team_id}/invitations"]["response"]["data"][0]
 
-export type TeamsListResponseItem = Endpoints["GET /orgs/{org}/teams"]["response"]["data"][0]
+export type TeamsListResponseItem =
+  Endpoints["GET /orgs/{org}/teams"]["response"]["data"][0]
 
 export interface Repo {
   name: string
