@@ -84,10 +84,7 @@ export class GitRepo {
     return result.stdout.includes("[ahead")
   }
 
-  async getAuthorsForRange(range: {
-    from: string
-    to: string
-  }): Promise<
+  async getAuthorsForRange(range: { from: string; to: string }): Promise<
     {
       name: string
       count: number

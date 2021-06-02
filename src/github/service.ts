@@ -60,7 +60,8 @@ interface SearchedPullRequestListQueryResult {
   }
 }
 
-export type SearchedPullRequestListItem = SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
+export type SearchedPullRequestListItem =
+  SearchedPullRequestListQueryResult["search"]["edges"][0]["node"]
 
 interface RenovateDependencyDashboardIssueQueryResult {
   repository: {
@@ -161,9 +162,8 @@ export class GitHubService {
       // Build a key that is used to identify this request.
       const key = Buffer.from(JSON.stringify(rest)).toString("base64")
 
-      const cacheItem = this.cache.retrieveJson<
-        EtagCacheItem<ReturnType<typeof request>>
-      >(key)
+      const cacheItem =
+        this.cache.retrieveJson<EtagCacheItem<ReturnType<typeof request>>>(key)
 
       if (cacheItem !== undefined) {
         // Copying doesn't work, seems we need to mutate this.
@@ -491,12 +491,11 @@ export class GitHubService {
     team: TeamsListResponseItem,
   ): Promise<TeamsListPendingInvitationsResponseItem[]> {
     return this.cache.json(`team-member-invited-list-${team.id}`, async () => {
-      const options = this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge(
-        {
+      const options =
+        this.octokit.teams.listPendingInvitationsInOrg.endpoint.merge({
           org: org.login,
           team_slug: team.slug,
-        },
-      )
+        })
       return (await this.octokit.paginate(
         options as EndpointOptions,
       )) as TeamsListPendingInvitationsResponseItem[]
@@ -582,9 +581,8 @@ export class GitHubService {
 
     while (true) {
       const query = getQuery(after)
-      const res = await this.runGraphqlQuery<SearchedPullRequestListQueryResult>(
-        query,
-      )
+      const res =
+        await this.runGraphqlQuery<SearchedPullRequestListQueryResult>(query)
 
       pulls.push(...res.search.edges.map((it) => it.node))
 
@@ -681,9 +679,8 @@ export class GitHubService {
 
         while (true) {
           const query = getQuery(after)
-          const res = await this.runGraphqlQuery<VulnerabilityAlertsQueryResult>(
-            query,
-          )
+          const res =
+            await this.runGraphqlQuery<VulnerabilityAlertsQueryResult>(query)
 
           result.push(
             ...(res.repository?.vulnerabilityAlerts.edges?.map(
@@ -751,9 +748,10 @@ export class GitHubService {
 
         while (true) {
           const query = getQuery(after)
-          const res = await this.runGraphqlQuery<RenovateDependencyDashboardIssueQueryResult>(
-            query,
-          )
+          const res =
+            await this.runGraphqlQuery<RenovateDependencyDashboardIssueQueryResult>(
+              query,
+            )
 
           const nodes = res.repository?.issues.edges?.map((it) => it.node) ?? []
 
