@@ -1,7 +1,5 @@
 # cals-cli
 
-[![Build Status](https://jenkins.capra.tv/buildStatus/icon?job=cals-internal/cals-cli/master)](https://jenkins.capra.tv/job/cals-internal/job/cals-cli/job/master/)
-
 ## Getting started
 
 Make sure you have a recent version of Node.js. E.g. by using
