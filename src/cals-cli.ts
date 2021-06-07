@@ -1,3 +1,3 @@
 import { main } from "./cli"
 
-main()
+void main()
