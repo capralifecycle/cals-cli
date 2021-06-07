@@ -10,7 +10,7 @@ import snyk from "./commands/snyk"
 
 declare const BUILD_TIMESTAMP: string
 
-export function main(): void {
+export async function main(): Promise<void> {
   if (!semver.satisfies(process.version, engines.node)) {
     console.error(
       `Required node version ${engines.node} not satisfied with current version ${process.version}.`,
@@ -32,7 +32,7 @@ https://github.com/capralifecycle/cals-cli/
 
 Usage: cals <command>`
 
-  yargs
+  await yargs
     .usage(header)
     .scriptName("cals")
     .locale("en")
