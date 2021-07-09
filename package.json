@@ -48,7 +48,7 @@
     "@rollup/plugin-alias": "3.1.2",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-replace": "2.4.2",
-    "@types/jest": "26.0.23",
+    "@types/jest": "26.0.24",
     "@types/js-yaml": "4.0.1",
     "@types/lodash": "4.14.170",
     "@types/node": "14.17.4",
