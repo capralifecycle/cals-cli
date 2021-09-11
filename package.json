@@ -67,7 +67,7 @@
     "eslint-plugin-deprecation": "1.2.1",
     "eslint-plugin-prettier": "4.0.0",
     "husky": "7.0.2",
-    "jest": "27.1.0",
+    "jest": "27.1.1",
     "prettier": "2.3.2",
     "rollup": "2.56.3",
     "rollup-plugin-typescript2": "0.30.0",
