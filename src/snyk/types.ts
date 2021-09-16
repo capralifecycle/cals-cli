@@ -23,5 +23,4 @@ export interface SnykProject {
 export interface SnykGitHubRepo {
   owner: string
   name: string
-  file: string
 }

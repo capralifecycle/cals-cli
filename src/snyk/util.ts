@@ -7,7 +7,7 @@ export function getGitHubRepo(
     return undefined
   }
 
-  const match = /^([^/]+)\/([^:]+):(.+)$/.exec(snykProject.name)
+  const match = /^([^/]+)\/([^:]+)(:(.+))?$/.exec(snykProject.name)
   if (match === null) {
     throw Error(
       `Could not extract components from Snyk project name: ${snykProject.name} (id: ${snykProject.id})`,
@@ -17,7 +17,6 @@ export function getGitHubRepo(
   return {
     owner: match[1],
     name: match[2],
-    file: match[3],
   }
 }
 
