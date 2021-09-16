@@ -9,7 +9,9 @@ export function getGitHubRepo(
 
   const match = /^([^/]+)\/([^:]+):(.+)$/.exec(snykProject.name)
   if (match === null) {
-    throw Error(`Unexpected value: ${JSON.stringify(match)}`)
+    throw Error(
+      `Could not extract components from Snyk project name: ${snykProject.name} (id: ${snykProject.id})`,
+    )
   }
 
   return {
