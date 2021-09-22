@@ -37,6 +37,7 @@ const plugins = [
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       dateFormat(new Date(), "isoDateTime", true),
     ),
+    preventAssignment: true,
   }),
 ]
 
