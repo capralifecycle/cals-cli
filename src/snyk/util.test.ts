@@ -37,4 +37,37 @@ describe("getGitHubRepo", () => {
       name: "some-repo",
     })
   })
+
+  it("can extract value for cli project with http url", () => {
+    const project = {
+      origin: "cli",
+      remoteRepoUrl: "http://github.com/capralifecycle/some-repo.git",
+    } as SnykProject
+
+    expect(getGitHubRepo(project)).toStrictEqual({
+      owner: "capralifecycle",
+      name: "some-repo",
+    })
+  })
+
+  it("can extract value for cli project with https url", () => {
+    const project = {
+      origin: "cli",
+      remoteRepoUrl: "https://github.com/capralifecycle/some-repo.git",
+    } as SnykProject
+
+    expect(getGitHubRepo(project)).toStrictEqual({
+      owner: "capralifecycle",
+      name: "some-repo",
+    })
+  })
+
+  it("does not fail for unknown cli project", () => {
+    const project = {
+      origin: "cli",
+      remoteRepoUrl: "garbage",
+    } as SnykProject
+
+    expect(getGitHubRepo(project)).toBeUndefined()
+  })
 })

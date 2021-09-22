@@ -15,6 +15,11 @@ export interface SnykProject {
     medium: number
     low: number
   }
+  /**
+   * E.g. http://github.com/capralifecycle/some-repo.git
+   * Set when using the CLI.
+   */
+  remoteRepoUrl?: string
   // TODO: Check if lastTestedDate is actually always given - just to be safe now.
   lastTestedDate?: string | null
   browseUrl: string
