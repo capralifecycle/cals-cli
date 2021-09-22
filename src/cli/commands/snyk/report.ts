@@ -17,6 +17,7 @@ import {
 
 function totalSeverityCount(project: SnykProject) {
   return (
+    (project.issueCountsBySeverity.critical ?? 0) +
     project.issueCountsBySeverity.high +
     project.issueCountsBySeverity.medium +
     project.issueCountsBySeverity.low
@@ -29,7 +30,8 @@ function buildStatsLine(stats: SnykProject["issueCountsBySeverity"]) {
   }
 
   return sprintf(
-    "%s  %s  %s",
+    "%s  %s  %s  %s",
+    item(stats.critical ?? 0, "critical"),
     item(stats.high, "high"),
     item(stats.medium, "medium"),
     item(stats.low, "low"),
@@ -86,6 +88,10 @@ async function report({
         "%-70s %s",
         "Total count",
         buildStatsLine({
+          critical: sumBy(
+            reposWithIssues,
+            (it) => it.issueCountsBySeverity.critical ?? 0,
+          ),
           high: sumBy(reposWithIssues, (it) => it.issueCountsBySeverity.high),
           medium: sumBy(
             reposWithIssues,
@@ -100,6 +106,10 @@ async function report({
     byProjects.forEach((repos) => {
       const project = repos[0].project
       const totalCount = {
+        critical: sumBy(
+          repos,
+          (it) => it.repo.issueCountsBySeverity.critical ?? 0,
+        ),
         high: sumBy(repos, (it) => it.repo.issueCountsBySeverity.high),
         medium: sumBy(repos, (it) => it.repo.issueCountsBySeverity.medium),
         low: sumBy(repos, (it) => it.repo.issueCountsBySeverity.low),

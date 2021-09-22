@@ -9,9 +9,11 @@ export interface SnykProject {
   isMonitored: boolean
   totalDependencies: number
   issueCountsBySeverity: {
-    low: number
+    // Not always present (e.g. for old tests still being latest).
+    critical?: number
     high: number
     medium: number
+    low: number
   }
   // TODO: Check if lastTestedDate is actually always given - just to be safe now.
   lastTestedDate?: string | null
