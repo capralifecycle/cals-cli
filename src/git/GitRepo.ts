@@ -50,6 +50,7 @@ export class GitRepo {
       })
       await this.logCommand(result)
     } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       await this.logCommand(e)
       throw e
     }
@@ -63,6 +64,7 @@ export class GitRepo {
       await this.logCommand(result)
       return result
     } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       await this.logCommand(e)
       throw e
     }
