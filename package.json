@@ -50,7 +50,7 @@
     "@rollup/plugin-replace": "3.0.0",
     "@types/jest": "27.0.2",
     "@types/js-yaml": "4.0.4",
-    "@types/lodash": "4.14.176",
+    "@types/lodash": "4.14.177",
     "@types/node": "14.17.33",
     "@types/node-fetch": "2.5.12",
     "@types/read": "0.0.29",
