@@ -68,7 +68,7 @@
     "husky": "7.0.4",
     "jest": "27.4.4",
     "prettier": "2.5.1",
-    "rollup": "2.60.2",
+    "rollup": "2.61.1",
     "rollup-plugin-typescript2": "0.31.1",
     "semantic-release": "18.0.1",
     "tempy": "1.0.1",
