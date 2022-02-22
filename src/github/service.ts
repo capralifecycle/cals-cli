@@ -650,6 +650,7 @@ export class GitHubService {
       }
       edges {
         node {
+          state
           dismissReason
           vulnerableManifestFilename
           vulnerableManifestPath
