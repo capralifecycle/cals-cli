@@ -51,6 +51,7 @@ export interface Repo {
 // See https://developer.github.com/v4/object/repositoryvulnerabilityalert/
 export interface VulnerabilityAlert {
   dismissReason: string | null
+  state: "DISMISSED" | "FIXED" | "OPEN"
   vulnerableManifestFilename: string
   vulnerableManifestPath: string
   vulnerableRequirements: string | null
