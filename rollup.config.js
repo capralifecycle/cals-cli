@@ -17,6 +17,7 @@ const external = [
   "stream",
   "util",
   ...Object.keys(pkg.dependencies || {}),
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   ...Object.keys(pkg.peerDependencies || {}),
 ]
 
