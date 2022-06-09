@@ -394,7 +394,8 @@ export class GitHubService {
       ...(await this.getOrgMembersInvitedList(org)).map<OrgMemberOrInvited>(
         (it) => ({
           type: "invited",
-          login: it.login,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          login: it.login!,
           data: it,
         }),
       ),
@@ -422,8 +423,7 @@ export class GitHubService {
   ): Promise<ReposListTeamsResponseItem[]> {
     return this.cache.json(`repository-teams-list-${repo.id}`, async () => {
       const options = this.octokit.repos.listTeams.endpoint.merge({
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        owner: repo.owner!.login,
+        owner: repo.owner.login,
         repo: repo.name,
       })
       return (
@@ -518,7 +518,8 @@ export class GitHubService {
         await this.getTeamMemberInvitedList(org, team)
       ).map<TeamMemberOrInvited>((it) => ({
         type: "invited",
-        login: it.login,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        login: it.login!,
         data: it,
       })),
     ]
