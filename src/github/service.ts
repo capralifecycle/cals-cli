@@ -394,8 +394,8 @@ export class GitHubService {
       ...(await this.getOrgMembersInvitedList(org)).map<OrgMemberOrInvited>(
         (it) => ({
           type: "invited",
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          login: it.login!,
+          // TODO: Fix ?? case properly
+          login: it.login ?? "invalid",
           data: it,
         }),
       ),
@@ -518,8 +518,8 @@ export class GitHubService {
         await this.getTeamMemberInvitedList(org, team)
       ).map<TeamMemberOrInvited>((it) => ({
         type: "invited",
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        login: it.login!,
+        // TODO: Fix ?? case properly
+        login: it.login ?? "invalid",
         data: it,
       })),
     ]
