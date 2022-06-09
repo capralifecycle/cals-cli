@@ -208,8 +208,7 @@ async function getProjects(
         }
       }
     }>((acc, cur) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const org = cur.repository.owner!.login
+      const org = cur.repository.owner.login
       const repoId = getRepoId(org, cur.repository.name)
 
       const projectName = definitionRepos[repoId]?.project?.name ?? "Unknown"
