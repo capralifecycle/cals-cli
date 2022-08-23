@@ -105,7 +105,16 @@ async function getRepoTeamChanges({
   for (const repoteam of expectedTeams) {
     const found = existingTeams.find((it) => repoteam.name === it.name)
     if (found !== undefined) {
-      if (found.permission !== repoteam.permission) {
+      if (
+        found.permission !== repoteam.permission &&
+        // NOTE: Temporary fix to ignore diff that can occur due to
+        // potentially breaking GitHub API changes where the returned permission
+        // is "read" or "write" instead of "pull" and "push"
+        !(
+          (found.permission === "read" && repoteam.permission === "pull") ||
+          (found.permission === "write" && repoteam.permission === "push")
+        )
+      ) {
         changes.push({
           type: "repo-team-permission",
           org: org.organization,
