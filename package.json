@@ -47,7 +47,7 @@
     "@octokit/types": "6.34.0",
     "@rollup/plugin-alias": "3.1.9",
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-replace": "3.1.0",
+    "@rollup/plugin-replace": "4.0.0",
     "@types/jest": "27.5.2",
     "@types/js-yaml": "4.0.5",
     "@types/lodash": "4.14.182",
