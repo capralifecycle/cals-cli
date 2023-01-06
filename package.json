@@ -65,7 +65,7 @@
     "eslint": "8.26.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
-    "husky": "7.0.4",
+    "husky": "8.0.3",
     "jest": "27.5.1",
     "prettier": "2.7.1",
     "rollup": "2.79.1",
