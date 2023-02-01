@@ -43,7 +43,7 @@ export class SnykService {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `token ${token}`,
+          Authorization: `Basic ${token}:`,
         },
         agent: this.config.agent,
       },
