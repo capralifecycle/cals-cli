@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
 import { Config } from "../config"
-import { SonarCloudTokenProvider } from "./token"
+import { SonarCloudTokenCliProvider, SonarCloudTokenProvider } from "./token"
 
 interface SonarCloudServiceProps {
   config: Config
@@ -75,7 +75,7 @@ export class SonarCloudService {
 
 interface CreateSonarCloudServiceProps {
   config: Config
-  tokenProvider: SonarCloudTokenProvider
+  tokenProvider?: SonarCloudTokenProvider
 }
 
 export function createSonarCloudService(
@@ -83,6 +83,6 @@ export function createSonarCloudService(
 ): SonarCloudService {
   return new SonarCloudService({
     config: props.config,
-    tokenProvider: props.tokenProvider,
+    tokenProvider: props.tokenProvider ?? new SonarCloudTokenCliProvider(),
   })
 }
