@@ -34,7 +34,10 @@ export class SonarCloudService {
         method: "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `token ${token}`,
+          Authorization: `Basic ${Buffer.from(
+            token.concat(":"),
+            "utf8",
+          ).toString("base64")}`,
         },
         agent: this.config.agent,
       },
