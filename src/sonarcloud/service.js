@@ -1,0 +1,46 @@
+import fetch from "node-fetch";
+import { SonarCloudTokenCliProvider } from "./token";
+export class SonarCloudService {
+    config;
+    tokenProvider;
+    constructor(props) {
+        this.config = props.config;
+        this.tokenProvider = props.tokenProvider;
+    }
+    /**
+     * Returns metrics for project with given key.
+     * ONLY test coverage metrics are returned as of now
+     */
+    async getMetricsByProjectKey(sonarCloudProjectKey) {
+        const token = await this.tokenProvider.getToken();
+        if (token === undefined) {
+            throw new Error("Missing token for SonarCloud");
+        }
+        const response = await fetch(`https://sonarcloud.io/api/measures/component?component=${encodeURIComponent(sonarCloudProjectKey)}&metricKeys=coverage`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+                Authorization: `Basic ${Buffer.from(token.concat(":"), "utf8").toString("base64")}`,
+            },
+            agent: this.config.agent,
+        });
+        if (response.status === 401) {
+            process.stderr.write("Unauthorized - removing token\n");
+            await this.tokenProvider.markInvalid();
+        }
+        if (response.status === 404) {
+            process.stderr.write("Project does not exist in SonarCloud\n");
+            return undefined;
+        }
+        if (!response.ok) {
+            throw new Error(`Response from SonarCloud not OK (${response.status}): ${JSON.stringify(response)}`);
+        }
+        return (await response.json());
+    }
+}
+export function createSonarCloudService(props) {
+    return new SonarCloudService({
+        config: props.config,
+        tokenProvider: props.tokenProvider ?? new SonarCloudTokenCliProvider(),
+    });
+}
