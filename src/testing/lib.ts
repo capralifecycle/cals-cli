@@ -421,6 +421,11 @@ export async function startContainer({
   process.catch(() => {
     failed = true
   })
+  if (!process.pid) {
+    throw new Error(
+      "No process identifier (PID) was returned for the process that was started when running trying to run Docker container",
+    )
+  }
 
   const id = await getContainerId({
     executor,
