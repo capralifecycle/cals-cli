@@ -44,7 +44,7 @@
   "devDependencies": {
     "@commitlint/cli": "17.4.4",
     "@commitlint/config-conventional": "17.4.4",
-    "@octokit/types": "6.41.0",
+    "@octokit/types": "9.2.2",
     "@rollup/plugin-alias": "3.1.9",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-replace": "4.0.0",
