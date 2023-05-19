@@ -152,6 +152,19 @@ Will override the project-defined responsible.",
       ],
       "type": "object",
     },
+    "User": Object {
+      "anyOf": Array [
+        Object {
+          "$ref": "#/definitions/UserBot",
+        },
+        Object {
+          "$ref": "#/definitions/UserEmployee",
+        },
+        Object {
+          "$ref": "#/definitions/UserExternal",
+        },
+      ],
+    },
     "UserBot": Object {
       "properties": Object {
         "login": Object {
@@ -249,17 +262,7 @@ Will override the project-defined responsible.",
         },
         "users": Object {
           "items": Object {
-            "anyOf": Array [
-              Object {
-                "$ref": "#/definitions/UserBot",
-              },
-              Object {
-                "$ref": "#/definitions/UserEmployee",
-              },
-              Object {
-                "$ref": "#/definitions/UserExternal",
-              },
-            ],
+            "$ref": "#/definitions/User",
           },
           "type": "array",
         },
