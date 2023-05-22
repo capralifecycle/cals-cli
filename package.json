@@ -45,7 +45,7 @@
     "@commitlint/cli": "17.6.3",
     "@commitlint/config-conventional": "17.6.3",
     "@octokit/types": "9.2.3",
-    "@rollup/plugin-alias": "3.1.9",
+    "@rollup/plugin-alias": "5.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-replace": "4.0.0",
     "@types/jest": "27.5.2",
