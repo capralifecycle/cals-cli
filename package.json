@@ -42,8 +42,8 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.6.3",
-    "@commitlint/config-conventional": "17.6.3",
+    "@commitlint/cli": "17.6.6",
+    "@commitlint/config-conventional": "17.6.6",
     "@octokit/types": "9.2.3",
     "@rollup/plugin-alias": "5.0.0",
     "@rollup/plugin-json": "4.1.0",
