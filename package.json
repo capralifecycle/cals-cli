@@ -46,7 +46,7 @@
     "@commitlint/config-conventional": "17.6.6",
     "@octokit/types": "10.0.0",
     "@rollup/plugin-alias": "5.0.0",
-    "@rollup/plugin-json": "4.1.0",
+    "@rollup/plugin-json": "6.0.0",
     "@rollup/plugin-replace": "5.0.2",
     "@types/jest": "27.5.2",
     "@types/js-yaml": "4.0.5",
