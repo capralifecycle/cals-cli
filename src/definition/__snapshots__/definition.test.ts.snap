@@ -1,211 +1,211 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`definition should match expected schema 1`] = `
-Object {
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": Object {
-    "DefinitionRepo": Object {
-      "properties": Object {
-        "archived": Object {
+  "definitions": {
+    "DefinitionRepo": {
+      "properties": {
+        "archived": {
           "type": "boolean",
         },
-        "issues": Object {
+        "issues": {
           "type": "boolean",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
-        "previousNames": Object {
-          "items": Object {
+        "previousNames": {
+          "items": {
             "$ref": "#/definitions/DefinitionRepoPreviousName",
           },
           "type": "array",
         },
-        "public": Object {
+        "public": {
           "type": "boolean",
         },
-        "responsible": Object {
+        "responsible": {
           "description": "Some external-defined entity being responsible for the repository.
 
 Will override the project-defined responsible.",
           "type": "string",
         },
-        "snyk": Object {
+        "snyk": {
           "type": "boolean",
         },
-        "teams": Object {
-          "items": Object {
+        "teams": {
+          "items": {
             "$ref": "#/definitions/RepoTeam",
           },
           "type": "array",
         },
-        "wiki": Object {
+        "wiki": {
           "type": "boolean",
         },
       },
-      "required": Array [
+      "required": [
         "name",
       ],
       "type": "object",
     },
-    "DefinitionRepoPreviousName": Object {
-      "properties": Object {
-        "name": Object {
+    "DefinitionRepoPreviousName": {
+      "properties": {
+        "name": {
           "type": "string",
         },
-        "project": Object {
+        "project": {
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "name",
         "project",
       ],
       "type": "object",
     },
-    "Permission": Object {
-      "enum": Array [
+    "Permission": {
+      "enum": [
         "admin",
         "pull",
         "push",
       ],
       "type": "string",
     },
-    "Project": Object {
-      "properties": Object {
-        "github": Object {
-          "items": Object {
-            "properties": Object {
-              "organization": Object {
+    "Project": {
+      "properties": {
+        "github": {
+          "items": {
+            "properties": {
+              "organization": {
                 "type": "string",
               },
-              "repos": Object {
-                "items": Object {
+              "repos": {
+                "items": {
                   "$ref": "#/definitions/DefinitionRepo",
                 },
                 "type": "array",
               },
-              "teams": Object {
-                "items": Object {
+              "teams": {
+                "items": {
                   "$ref": "#/definitions/RepoTeam",
                 },
                 "type": "array",
               },
             },
-            "required": Array [
+            "required": [
               "organization",
             ],
             "type": "object",
           },
           "type": "array",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
-        "responsible": Object {
+        "responsible": {
           "description": "Some external-defined entity being responsible for the project.",
           "type": "string",
         },
-        "tags": Object {
-          "items": Object {
+        "tags": {
+          "items": {
             "type": "string",
           },
           "type": "array",
         },
       },
-      "required": Array [
+      "required": [
         "github",
         "name",
       ],
       "type": "object",
     },
-    "RepoTeam": Object {
-      "properties": Object {
-        "name": Object {
+    "RepoTeam": {
+      "properties": {
+        "name": {
           "type": "string",
         },
-        "permission": Object {
+        "permission": {
           "$ref": "#/definitions/Permission",
         },
       },
-      "required": Array [
+      "required": [
         "name",
         "permission",
       ],
       "type": "object",
     },
-    "Team": Object {
-      "properties": Object {
-        "members": Object {
-          "items": Object {
+    "Team": {
+      "properties": {
+        "members": {
+          "items": {
             "type": "string",
           },
           "type": "array",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "members",
         "name",
       ],
       "type": "object",
     },
-    "User": Object {
-      "anyOf": Array [
-        Object {
+    "User": {
+      "anyOf": [
+        {
           "$ref": "#/definitions/UserBot",
         },
-        Object {
+        {
           "$ref": "#/definitions/UserEmployee",
         },
-        Object {
+        {
           "$ref": "#/definitions/UserExternal",
         },
       ],
     },
-    "UserBot": Object {
-      "properties": Object {
-        "login": Object {
+    "UserBot": {
+      "properties": {
+        "login": {
           "type": "string",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
-        "type": Object {
-          "enum": Array [
+        "type": {
+          "enum": [
             "bot",
           ],
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "login",
         "name",
         "type",
       ],
       "type": "object",
     },
-    "UserEmployee": Object {
-      "properties": Object {
-        "capraUsername": Object {
+    "UserEmployee": {
+      "properties": {
+        "capraUsername": {
           "type": "string",
         },
-        "login": Object {
+        "login": {
           "type": "string",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
-        "type": Object {
-          "enum": Array [
+        "type": {
+          "enum": [
             "employee",
           ],
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "capraUsername",
         "login",
         "name",
@@ -213,22 +213,22 @@ Will override the project-defined responsible.",
       ],
       "type": "object",
     },
-    "UserExternal": Object {
-      "properties": Object {
-        "login": Object {
+    "UserExternal": {
+      "properties": {
+        "login": {
           "type": "string",
         },
-        "name": Object {
+        "name": {
           "type": "string",
         },
-        "type": Object {
-          "enum": Array [
+        "type": {
+          "enum": [
             "external",
           ],
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "login",
         "name",
         "type",
@@ -236,23 +236,23 @@ Will override the project-defined responsible.",
       "type": "object",
     },
   },
-  "properties": Object {
-    "github": Object {
-      "properties": Object {
-        "teams": Object {
-          "items": Object {
-            "properties": Object {
-              "organization": Object {
+  "properties": {
+    "github": {
+      "properties": {
+        "teams": {
+          "items": {
+            "properties": {
+              "organization": {
                 "type": "string",
               },
-              "teams": Object {
-                "items": Object {
+              "teams": {
+                "items": {
                   "$ref": "#/definitions/Team",
                 },
                 "type": "array",
               },
             },
-            "required": Array [
+            "required": [
               "organization",
               "teams",
             ],
@@ -260,38 +260,38 @@ Will override the project-defined responsible.",
           },
           "type": "array",
         },
-        "users": Object {
-          "items": Object {
+        "users": {
+          "items": {
             "$ref": "#/definitions/User",
           },
           "type": "array",
         },
       },
-      "required": Array [
+      "required": [
         "teams",
         "users",
       ],
       "type": "object",
     },
-    "projects": Object {
-      "items": Object {
+    "projects": {
+      "items": {
         "$ref": "#/definitions/Project",
       },
       "type": "array",
     },
-    "snyk": Object {
-      "properties": Object {
-        "accountId": Object {
+    "snyk": {
+      "properties": {
+        "accountId": {
           "type": "string",
         },
       },
-      "required": Array [
+      "required": [
         "accountId",
       ],
       "type": "object",
     },
   },
-  "required": Array [
+  "required": [
     "github",
     "projects",
   ],
