@@ -40,6 +40,8 @@ to automate releases and follows
 [Git commit guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
 from the Angular project.
 
+Version numbers depend on the commit type and footers: https://github.com/semantic-release/commit-analyzer/blob/75c9c87c88772d7ded4ca9614852b42519e41931/lib/default-release-rules.js#L7-L12
+
 ## Goals of CLI
 
 - Provide an uniform way of consistently doing repeatable CALS tasks
