@@ -49,13 +49,17 @@ export class SonarCloudService {
     }
 
     if (response.status === 404) {
-      process.stderr.write(`Project ${sonarCloudProjectKey} does not exist in SonarCloud\n`)
+      process.stderr.write(
+        `Project ${sonarCloudProjectKey} does not exist in SonarCloud\n`,
+      )
       return undefined
     }
 
     if (!response.ok) {
       throw new Error(
-        `Response from SonarCloud not OK (${response.status}): ${await response.text()}`,
+        `Response from SonarCloud not OK (${
+          response.status
+        }): ${await response.text()}`,
       )
     }
 

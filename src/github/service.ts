@@ -22,6 +22,7 @@ import {
   VulnerabilityAlert,
 } from "./types"
 import { undefinedForNotFound } from "./util"
+import * as process from "process"
 
 interface SearchedPullRequestListQueryResult {
   search: {
@@ -248,6 +249,15 @@ export class GitHubService {
     if (response.status === 401) {
       process.stderr.write("Unauthorized\n")
       await this.tokenProvider.markInvalid()
+    }
+
+    // If you get 502 after 10s, it is a timeout.
+    if (response.status === 502) {
+      throw new Error(
+        `Response from Github likely timed out (10s max) with status ${
+          response.status
+        }: ${await response.text()}`,
+      )
     }
 
     if (!response.ok) {
@@ -533,7 +543,7 @@ export class GitHubService {
   search(
     query: "is:open is:pr user:${owner} owner:${owner} archived:false",
     type: ISSUE,
-    first: 100${
+    first: 70${
       after === null
         ? ""
         : `,
@@ -562,7 +572,7 @@ export class GitHubService {
             login
           }
           title
-          commits(first: 10) {
+          commits(first: 5) {
             nodes {
               commit {
                 messageHeadline
