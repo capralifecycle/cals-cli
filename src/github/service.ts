@@ -23,6 +23,7 @@ import {
 } from "./types"
 import { undefinedForNotFound } from "./util"
 import * as process from "process"
+import { performance } from "perf_hooks"
 
 interface SearchedPullRequestListQueryResult {
   search: {
@@ -237,14 +238,18 @@ export class GitHubService {
       Authorization: `Bearer ${token}`,
     }
 
-    const response = await this.semaphore(() =>
-      fetch(url, {
+    let requestDuration = -1
+    const response = await this.semaphore(() => {
+      const requestStart = performance.now()
+      const result = fetch(url, {
         method: "POST",
         headers,
         body: JSON.stringify({ query }),
         agent: this.config.agent,
-      }),
-    )
+      })
+      requestDuration = performance.now() - requestStart
+      return result
+    })
 
     if (response.status === 401) {
       process.stderr.write("Unauthorized\n")
@@ -254,7 +259,7 @@ export class GitHubService {
     // If you get 502 after 10s, it is a timeout.
     if (response.status === 502) {
       throw new Error(
-        `Response from Github likely timed out (10s max) with status ${
+        `Response from Github likely timed out (10s max) after elapsed ${requestDuration}ms with status ${
           response.status
         }: ${await response.text()}`,
       )
@@ -543,7 +548,7 @@ export class GitHubService {
   search(
     query: "is:open is:pr user:${owner} owner:${owner} archived:false",
     type: ISSUE,
-    first: 70${
+    first: 50${
       after === null
         ? ""
         : `,
@@ -572,7 +577,7 @@ export class GitHubService {
             login
           }
           title
-          commits(first: 5) {
+          commits(first: 3) {
             nodes {
               commit {
                 messageHeadline
