@@ -252,9 +252,9 @@ export class GitHubService {
 
     if (!response.ok) {
       throw new Error(
-        `Response from GitHub not OK (${response.status}): ${JSON.stringify(
-          response,
-        )}`,
+        `Response from GitHub not OK (${
+          response.status
+        }): ${await response.text()}`,
       )
     }
 
