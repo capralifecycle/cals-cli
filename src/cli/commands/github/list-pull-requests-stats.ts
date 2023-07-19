@@ -14,7 +14,7 @@ async function listPullRequestsStats({
   // This is only an initial attempt to get some insights into
   // open pull requests. Feel free to change.
 
-  const pulls = await github.getSearchedPullRequestList()
+  const pulls = await github.getSearchedPullRequestList("capralifecycle")
 
   interface Category {
     key: string
