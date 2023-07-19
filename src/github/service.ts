@@ -525,13 +525,13 @@ export class GitHubService {
     ]
   }
 
-  public async getSearchedPullRequestList(): Promise<
+  public async getSearchedPullRequestList(owner: string): Promise<
     SearchedPullRequestListItem[]
   > {
     // NOTE: Changes to this must by synced with SearchedPullRequestListQueryResult.
     const getQuery = (after: string | null) => `{
   search(
-    query: "is:open is:pr user:capralifecycle user:capraconsulting archived:false",
+    query: "is:open is:pr user:${owner} owner:${owner} archived:false",
     type: ISSUE,
     first: 100${
       after === null
