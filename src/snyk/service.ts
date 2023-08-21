@@ -29,6 +29,15 @@ export class SnykService {
 
   public async getProjectsByAccountId(
     snykAccountId: string,
+    /**
+     * The slug name of a Snyk organization.
+     *
+     * NOTE: This is only used to construct the browsable URL for a given project, and is not being used
+     * in API calls to Snyk.
+     *
+     * @default - the slug corresponding to Lifligs Snyk organization ("it").
+     */
+    snykOrgSlugId?: string,
   ): Promise<SnykProject[]> {
     const token = await this.tokenProvider.getToken()
     if (token === undefined) {
@@ -97,7 +106,9 @@ export class SnykService {
             totalDependencies: project.meta.latest_dependency_total.total,
             issueCountsBySeverity: project.meta.latest_issue_counts,
             lastTestedDate: project.meta.latest_dependency_total.updated_at,
-            browseUrl: `https://app.snyk.io/org/it/project/${project.id}`,
+            browseUrl: `https://app.snyk.io/org/${
+              snykOrgSlugId ?? "it"
+            }/project/${project.id}`,
           }
         }),
       ]
