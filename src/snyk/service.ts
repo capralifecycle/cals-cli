@@ -97,7 +97,7 @@ export class SnykService {
             totalDependencies: project.meta.latest_dependency_total.total,
             issueCountsBySeverity: project.meta.latest_issue_counts,
             lastTestedDate: project.meta.latest_dependency_total.updated_at,
-            browseUrl: `https://app.snyk.io/org/${snykAccountId}/project/${project.id}`,
+            browseUrl: `https://app.snyk.io/org/it/project/${project.id}`,
           }
         }),
       ]
