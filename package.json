@@ -57,7 +57,7 @@
     "@types/rimraf": "3.0.2",
     "@types/semver": "7.5.3",
     "@types/sprintf-js": "1.1.2",
-    "@types/yargs": "17.0.25",
+    "@types/yargs": "17.0.26",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
     "dateformat": "4.6.3",
