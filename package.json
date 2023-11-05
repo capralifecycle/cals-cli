@@ -55,7 +55,7 @@
     "@types/node-fetch": "2.6.8",
     "@types/read": "0.0.31",
     "@types/rimraf": "3.0.2",
-    "@types/semver": "7.5.3",
+    "@types/semver": "7.5.4",
     "@types/sprintf-js": "1.1.2",
     "@types/yargs": "17.0.28",
     "@typescript-eslint/eslint-plugin": "5.62.0",
