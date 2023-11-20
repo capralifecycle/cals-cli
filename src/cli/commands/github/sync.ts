@@ -236,8 +236,8 @@ async function getReposInOrg(
     .filter(
       (it) =>
         cals.resourcesDefinition.tags === undefined ||
-        (it.project.tags || []).some((tag) =>
-          cals.resourcesDefinition.tags?.includes(tag),
+        (it.project.tags || []).some(
+          (tag) => cals.resourcesDefinition.tags?.includes(tag),
         ) ||
         // Always include if already checked out to avoid stale state.
         fs.existsSync(path.join(rootdir, it.project.name, it.repo.name)),
