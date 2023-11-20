@@ -79,8 +79,8 @@ class LoadSecrets {
         typeof field === "string"
           ? ""
           : field.description
-          ? ` (${field.description})`
-          : ""
+            ? ` (${field.description})`
+            : ""
       this.reporter.log(`  - ${key}${desc}`)
     }
 
@@ -284,8 +284,8 @@ class LoadSecrets {
     return details == null
       ? "not yet created"
       : details?.DeletedDate != null
-      ? `scheduled for deletion ${details.DeletedDate.toISOString()}`
-      : `last changed ${details.LastChangedDate?.toISOString() ?? "unknown"}`
+        ? `scheduled for deletion ${details.DeletedDate.toISOString()}`
+        : `last changed ${details.LastChangedDate?.toISOString() ?? "unknown"}`
   }
 
   /**

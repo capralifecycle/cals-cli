@@ -94,9 +94,8 @@ async function executeChangeSetItem(
     case "team-remove":
       await github.octokit.teams.deleteInOrg({
         org: changeItem.org,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
       })
       return true
 
@@ -111,9 +110,8 @@ async function executeChangeSetItem(
     case "team-member-permission":
       await github.octokit.teams.addOrUpdateMembershipForUserInOrg({
         org: changeItem.org,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
         role: changeItem.role,
       })
@@ -122,9 +120,8 @@ async function executeChangeSetItem(
     case "team-member-remove":
       await github.octokit.teams.removeMembershipForUserInOrg({
         org: changeItem.org,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
       })
       return true
@@ -132,9 +129,8 @@ async function executeChangeSetItem(
     case "team-member-add":
       await github.octokit.teams.addOrUpdateMembershipForUserInOrg({
         org: changeItem.org,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         username: changeItem.user,
       })
       return true
@@ -165,9 +161,8 @@ async function executeChangeSetItem(
         org: changeItem.org,
         owner: changeItem.org,
         repo: changeItem.repo,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
       })
       return true
 
@@ -177,9 +172,8 @@ async function executeChangeSetItem(
         org: changeItem.org,
         owner: changeItem.org,
         repo: changeItem.repo,
-        team_slug: (
-          await lookup.getOrgTeam(changeItem.org, changeItem.team)
-        ).slug,
+        team_slug: (await lookup.getOrgTeam(changeItem.org, changeItem.team))
+          .slug,
         permission: changeItem.permission,
       })
       return true
