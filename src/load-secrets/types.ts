@@ -1,6 +1,11 @@
 export interface BaseSecret {
   name: string
   description?: string
+  /**
+   * A list of regions to create read replicas
+   * of the secret in.
+   */
+  replicaRegions?: string[]
 }
 
 export type JsonSecretSimpleField = string
