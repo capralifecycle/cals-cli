@@ -71,6 +71,12 @@ class LoadSecrets {
     }
   }
 
+  async handleStringUpdate() {
+    return await this.getInput({
+      prompt: "Enter value (Ctrl+C to abort): ",
+      silent: this.silent,
+    })
+  }
   async handleJsonUpdate(secret: JsonSecret) {
     this.reporter.log("The secret is of type JSON with these expected fields:")
     for (const field of secret.fields) {
@@ -202,6 +208,8 @@ class LoadSecrets {
         }
         throw e
       }
+    } else if (secret.type === "string") {
+      secretValue = await this.handleStringUpdate()
     } else {
       throw new Error(`Unsupported type`)
     }
