@@ -11,13 +11,20 @@ export interface JsonSecretDescribedField {
   example?: string
 }
 
+/**
+ * Used for secrets that are a single plaintext string,
+ * and do not require JSON formating.
+ */
+export interface StringSecret extends BaseSecret {
+  type: "string"
+}
+
 export interface JsonSecret extends BaseSecret {
   type: "json"
   fields: (JsonSecretSimpleField | JsonSecretDescribedField)[]
 }
 
-// This can become a union type later if needed.
-export type Secret = JsonSecret
+export type Secret = JsonSecret | StringSecret
 
 export interface SecretGroup {
   accountId: string
