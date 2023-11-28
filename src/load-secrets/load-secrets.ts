@@ -10,6 +10,8 @@ import {
   Tag,
   TagResourceCommand,
   UntagResourceCommand,
+  ReplicateSecretToRegionsCommand,
+  RemoveRegionsFromReplicationCommand,
 } from "@aws-sdk/client-secrets-manager"
 import { GetCallerIdentityCommand, STSClient } from "@aws-sdk/client-sts"
 import read from "read"
@@ -228,11 +230,19 @@ class LoadSecrets {
 
     let arn: string
     let version: string
+    let newReplicaRegions: string[] = []
+    let removedReplicaRegions: string[] = []
 
     if (describeSecret == null) {
+      newReplicaRegions = secret.replicaRegions ?? []
       const createResult = await client.send(
         new CreateSecretCommand({
           Name: fullName,
+          AddReplicaRegions: secret.replicaRegions
+            ? secret.replicaRegions.map((replicaRegion) => ({
+                Region: replicaRegion,
+              }))
+            : undefined,
           Description: "Created by load-secrets",
           SecretString: secretValue,
           Tags: tags,
@@ -260,6 +270,37 @@ class LoadSecrets {
           SecretString: secretValue,
         }),
       )
+      const currentReplicaRegions =
+        describeSecret.ReplicationStatus?.map(
+          (replicationStatus) => replicationStatus.Region,
+        ) ?? []
+      newReplicaRegions =
+        secret.replicaRegions?.filter(
+          (region) => !currentReplicaRegions.includes(region),
+        ) ?? []
+      removedReplicaRegions = currentReplicaRegions
+        .filter(
+          (region): region is string => !!region && typeof region === "string",
+        )
+        .filter((region) => !(secret.replicaRegions || []).includes(region))
+      if (newReplicaRegions.length > 0) {
+        await client.send(
+          new ReplicateSecretToRegionsCommand({
+            SecretId: fullName,
+            AddReplicaRegions: newReplicaRegions.map((region) => ({
+              Region: region,
+            })),
+          }),
+        )
+      }
+      if (removedReplicaRegions.length > 0) {
+        await client.send(
+          new RemoveRegionsFromReplicationCommand({
+            SecretId: fullName,
+            RemoveReplicaRegions: removedReplicaRegions,
+          }),
+        )
+      }
 
       if (updateResult.VersionId == null) {
         throw new Error("Expected versionId")
@@ -275,6 +316,20 @@ class LoadSecrets {
     this.reporter.log("Secret stored:")
     this.reporter.log(`ARN: ${this.reporter.format.greenBright(arn)}`)
     this.reporter.log(`Version: ${this.reporter.format.greenBright(version)}`)
+    if (newReplicaRegions.length > 0) {
+      this.reporter.log(
+        `Read replicas added to regions: ${newReplicaRegions
+          .map((r) => this.reporter.format.greenBright(r))
+          .join(", ")}`,
+      )
+    }
+    if (removedReplicaRegions.length > 0) {
+      this.reporter.log(
+        `Read replicas removed from regions: ${removedReplicaRegions
+          .map((r) => this.reporter.format.redBright(r))
+          .join(", ")}`,
+      )
+    }
   }
 
   checkSecretGroup(secretGroup: SecretGroup) {
