@@ -41,6 +41,11 @@
     "sprintf-js": "^1.1.2",
     "yargs": "^17.5.1"
   },
+  "overrides": {
+    "semantic-release": {
+      "@semantic-release/npm": "10.0.6"
+    }
+  },
   "devDependencies": {
     "@commitlint/cli": "18.4.3",
     "@commitlint/config-conventional": "18.4.3",
@@ -70,14 +75,14 @@
     "prettier": "3.1.0",
     "rollup": "2.79.1",
     "rollup-plugin-typescript2": "0.36.0",
-    "semantic-release": "22.0.8",
+    "semantic-release": "22.0.12",
     "tempy": "1.0.1",
     "ts-jest": "^29.1.1",
     "typescript": "5.3.2",
     "typescript-json-schema": "0.56.0"
   },
   "files": [
-    "lib/**/*"
+    "lib"
   ],
   "repository": {
     "type": "git",
