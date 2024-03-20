@@ -69,14 +69,7 @@ export interface VulnerabilityAlert {
   securityVulnerability: {
     package: {
       name: string
-      ecosystem:
-        | "COMPOSER"
-        | "MAVEN"
-        | "NPM"
-        | "NUGET"
-        | "PIP"
-        | "RUBYGEMS"
-        | string
+      ecosystem: "COMPOSER" | "MAVEN" | "NPM" | "NUGET" | "PIP" | "RUBYGEMS"
     }
     firstPatchedVersion: {
       identifier: string
