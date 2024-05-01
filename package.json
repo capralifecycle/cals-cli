@@ -21,7 +21,7 @@
     "cals": "lib/cals-cli.js"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.388.0",
+    "@aws-sdk/client-secrets-manager": "^3.552.0",
     "@aws-sdk/client-sts": "^3.388.0",
     "@octokit/rest": "^19.0.0",
     "ajv": "^8.11.0",
