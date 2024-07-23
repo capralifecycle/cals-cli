@@ -79,7 +79,7 @@
     "tempy": "1.0.1",
     "ts-jest": "^29.1.1",
     "typescript": "5.5.3",
-    "typescript-json-schema": "0.63.0"
+    "typescript-json-schema": "0.64.0"
   },
   "files": [
     "lib"
