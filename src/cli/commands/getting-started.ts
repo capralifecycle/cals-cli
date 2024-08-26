@@ -7,7 +7,7 @@ const command: CommandModule = {
   handler: (argv) => {
     const reporter = createReporter(argv)
     reporter.log(
-      "For getting started, see https://confluence.capraconsulting.no/x/cgGzBg",
+      "For getting started, see https://liflig.atlassian.net/wiki/x/E8MNAQ",
     )
   },
 }
