@@ -59,7 +59,7 @@
     "@types/node": "20.14.11",
     "@types/node-fetch": "2.6.11",
     "@types/read": "0.0.32",
-    "@types/rimraf": "3.0.2",
+    "@types/rimraf": "4.0.5",
     "@types/semver": "7.5.8",
     "@types/sprintf-js": "1.1.4",
     "@types/yargs": "17.0.32",
