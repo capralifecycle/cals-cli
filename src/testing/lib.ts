@@ -283,7 +283,7 @@ async function getContainerId({
 }: {
   executor: TestExecutor
   name: string
-  hasFailed(): boolean
+  hasFailed(this: void): boolean
   pid: number
 }) {
   function log(value: string) {
