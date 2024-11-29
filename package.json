@@ -52,7 +52,7 @@
     "@octokit/types": "10.0.0",
     "@rollup/plugin-alias": "5.1.1",
     "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-replace": "5.0.7",
+    "@rollup/plugin-replace": "6.0.1",
     "@types/jest": "29.5.13",
     "@types/js-yaml": "4.0.9",
     "@types/lodash": "4.17.10",
