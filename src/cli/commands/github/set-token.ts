@@ -27,6 +27,7 @@ async function setToken({
         },
         (err, answer) => {
           if (err) {
+            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
             reject(err)
           }
           resolve(answer)

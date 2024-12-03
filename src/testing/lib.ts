@@ -483,13 +483,10 @@ export async function getDockerHostAddress(): Promise<string> {
     pipeToConsole(process, "ip route")
     const res = await process
     try {
-      return (
-        res.stdout
-          .split("\n")
-          .filter((it) => it.includes("default via"))
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          .map((it) => /default via ([\d\.]+) /.exec(it)![1])[0]
-      )
+      return res.stdout
+        .split("\n")
+        .filter((it) => it.includes("default via"))
+        .map((it) => /default via ([\d\.]+) /.exec(it)![1])[0]
     } catch (e) {
       throw new Error("Failed to extract docker host address")
     }
@@ -509,6 +506,7 @@ export async function waitForEnterToContinue(
       },
       (err) => {
         if (err) {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           reject(err)
         }
         resolve()

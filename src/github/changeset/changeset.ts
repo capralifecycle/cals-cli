@@ -336,7 +336,6 @@ export async function createChangeSetItemsForTeams(
   )
 
   await pMap(overlappingTeams, async (actualTeam) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const wantedTeam = teams.find((it) => it.name === actualTeam.name)!
     const actualMembers = await github.getTeamMemberListIncludingInvited(
       org,

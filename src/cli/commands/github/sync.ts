@@ -101,7 +101,6 @@ async function updateReposInParallel(
           updateResult: await repo.git.update(),
         }
       } catch (e) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         reporter.error(`Failed for ${repo.actualRelpath} - skipping. ${e}`)
         return null
       }
@@ -344,6 +343,7 @@ async function getInput(prompt: string): Promise<string> {
       },
       (err, answer) => {
         if (err) {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           reject(err)
         }
         resolve(answer)
