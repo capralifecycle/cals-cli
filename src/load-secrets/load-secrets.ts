@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   CreateSecretCommand,
   DescribeSecretCommand,
@@ -48,6 +47,7 @@ class LoadSecrets {
     return new Promise<string>((resolve, reject) => {
       read(options, (err, answer) => {
         if (err) {
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
           reject(err)
         }
         resolve(answer)

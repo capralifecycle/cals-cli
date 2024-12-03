@@ -143,7 +143,6 @@ export class GitHubService {
       this._requestCount++
 
       if (options.method !== "GET") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.semaphore(() => request(options))
       }
 
@@ -176,7 +175,6 @@ export class GitHubService {
         allowRetry = true,
       ): Promise<OctokitResponse<unknown> | undefined> => {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return await request(options)
         } catch (e) {
           // Handle no change in ETag.
@@ -357,7 +355,6 @@ export class GitHubService {
           throw new Error("Missing organization nodes")
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         repos.push(...res.organization.repositories.nodes)
 
         if (!res.organization.repositories.pageInfo.hasNextPage) {
