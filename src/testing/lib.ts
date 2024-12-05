@@ -140,7 +140,7 @@ export async function pollForCondition({
 
       log(`Took ${duration()} seconds for condition`)
       return
-    } catch (e) {
+    } catch {
       log("Still waiting...")
       await new Promise((resolve) =>
         setTimeout(resolve, waitIntervalSec * 1000),
@@ -221,7 +221,7 @@ async function isRunning(
   try {
     await execa("docker", ["inspect", container.name])
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -270,7 +270,7 @@ function checkPidRunning(pid: number): boolean {
   try {
     process.kill(pid, 0)
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -296,7 +296,7 @@ async function getContainerId({
     try {
       result = (await execa("docker", ["inspect", name, "-f", "{{.Id}}"]))
         .stdout
-    } catch (e) {
+    } catch {
       result = null
     }
 
@@ -487,7 +487,7 @@ export async function getDockerHostAddress(): Promise<string> {
         .split("\n")
         .filter((it) => it.includes("default via"))
         .map((it) => /default via ([\d\.]+) /.exec(it)![1])[0]
-    } catch (e) {
+    } catch {
       throw new Error("Failed to extract docker host address")
     }
   }
