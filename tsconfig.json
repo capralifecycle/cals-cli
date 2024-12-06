@@ -4,13 +4,26 @@
     "rootDir": "./src",
     "declaration": true,
     "esModuleInterop": true,
-    "lib": ["esnext"],
-    "module": "es6",
+    "lib": ["es2022"],
+    "module": "ES2022",
+    "outDir": "lib",
     "moduleResolution": "node",
     "noImplicitReturns": true,
     "resolveJsonModule": true,
     "strict": true,
-    "target": "ES2019",
-    "useUnknownInCatchVariables": false
-  }
+    "target": "es2022",
+    "useUnknownInCatchVariables": false,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "noEmit": false,
+    "verbatimModuleSyntax": false
+  },
+  "include": ["src", "rollup.config.ts"],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "scripts/**/*"
+  ]
 }
