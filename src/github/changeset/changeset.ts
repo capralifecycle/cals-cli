@@ -1,4 +1,4 @@
-import { sortBy } from "lodash"
+import { sortBy } from "lodash-es"
 import pMap from "p-map"
 import { getGitHubOrgs, getRepos } from "../../definition/definition"
 import {

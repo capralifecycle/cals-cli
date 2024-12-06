@@ -1,6 +1,6 @@
 import fs from "fs"
 import yaml from "js-yaml"
-import { keyBy } from "lodash"
+import { keyBy } from "lodash-es"
 import pMap from "p-map"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"

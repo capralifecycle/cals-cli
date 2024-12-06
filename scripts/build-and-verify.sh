@@ -4,7 +4,7 @@ set -eux
 npm run build
 
 echo "Testing CLI"
-node lib/cals-cli.js --help
+node lib/cals-cli.mjs --help
 
 # Check that typing is in place.
 if ! [ -e lib/index.d.ts ]; then

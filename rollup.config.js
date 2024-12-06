@@ -71,7 +71,7 @@ export default [
     output: {
       file: pkg.bin.cals,
       banner: "#!/usr/bin/env node",
-      format: "cjs",
+      format: "es",
       sourcemap: true,
     },
     external,
