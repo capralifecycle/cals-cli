@@ -1,6 +1,7 @@
 import yargs, { CommandModule } from "yargs"
 import dumpSetup from "./definition/dump-setup"
 import validate from "./definition/validate"
+import { hideBin } from "yargs/helpers"
 
 const command: CommandModule = {
   command: "definition",
@@ -12,7 +13,7 @@ const command: CommandModule = {
       .demandCommand()
       .usage(`cals definition`),
   handler: () => {
-    yargs.showHelp()
+    yargs(hideBin(process.argv)).showHelp()
   },
 }
 
