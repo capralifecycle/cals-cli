@@ -3,6 +3,7 @@
   "version": "0.0.0-development",
   "description": "CLI for repeatable tasks in CALS",
   "type": "module",
+  "license": "Apache-2.0",
   "scripts": {
     "prepare": "tsx scripts/create-definition-schema.ts && husky install",
     "build": "rollup -c",
@@ -15,9 +16,9 @@
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w"
   },
-  "license": "Apache-2.0",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
+  "types": "lib/index.d.ts",
   "bin": {
     "cals": "lib/cals-cli.mjs"
   },
@@ -90,7 +91,6 @@
     "type": "git",
     "url": "https://github.com/capralifecycle/cals-cli.git"
   },
-  "types": "lib/index.d.ts",
   "engines": {
     "node": ">=12.0.0"
   }
