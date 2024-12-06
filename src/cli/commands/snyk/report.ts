@@ -1,4 +1,4 @@
-import { groupBy, repeat, sortBy, sumBy } from "lodash"
+import { groupBy, repeat, sortBy, sumBy } from "lodash-es"
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
 import { DefinitionFile, getRepos } from "../../../definition/definition"

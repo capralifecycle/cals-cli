@@ -1,7 +1,7 @@
 import AJV from "ajv"
 import fs from "fs"
 import yaml from "js-yaml"
-import { uniq } from "lodash"
+import { uniq } from "lodash-es"
 import schema from "../definition-schema.json"
 import { Definition, GetReposResponse } from "./types"
 
