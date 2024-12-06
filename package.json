@@ -19,7 +19,7 @@
   "main": "lib/index.js",
   "module": "lib/index.es.js",
   "bin": {
-    "cals": "lib/cals-cli.js"
+    "cals": "lib/cals-cli.mjs"
   },
   "dependencies": {
     "@octokit/rest": "^19.0.0",
