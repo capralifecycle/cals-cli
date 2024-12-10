@@ -7,6 +7,7 @@ import listRepos from "./github/list-repos"
 import listWebhooks from "./github/list-webhooks"
 import setToken from "./github/set-token"
 import sync from "./github/sync"
+import { hideBin } from "yargs/helpers"
 
 const command: CommandModule = {
   command: "github",
@@ -42,7 +43,7 @@ Notes:
   option to avoid stale cache. The cache can also be cleared with
   the "cals delete-cache" command.`),
   handler: () => {
-    yargs.showHelp()
+    yargs(hideBin(process.argv)).showHelp()
   },
 }
 

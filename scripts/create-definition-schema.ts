@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const path = require("path")
-const tjs = require("typescript-json-schema")
-const fs = require("fs")
+import * as path from "path"
+import * as tjs from "typescript-json-schema"
+import * as fs from "fs"
 
 const program = tjs.getProgramFromFiles(
   [path.resolve("src/definition/types.ts")],

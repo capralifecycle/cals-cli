@@ -1,2 +1,3 @@
 export { createSonarCloudService, SonarCloudService } from "./service"
-export { SonarCloudTokenProvider, SonarCloudTokenCliProvider } from "./token"
+export { SonarCloudTokenCliProvider } from "./token"
+export type { SonarCloudTokenProvider } from "./token"

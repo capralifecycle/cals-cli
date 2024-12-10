@@ -1,7 +1,7 @@
 import AJV from "ajv"
 import fs from "fs"
 import yaml from "js-yaml"
-import { uniq } from "lodash"
+import { uniq } from "lodash-es"
 import schema from "../definition-schema.json"
 import { Definition, GetReposResponse } from "./types"
 
@@ -81,9 +81,7 @@ function requireValidDefinition(definition: Definition) {
             `Project team ${id} in project ${project.name} is not registered in team list`,
           )
         }
-      })
-
-      // Verify repo teams exists as teams.
+      }) // Verify repo teams exists as teams.
       ;(org.repos || []).forEach((repo) => {
         ;(repo.teams || []).forEach((team) => {
           const id = getTeamId(org.organization, team.name)

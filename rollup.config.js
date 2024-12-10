@@ -43,12 +43,12 @@ const plugins = [
 ]
 
 export default [
-  // CommonJS
+  // ES
   {
     input: "src/index.ts",
     output: {
       file: pkg.main,
-      format: "cjs",
+      format: "es",
       sourcemap: true,
     },
     external,
@@ -71,7 +71,7 @@ export default [
     output: {
       file: pkg.bin.cals,
       banner: "#!/usr/bin/env node",
-      format: "cjs",
+      format: "es",
       sourcemap: true,
     },
     external,
