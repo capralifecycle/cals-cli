@@ -11,6 +11,7 @@ import { Config } from "../../../config"
 import { createGitHubService, GitHubService } from "../../../github/service"
 import { getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
+import { hideBin } from "yargs/helpers"
 
 async function generateCloneCommands({
   reporter,
@@ -32,7 +33,7 @@ async function generateCloneCommands({
   org: string
 }) {
   if (!opt.listGroups && !opt.all && opt.group === undefined) {
-    yargs.showHelp()
+    yargs(hideBin(process.argv)).showHelp()
     return
   }
 

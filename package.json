@@ -2,11 +2,13 @@
   "name": "@capraconsulting/cals-cli",
   "version": "0.0.0-development",
   "description": "CLI for repeatable tasks in CALS",
+  "type": "module",
+  "license": "Apache-2.0",
   "scripts": {
-    "prepare": "node scripts/create-definition-schema.js && husky install",
+    "prepare": "tsx scripts/create-definition-schema.ts && husky install",
     "build": "rollup -c",
-    "test": "jest --coverage src",
-    "test:watch": "jest --watch src",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage src",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch src",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prepack": "./scripts/build-and-verify.sh",
@@ -14,22 +16,23 @@
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w"
   },
-  "license": "Apache-2.0",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
+  "types": "lib/index.d.ts",
   "bin": {
-    "cals": "lib/cals-cli.js"
+    "cals": "lib/cals-cli.mjs"
   },
   "dependencies": {
     "@octokit/rest": "^19.0.0",
+    "@types/dateformat": "5.0.2",
     "ajv": "^8.11.0",
     "cachedir": "^2.4.0",
-    "chalk": "^4.0.0",
+    "chalk": "4.1.2",
     "execa": "^5.0.0",
     "find-up": "^5.0.0",
     "js-yaml": "^4.1.0",
     "keytar": "^7.9.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "node-fetch": "^2.6.7",
     "p-limit": "^3.0.0",
     "p-map": "^4.0.0",
@@ -37,7 +40,7 @@
     "rimraf": "^4.0.0",
     "semver": "^7.6.2",
     "sprintf-js": "^1.1.2",
-    "yargs": "^17.5.1"
+    "yargs": "17.7.2"
   },
   "overrides": {
     "semantic-release": {
@@ -55,7 +58,7 @@
     "@rollup/plugin-replace": "6.0.1",
     "@types/jest": "29.5.14",
     "@types/js-yaml": "4.0.9",
-    "@types/lodash": "4.17.13",
+    "@types/lodash-es": "4.17.12",
     "@types/node": "22.10.1",
     "@types/node-fetch": "2.6.12",
     "@types/read": "0.0.32",
@@ -72,12 +75,14 @@
     "eslint-plugin-prettier": "5.2.1",
     "husky": "8.0.3",
     "jest": "^29.6.1",
+    "lodash": "4.17.21",
     "prettier": "3.4.1",
     "rollup": "2.79.2",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "24.2.0",
     "tempy": "1.0.1",
     "ts-jest": "^29.1.1",
+    "tsx": "4.19.2",
     "typescript": "5.7.2",
     "typescript-json-schema": "0.65.1"
   },
@@ -88,7 +93,6 @@
     "type": "git",
     "url": "https://github.com/capralifecycle/cals-cli.git"
   },
-  "types": "lib/index.d.ts",
   "engines": {
     "node": ">=12.0.0"
   }

@@ -5,7 +5,7 @@ export {
   getRepos,
   parseDefinition,
 } from "./definition"
-export {
+export type {
   Definition,
   DefinitionRepo,
   GetReposResponse,

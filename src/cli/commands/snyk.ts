@@ -2,6 +2,7 @@ import yargs, { CommandModule } from "yargs"
 import report from "./snyk/report"
 import setToken from "./snyk/set-token"
 import sync from "./snyk/sync"
+import { hideBin } from "yargs/helpers"
 
 const command: CommandModule = {
   command: "snyk",
@@ -16,7 +17,7 @@ Notes:
   and provide a link to generate one:
   $ cals snyk set-token`),
   handler: () => {
-    yargs.showHelp()
+    yargs(hideBin(process.argv)).showHelp()
   },
 }
 
