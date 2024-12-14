@@ -1,6 +1,5 @@
 import fs from "fs"
 import yaml from "js-yaml"
-import { keyBy } from "lodash-es"
 import pMap from "p-map"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
@@ -196,7 +195,9 @@ async function getProjects(
   const repos = await getReposFromGitHub(github, orgs)
   const snykRepos = await snykReposPromise
 
-  const definitionRepos = keyBy(getRepos(definition), (it) => it.id)
+  const definitionRepos = Object.fromEntries(
+    getRepos(definition).map((repo: GetReposResponse) => [repo.id, repo]),
+  )
 
   const projectGroups = Object.values(
     repos.reduce<{
