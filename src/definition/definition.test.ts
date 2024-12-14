@@ -1,5 +1,5 @@
-import del from "del"
 import fs from "fs"
+import { rm } from "node:fs/promises"
 import tempy from "tempy"
 import { DefinitionFile, schema } from "./definition"
 import { Definition } from "./types"
@@ -22,7 +22,7 @@ describe("definition", () => {
       `"Definition content invalid: data must have required property 'github', data must have required property 'projects'"`,
     )
 
-    await del(tmp, { force: true })
+    await rm(tmp, { force: true })
   })
 
   it("should successfully parse correct file", async () => {
@@ -54,7 +54,7 @@ describe("definition", () => {
     const definitionFile = new DefinitionFile(tmp)
     await expect(definitionFile.getDefinition()).resolves.toStrictEqual(data)
 
-    await del(tmp, { force: true })
+    await rm(tmp, { force: true })
   })
 
   it("should match expected schema", () => {
