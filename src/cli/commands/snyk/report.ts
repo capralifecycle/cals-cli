@@ -1,4 +1,4 @@
-import { groupBy, repeat, sortBy, sumBy } from "lodash-es"
+import { sumBy } from "../../../collections/collections"
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
 import { DefinitionFile, getRepos } from "../../../definition"
@@ -14,6 +14,7 @@ import {
   definitionFileOptionValue,
   getDefinitionFile,
 } from "../../util"
+import { groupBy, sortBy } from "../../../collections/collections"
 
 function totalSeverityCount(project: SnykProject) {
   return (
@@ -26,7 +27,7 @@ function totalSeverityCount(project: SnykProject) {
 
 function buildStatsLine(stats: SnykProject["issueCountsBySeverity"]) {
   function item(num: number, str: string) {
-    return num === 0 ? repeat(" ", str.length + 4) : sprintf("%3d %s", num, str)
+    return num === 0 ? " ".repeat(str.length + 4) : sprintf("%3d %s", num, str)
   }
 
   return sprintf(
