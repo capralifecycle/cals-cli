@@ -1,9 +1,9 @@
 import AJV from "ajv"
 import fs from "fs"
 import yaml from "js-yaml"
-import { uniq } from "lodash-es"
 import schema from "../definition-schema.json"
 import { Definition, GetReposResponse } from "./types"
+import { uniq } from "../collections/collections"
 
 export { schema }
 
@@ -162,9 +162,8 @@ export function getRepos(definition: Definition): GetReposResponse[] {
 }
 
 export function getGitHubOrgs(definition: Definition): string[] {
-  return uniq(
-    definition.projects.flatMap((project) =>
-      project.github.map((it) => it.organization),
-    ),
+  const githubOrganizations = definition.projects.flatMap((project) =>
+    project.github.map((it) => it.organization),
   )
+  return uniq(githubOrganizations)
 }
