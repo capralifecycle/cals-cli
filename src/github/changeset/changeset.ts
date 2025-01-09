@@ -1,4 +1,3 @@
-import { sortBy } from "lodash-es"
 import pMap from "p-map"
 import { getGitHubOrgs, getRepos } from "../../definition"
 import {
@@ -11,6 +10,7 @@ import {
 import { GitHubService } from "../service"
 import { OrgsGetResponse, Permission, ReposGetResponse } from "../types"
 import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
+import { sortBy } from "../../collections/collections"
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
@@ -59,14 +59,17 @@ async function getUnknownRepos(
     (orgName) => limitToOrg === undefined || limitToOrg === orgName,
   )
 
+  const orgRepoList = await pMap(orgs, (orgName) =>
+    github.getOrgRepoList({ org: orgName }),
+  )
+
   return sortBy(
-    (await pMap(orgs, (orgName) => github.getOrgRepoList({ org: orgName })))
+    orgRepoList
       .flat()
       .filter((it) => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
     (it) => `${it.owner.login}/${it.name}`,
   )
 }
-
 /**
  * Get teams from both the project level and the repository level
  * and ensure that repository level override project level.
