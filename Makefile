@@ -9,6 +9,18 @@ build: clean
 	npm run prepare
 	npm run test
 
+.PHONY: test
+test:
+	npm run test
+
+.PHONY: lint
+lint:
+	npm run lint
+
+.PHONY: format
+format:
+	npm run prettier
+
 .PHONY: clean
 clean:
 	rm -rf lib
