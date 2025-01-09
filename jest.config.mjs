@@ -4,9 +4,9 @@ export default {
 
     // workaround: jest doesn't work well with lodash-es,
     // so map to cjs lodash during test
-    "^lodash-es$": "lodash"
+    "^lodash-es$": "lodash",
   },
-  preset: 'ts-jest',
+  preset: "ts-jest",
   testEnvironment: "node",
   transform: {},
 }

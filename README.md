@@ -71,7 +71,6 @@ https://snyk.docs.apiary.io/reference/projects
 - [ ] Detect active vs disabled projects in Snyk (no way through API now?)
 - [x] Report issues in Snyk grouped by our projects
 
-
 ## Contributing
 
 This project doesn't currently accept contributions. For inquiries, please contact the maintainers at [Slack](https://liflig.slack.com/archives/C02T4KTPYS2).
