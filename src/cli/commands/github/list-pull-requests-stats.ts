@@ -1,6 +1,6 @@
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
-import { createGitHubService, GitHubService } from "../../../github/service"
+import { createGitHubService, GitHubService } from "../../../github"
 import { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 

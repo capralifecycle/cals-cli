@@ -115,7 +115,7 @@ function requireValidDefinition(definition: Definition) {
 }
 
 export class DefinitionFile {
-  private path: string
+  private readonly path: string
 
   constructor(path: string) {
     this.path = path

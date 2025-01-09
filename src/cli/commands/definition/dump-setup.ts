@@ -9,7 +9,7 @@ import {
   getGitHubOrgs,
   getRepoId,
   getRepos,
-} from "../../../definition/definition"
+} from "../../../definition"
 import {
   Definition,
   DefinitionRepo,
@@ -19,7 +19,7 @@ import {
   Team,
   User,
 } from "../../../definition/types"
-import { createGitHubService, GitHubService } from "../../../github/service"
+import { createGitHubService, GitHubService } from "../../../github"
 import {
   OrgsGetResponse,
   Permission,
@@ -29,9 +29,9 @@ import {
   TeamMemberOrInvited,
   TeamsListResponseItem,
 } from "../../../github/types"
-import { createSnykService, SnykService } from "../../../snyk/service"
-import { SnykGitHubRepo } from "../../../snyk/types"
-import { getGitHubRepo } from "../../../snyk/util"
+import { createSnykService, SnykService } from "../../../snyk"
+import { SnykGitHubRepo } from "../../../snyk"
+import { getGitHubRepo } from "../../../snyk"
 import { Reporter } from "../../reporter"
 import {
   createCacheProvider,

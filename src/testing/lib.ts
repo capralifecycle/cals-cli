@@ -486,7 +486,7 @@ export async function getDockerHostAddress(): Promise<string> {
       return res.stdout
         .split("\n")
         .filter((it) => it.includes("default via"))
-        .map((it) => /default via ([\d\.]+) /.exec(it)![1])[0]
+        .map((it) => /default via ([\d.]+) /.exec(it)![1])[0]
     } catch {
       throw new Error("Failed to extract docker host address")
     }

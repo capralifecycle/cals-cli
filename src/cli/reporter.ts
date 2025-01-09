@@ -21,12 +21,9 @@ export class Reporter {
 
   public stdout = process.stdout
   public stderr = process.stderr
-  public stdin = process.stdin
-  public isTTY = this.stdout.isTTY
   public nonInteractive: boolean
   public isVerbose: boolean
   public format: typeof chalk = chalk
-  public startTime = Date.now()
 
   public error(msg: string): void {
     clearLine(this.stderr)
@@ -41,11 +38,6 @@ export class Reporter {
   public warn(msg: string): void {
     clearLine(this.stderr)
     this.stderr.write(`${this.format.yellow("warning")} ${msg}\n`)
-  }
-
-  public success(msg: string): void {
-    clearLine(this.stdout)
-    this.stdout.write(`${this.format.green("success")} ${msg}\n`)
   }
 
   public info(msg: string): void {

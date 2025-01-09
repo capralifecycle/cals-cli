@@ -3,7 +3,7 @@ import { deprecate } from "util"
 import { Arguments, Options } from "yargs"
 import { CacheProvider } from "../cache"
 import { Config } from "../config"
-import { DefinitionFile } from "../definition/definition"
+import { DefinitionFile } from "../definition"
 import { Reporter } from "./reporter"
 
 export function createReporter(argv: Record<string, unknown>): Reporter {
@@ -42,7 +42,7 @@ export const definitionFileOptionName = "definition-file"
 export const definitionFileOptionValue: Options = {
   describe:
     "Path to definition file, which should be the latest resources.yaml file from https://github.com/capralifecycle/resources-definition",
-  required: true,
+  demandOption: true,
   type: "string",
 }
 

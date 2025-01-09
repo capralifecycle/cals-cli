@@ -6,7 +6,7 @@ import path from "path"
 import read from "read"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
-import { DefinitionFile, getRepos } from "../../../definition/definition"
+import { DefinitionFile, getRepos } from "../../../definition"
 import {
   Definition,
   DefinitionRepo,

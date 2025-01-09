@@ -2,13 +2,10 @@ import fs from "fs"
 import path from "path"
 import { sprintf } from "sprintf-js"
 import yargs, { CommandModule } from "yargs"
-import {
-  createCacheProvider,
-  createConfig,
-  createReporter,
-} from "../../../cli/util"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 import { Config } from "../../../config"
-import { createGitHubService, GitHubService } from "../../../github/service"
+import { createGitHubService, GitHubService } from "../../../github"
+
 import { getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"
 import { hideBin } from "yargs/helpers"
@@ -80,7 +77,7 @@ const command: CommandModule = {
         describe: "Group to generate commands for",
       })
       .options("org", {
-        required: true,
+        demandOption: true,
         describe: "Specify GitHub organization",
         type: "string",
       })

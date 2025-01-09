@@ -1,5 +1,5 @@
 import { CommandModule } from "yargs"
-import { createReporter } from "../../cli/util"
+import { createReporter } from "../util"
 
 const command: CommandModule = {
   command: "getting-started",

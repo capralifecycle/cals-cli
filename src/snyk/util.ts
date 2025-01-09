@@ -19,7 +19,7 @@ export function getGitHubRepo(
     snykProject.origin === "cli" &&
     snykProject.remoteRepoUrl != null
   ) {
-    // The remoteRepoUrl can be overriden when using the CLI, so don't
+    // The remoteRepoUrl can be overridden when using the CLI, so don't
     // fail if we cannot extract the value.
 
     const match = /github.com\/([^/]+)\/(.+)\.git$/.exec(

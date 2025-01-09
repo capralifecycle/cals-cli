@@ -1,9 +1,9 @@
 import pLimit, { Limit } from "p-limit"
 import read from "read"
 import { CommandModule } from "yargs"
-import { Reporter } from "../../../cli/reporter"
-import { getGitHubOrgs } from "../../../definition/definition"
-import { Definition } from "../../../definition/types"
+import { Reporter } from "../../reporter"
+import { getGitHubOrgs } from "../../../definition"
+import { Definition } from "../../../definition"
 import {
   cleanupChangeSetItems,
   createChangeSetItemsForMembers,

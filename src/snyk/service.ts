@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
 import { Config } from "../config"
-import { Definition } from "../definition/types"
+import { Definition } from "../definition"
 import { SnykTokenCliProvider, SnykTokenProvider } from "./token"
 import { RestAPIProject, ProjectResponse, SnykProject } from "./types"
 

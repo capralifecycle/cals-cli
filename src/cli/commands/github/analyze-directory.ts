@@ -2,14 +2,10 @@ import fs from "fs"
 import path from "path"
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
-import { Reporter } from "../../../cli/reporter"
-import {
-  createCacheProvider,
-  createConfig,
-  createReporter,
-} from "../../../cli/util"
+import { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 import { Config } from "../../../config"
-import { createGitHubService, GitHubService } from "../../../github/service"
+import { createGitHubService, GitHubService } from "../../../github"
 import { Repo } from "../../../github/types"
 
 async function analyzeDirectory(

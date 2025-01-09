@@ -39,6 +39,7 @@ describe("getGitHubRepo", () => {
   })
 
   it("can extract value for cli project with http url", () => {
+    // noinspection HttpUrlsUsage
     const project = {
       origin: "cli",
       remoteRepoUrl: "http://github.com/capralifecycle/some-repo.git",

@@ -1,11 +1,11 @@
 import { groupBy, repeat, sortBy, sumBy } from "lodash-es"
 import { sprintf } from "sprintf-js"
 import { CommandModule } from "yargs"
-import { DefinitionFile, getRepos } from "../../../definition/definition"
-import { Project } from "../../../definition/types"
-import { createSnykService, SnykService } from "../../../snyk/service"
-import { SnykProject } from "../../../snyk/types"
-import { getGitHubRepo, getGitHubRepoId } from "../../../snyk/util"
+import { DefinitionFile, getRepos } from "../../../definition"
+import { Project } from "../../../definition"
+import { createSnykService, SnykService } from "../../../snyk"
+import { SnykProject } from "../../../snyk"
+import { getGitHubRepo, getGitHubRepoId } from "../../../snyk"
 import { Reporter } from "../../reporter"
 import {
   createConfig,

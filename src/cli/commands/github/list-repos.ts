@@ -1,5 +1,5 @@
 import { CommandModule } from "yargs"
-import { createGitHubService, GitHubService } from "../../../github/service"
+import { createGitHubService, GitHubService } from "../../../github"
 import { Repo } from "../../../github/types"
 import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
 import { Reporter } from "../../reporter"

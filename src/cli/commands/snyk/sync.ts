@@ -1,12 +1,8 @@
 import { CommandModule } from "yargs"
-import {
-  DefinitionFile,
-  getRepoId,
-  getRepos,
-} from "../../../definition/definition"
-import { createSnykService, SnykService } from "../../../snyk/service"
-import { SnykGitHubRepo } from "../../../snyk/types"
-import { getGitHubRepo } from "../../../snyk/util"
+import { DefinitionFile, getRepoId, getRepos } from "../../../definition"
+import { createSnykService, SnykService } from "../../../snyk"
+import { SnykGitHubRepo } from "../../../snyk"
+import { getGitHubRepo } from "../../../snyk"
 import { Reporter } from "../../reporter"
 import {
   createConfig,
