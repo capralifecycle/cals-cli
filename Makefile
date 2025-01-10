@@ -17,6 +17,10 @@ test:
 lint:
 	npm run lint
 
+.PHONY: lint-fix
+lint-fix:
+	npm run lint:fix
+
 .PHONY: format
 format:
 	npm run prettier
