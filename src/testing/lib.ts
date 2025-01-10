@@ -1,7 +1,7 @@
 import { execa, type Subprocess } from "execa"
 import fs from "node:fs"
 import { performance } from "perf_hooks"
-import read from "read"
+import { read } from "read"
 import { Transform } from "stream"
 import { TestExecutor } from "./executor"
 import { Buffer } from "node:buffer"
@@ -500,19 +500,8 @@ export async function getDockerHostAddress(): Promise<string> {
 export async function waitForEnterToContinue(
   prompt = "Press enter to continue",
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
-    read(
-      {
-        prompt,
-        silent: true,
-      },
-      (err) => {
-        if (err) {
-          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-          reject(err)
-        }
-        resolve()
-      },
-    )
+  await read({
+    prompt,
+    silent: true,
   })
 }

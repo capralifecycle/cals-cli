@@ -1,4 +1,4 @@
-import read from "read"
+import { read } from "read"
 import { CommandModule } from "yargs"
 import { GitHubTokenCliProvider } from "../../../github/token"
 import { Reporter } from "../../reporter"
@@ -18,22 +18,11 @@ async function setToken({
     reporter.info(
       "https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook",
     )
-
-    token = await new Promise<string>((resolve, reject) => {
-      read(
-        {
-          prompt: "Enter new GitHub API token: ",
-          silent: true,
-        },
-        (err, answer) => {
-          if (err) {
-            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-            reject(err)
-          }
-          resolve(answer)
-        },
-      )
+    const inputToken = await read({
+      prompt: "Enter new GitHub API token: ",
+      silent: true,
     })
+    token = inputToken
   }
 
   await tokenProvider.setToken(token)

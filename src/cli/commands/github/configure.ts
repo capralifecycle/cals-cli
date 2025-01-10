@@ -1,9 +1,8 @@
 import pLimit from "p-limit"
-import read from "read"
+import { read } from "read"
 import { CommandModule } from "yargs"
 import { Reporter } from "../../reporter"
-import { getGitHubOrgs } from "../../../definition"
-import { Definition } from "../../../definition"
+import { Definition, getGitHubOrgs } from "../../../definition"
 import {
   cleanupChangeSetItems,
   createChangeSetItemsForMembers,
@@ -115,23 +114,12 @@ async function process(
   }
 
   if (execute && changes.length > 0) {
-    const cont = await new Promise<string>((resolve, reject) => {
-      read(
-        {
-          prompt: "Confirm you want to execute the changes [y/N]: ",
-          timeout: 60000,
-        },
-        (err, answer) => {
-          if (err) {
-            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-            reject(err)
-          }
-          resolve(answer)
-        },
-      )
+    const answer: string = await read({
+      prompt: "Confirm you want to execute the changes [y/N]: ",
+      timeout: 60000,
     })
 
-    if (cont === "y" || cont === "Y") {
+    if (answer.toLowerCase() === "y") {
       reporter.info("Executing changes")
       await executeChangeSet(github, changes, reporter)
     } else {

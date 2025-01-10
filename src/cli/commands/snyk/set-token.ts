@@ -1,4 +1,4 @@
-import read from "read"
+import { read } from "read"
 import { CommandModule } from "yargs"
 import { SnykTokenCliProvider } from "../../../snyk/token"
 import { Reporter } from "../../reporter"
@@ -16,22 +16,12 @@ async function setToken({
   if (token === undefined) {
     reporter.info("Need API token to talk to Snyk")
     reporter.info("See https://app.snyk.io/account")
-
-    token = await new Promise<string>((resolve, reject) => {
-      read(
-        {
-          prompt: "Enter new Snyk API token: ",
-          silent: true,
-        },
-        (err, answer) => {
-          if (err) {
-            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-            reject(err)
-          }
-          resolve(answer)
-        },
-      )
+    // noinspection UnnecessaryLocalVariableJS
+    const inputToken = await read({
+      prompt: "Enter new Snyk API token: ",
+      silent: true,
     })
+    token = inputToken
   }
 
   await tokenProvider.setToken(token)
