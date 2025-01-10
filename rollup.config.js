@@ -4,7 +4,7 @@ import replace from "@rollup/plugin-replace"
 import typescript from "rollup-plugin-typescript2"
 import dateFormat from "dateformat"
 import path from "path"
-import pkg from "./package.json"
+import pkg from "./package.json" with { type: "json" }
 
 const external = [
   "assert",
