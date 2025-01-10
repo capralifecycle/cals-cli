@@ -1,6 +1,5 @@
 import fs from "node:fs"
 import path from "path"
-import rimraf from "rimraf"
 import { Config } from "./config"
 
 interface CacheItem<T> {
@@ -77,6 +76,6 @@ export class CacheProvider {
    * Delete all cached data.
    */
   public cleanup(): void {
-    rimraf.sync(this.config.cacheDir)
+    fs.rmSync(this.config.cacheDir, { recursive: true, force: true })
   }
 }
