@@ -1,3 +1,4 @@
+import process from "node:process"
 export interface SonarCloudTokenProvider {
   getToken(): Promise<string | undefined>
   markInvalid(): Promise<void>

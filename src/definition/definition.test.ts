@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 import { rm } from "node:fs/promises"
 import tempy from "tempy"
 import { DefinitionFile, schema } from "./definition"

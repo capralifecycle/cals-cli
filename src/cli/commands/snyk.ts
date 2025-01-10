@@ -3,6 +3,7 @@ import report from "./snyk/report"
 import setToken from "./snyk/set-token"
 import sync from "./snyk/sync"
 import { hideBin } from "yargs/helpers"
+import process from "node:process"
 
 const command: CommandModule = {
   command: "snyk",

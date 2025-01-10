@@ -1,5 +1,6 @@
 import chalk from "chalk"
 import readline from "readline"
+import process from "node:process"
 
 const CLEAR_WHOLE_LINE = 0
 

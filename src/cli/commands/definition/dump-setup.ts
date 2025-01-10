@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 import yaml from "js-yaml"
 import pMap from "p-map"
 import { CommandModule } from "yargs"

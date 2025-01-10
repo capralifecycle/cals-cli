@@ -3,6 +3,7 @@ import { Config } from "../config"
 import { Definition } from "../definition"
 import { SnykTokenCliProvider, SnykTokenProvider } from "./token"
 import { RestAPIProject, ProjectResponse, SnykProject } from "./types"
+import process from "node:process"
 
 interface SnykServiceProps {
   config: Config
