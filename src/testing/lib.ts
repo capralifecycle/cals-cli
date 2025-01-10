@@ -1,4 +1,4 @@
-import execa from "execa"
+import { execa, type Subprocess } from "execa"
 import fs from "node:fs"
 import { performance } from "perf_hooks"
 import read from "read"
@@ -11,7 +11,7 @@ export interface Container {
   id: string
   name: string
   network: Network
-  process: execa.ExecaChildProcess
+  process: Subprocess
   executor: TestExecutor
 }
 
@@ -259,7 +259,7 @@ class OutputPrefixTransform extends Transform {
   }
 }
 
-function pipeToConsole(result: execa.ExecaChildProcess, name: string) {
+function pipeToConsole(result: Subprocess, name: string) {
   result.stdout
     ?.pipe(new OutputPrefixTransform(`${name}: `))
     .pipe(process.stdout)
