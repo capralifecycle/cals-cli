@@ -23,7 +23,7 @@
     "cals": "lib/cals-cli.mjs"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.0",
+    "@octokit/rest": "^21.0.0",
     "@types/dateformat": "5.0.3",
     "ajv": "^8.11.0",
     "cachedir": "^2.4.0",
@@ -51,7 +51,7 @@
     "@commitlint/config-conventional": "19.6.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.16.0",
-    "@octokit/types": "10.0.0",
+    "@octokit/types": "13.6.2",
     "@rollup/plugin-alias": "5.1.1",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-replace": "6.0.2",
