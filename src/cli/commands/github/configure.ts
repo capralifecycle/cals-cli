@@ -1,4 +1,4 @@
-import pLimit, { Limit } from "p-limit"
+import pLimit from "p-limit"
 import read from "read"
 import { CommandModule } from "yargs"
 import { Reporter } from "../../reporter"
@@ -37,7 +37,8 @@ function createOrgGetter(github: GitHubService) {
 
   // Use a semaphore for each orgName to restrict multiple
   // concurrent requests of the same org.
-  const semaphores: { [orgName: string]: Limit } = {}
+  const semaphores: Record<string, ReturnType<typeof pLimit>> = {}
+
   function getSemaphore(orgName: string) {
     if (!(orgName in semaphores)) {
       semaphores[orgName] = pLimit(1)
