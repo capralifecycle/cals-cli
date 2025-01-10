@@ -1,4 +1,4 @@
-import findUp from "find-up"
+import { findUp } from "find-up"
 import fs from "node:fs"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
