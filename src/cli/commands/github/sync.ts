@@ -3,7 +3,7 @@ import fs from "node:fs"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
 import path from "path"
-import read from "read"
+import { read } from "read"
 import { CommandModule } from "yargs"
 import { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition"
@@ -336,20 +336,9 @@ async function getExpectedRepos(
 }
 
 async function getInput(prompt: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    read(
-      {
-        prompt,
-        timeout: 60000,
-      },
-      (err, answer) => {
-        if (err) {
-          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-          reject(err)
-        }
-        resolve(answer)
-      },
-    )
+  return read({
+    prompt,
+    timeout: 60000,
   })
 }
 
