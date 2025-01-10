@@ -1,7 +1,7 @@
-import execa, { ExecaReturnValue } from "execa"
 import fs from "node:fs"
 import path from "path"
 import { getUpdateRange, parseShortlogSummary, wasUpdated } from "./util"
+import { execa, type Result } from "execa"
 
 export enum CloneType {
   HTTPS,
@@ -19,12 +19,9 @@ export interface UpdateResult {
 
 export class GitRepo {
   private readonly path: string
-  private readonly logCommand: (result: ExecaReturnValue) => Promise<void>
+  private readonly logCommand: (result: Result) => Promise<void>
 
-  constructor(
-    path: string,
-    logCommand: (result: ExecaReturnValue) => Promise<void>,
-  ) {
+  constructor(path: string, logCommand: (result: Result) => Promise<void>) {
     this.path = path
     this.logCommand = logCommand
   }
@@ -56,9 +53,9 @@ export class GitRepo {
     }
   }
 
-  private async git(args: string[]): Promise<ExecaReturnValue> {
+  private async git(args: string[]): Promise<Result> {
     try {
-      const result = await execa("git", args, {
+      const result: Result = await execa("git", args, {
         cwd: this.path,
       })
       await this.logCommand(result)
@@ -71,11 +68,20 @@ export class GitRepo {
   }
 
   async getCurrentBranch(): Promise<string> {
-    return (await this.git(["rev-parse", "--abbrev-ref", "HEAD"])).stdout
+    const result = await this.git(["rev-parse", "--abbrev-ref", "HEAD"])
+    // check if stdout is a string
+    if (typeof result.stdout !== "string") {
+      throw new Error("stdout is not a string")
+    }
+    return result.stdout
   }
 
   async hasChangesInProgress(): Promise<boolean> {
     const result = await this.git(["status", "--short"])
+
+    if (typeof result.stdout !== "string") {
+      throw new Error("stdout is not a string")
+    }
 
     // Ignore untracked files.
     return result.stdout.replace(/^\?\?.+$/gm, "").length > 0
@@ -83,6 +89,9 @@ export class GitRepo {
 
   async hasUnpushedCommits(): Promise<boolean> {
     const result = await this.git(["status", "-sb"])
+    if (typeof result.stdout !== "string") {
+      throw new Error("stdout is not a string")
+    }
     return result.stdout.includes("[ahead")
   }
 
@@ -97,6 +106,10 @@ export class GitRepo {
       "-s",
       `${range.from}..${range.to}`,
     ])
+
+    if (typeof result.stdout !== "string") {
+      throw new Error("stdout is not a string")
+    }
 
     return parseShortlogSummary(result.stdout)
   }
@@ -125,6 +138,9 @@ export class GitRepo {
     // })
 
     const result = await this.git(["pull", "--rebase"])
+    if (typeof result.stdout !== "string") {
+      throw new Error("stdout is not a string")
+    }
 
     return {
       dirty: false,
