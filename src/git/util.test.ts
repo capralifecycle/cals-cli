@@ -1,4 +1,5 @@
 import { getCompareLink, getUpdateRange, parseShortlogSummary } from "./util"
+import { it, expect, describe } from "vitest"
 
 describe("getUpdateRange", () => {
   it("should return range when given proper text", () => {

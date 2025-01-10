@@ -1,5 +1,5 @@
 import AJV from "ajv"
-import fs from "fs"
+import fs from "node:fs"
 import yaml from "js-yaml"
 import schema from "../definition-schema.json"
 import { Definition, GetReposResponse } from "./types"

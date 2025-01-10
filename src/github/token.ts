@@ -1,4 +1,5 @@
 import keytar from "keytar"
+import process from "node:process"
 
 export interface GitHubTokenProvider {
   getToken(): Promise<string | undefined>

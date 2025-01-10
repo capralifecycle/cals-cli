@@ -8,6 +8,7 @@ import listWebhooks from "./github/list-webhooks"
 import setToken from "./github/set-token"
 import sync from "./github/sync"
 import { hideBin } from "yargs/helpers"
+import process from "node:process"
 
 const command: CommandModule = {
   command: "github",

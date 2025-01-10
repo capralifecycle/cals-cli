@@ -1,9 +1,11 @@
 import execa from "execa"
-import fs from "fs"
+import fs from "node:fs"
 import { performance } from "perf_hooks"
 import read from "read"
 import { Transform } from "stream"
 import { TestExecutor } from "./executor"
+import { Buffer } from "node:buffer"
+import process from "node:process"
 
 export interface Container {
   id: string

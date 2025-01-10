@@ -1,8 +1,9 @@
-import fs from "fs"
+import fs from "node:fs"
 import { rm } from "node:fs/promises"
 import tempy from "tempy"
 import { DefinitionFile, schema } from "./definition"
 import { Definition } from "./types"
+import { it, expect, describe } from "vitest"
 
 describe("definition", () => {
   it("should error on reading invalid file", async () => {
@@ -19,7 +20,7 @@ describe("definition", () => {
     await expect(
       definitionFile.getDefinition(),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Definition content invalid: data must have required property 'github', data must have required property 'projects'"`,
+      `[Error: Definition content invalid: data must have required property 'github', data must have required property 'projects']`,
     )
 
     await rm(tmp, { force: true })

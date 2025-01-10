@@ -7,6 +7,7 @@ import deleteCache from "./commands/delete-cache"
 import gettingStarted from "./commands/getting-started"
 import github from "./commands/github"
 import snyk from "./commands/snyk"
+import process from "node:process"
 
 declare const BUILD_TIMESTAMP: string
 

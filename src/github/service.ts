@@ -24,6 +24,7 @@ import {
 import { undefinedForNotFound } from "./util"
 import * as process from "process"
 import { performance } from "perf_hooks"
+import { Buffer } from "node:buffer"
 
 interface SearchedPullRequestListQueryResult {
   search: {
