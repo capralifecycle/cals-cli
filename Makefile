@@ -27,4 +27,4 @@ format:
 
 .PHONY: clean
 clean:
-	rm -rf lib
+	rm -rf lib coverage

@@ -1,21 +1,29 @@
-import fs from "node:fs"
+import { promises as fsPromises } from "node:fs"
 import { rm } from "node:fs/promises"
-import tempy from "tempy"
 import { DefinitionFile, schema } from "./definition"
 import { Definition } from "./types"
 import { it, expect, describe } from "vitest"
+import { tmpdir } from "os"
+import { join } from "path"
+
+async function createTempFile(): Promise<string> {
+  const tmpDir = await fsPromises.mkdtemp(join(tmpdir(), "temp-"))
+  const tempFilePath = join(tmpDir, "cals-cli")
+  await fsPromises.writeFile(tempFilePath, "") // Create an empty file
+  return tempFilePath
+}
 
 describe("definition", () => {
   it("should error on reading invalid file", async () => {
-    const tmp = tempy.file()
-    await fs.promises.writeFile(
-      tmp,
+    const tmpFile = await createTempFile()
+    await fsPromises.writeFile(
+      tmpFile,
       JSON.stringify({
         some: "invalid",
       }),
     )
 
-    const definitionFile = new DefinitionFile(tmp)
+    const definitionFile = new DefinitionFile(tmpFile)
 
     await expect(
       definitionFile.getDefinition(),
@@ -23,7 +31,7 @@ describe("definition", () => {
       `[Error: Definition content invalid: data must have required property 'github', data must have required property 'projects']`,
     )
 
-    await rm(tmp, { force: true })
+    await rm(tmpFile, { force: true })
   })
 
   it("should successfully parse correct file", async () => {
@@ -49,13 +57,13 @@ describe("definition", () => {
       ],
     }
 
-    const tmp = tempy.file()
-    await fs.promises.writeFile(tmp, JSON.stringify(data))
+    const tmpFile = await createTempFile()
+    await fsPromises.writeFile(tmpFile, JSON.stringify(data))
 
-    const definitionFile = new DefinitionFile(tmp)
+    const definitionFile = new DefinitionFile(tmpFile)
     await expect(definitionFile.getDefinition()).resolves.toStrictEqual(data)
 
-    await rm(tmp, { force: true })
+    await rm(tmpFile, { force: true })
   })
 
   it("should match expected schema", () => {
