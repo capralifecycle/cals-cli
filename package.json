@@ -73,7 +73,7 @@
     "eslint-plugin-prettier": "5.2.3",
     "husky": "9.1.7",
     "prettier": "3.4.2",
-    "rollup": "4.34.1",
+    "rollup": "4.34.2",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "24.2.1",
     "tsx": "4.19.2",
