@@ -23,7 +23,7 @@
     "cals": "lib/cals-cli.mjs"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.0",
+    "@octokit/rest": "^21.1.1",
     "@types/dateformat": "5.0.3",
     "ajv": "^8.11.0",
     "cachedir": "^2.4.0",
