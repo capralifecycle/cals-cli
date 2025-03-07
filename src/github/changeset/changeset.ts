@@ -1,5 +1,4 @@
 import pMap from "p-map"
-import { getGitHubOrgs, getRepos } from "../../definition"
 import {
   Definition,
   DefinitionRepo,
@@ -10,7 +9,6 @@ import {
 import { GitHubService } from "../service"
 import { OrgsGetResponse, Permission, ReposGetResponse } from "../types"
 import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
-import { sortBy } from "../../collections/collections"
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,
@@ -49,27 +47,6 @@ function getChangedRepoAttribs(
   return attribs
 }
 
-async function getUnknownRepos(
-  github: GitHubService,
-  definition: Definition,
-  limitToOrg: string | undefined,
-) {
-  const knownRepos = getRepos(definition).map((it) => it.id)
-  const orgs = getGitHubOrgs(definition).filter(
-    (orgName) => limitToOrg === undefined || limitToOrg === orgName,
-  )
-
-  const orgRepoList = await pMap(orgs, (orgName) =>
-    github.getOrgRepoList({ org: orgName }),
-  )
-
-  return sortBy(
-    orgRepoList
-      .flat()
-      .filter((it) => !knownRepos.includes(`${it.owner.login}/${it.name}`)),
-    (it) => `${it.owner.login}/${it.name}`,
-  )
-}
 /**
  * Get teams from both the project level and the repository level
  * and ensure that repository level override project level.
@@ -220,15 +197,6 @@ export async function createChangeSetItemsForProjects(
       .flat()
       .flat(),
   )
-
-  const unknownRepos = await getUnknownRepos(github, definition, limitToOrg)
-  for (const it of unknownRepos) {
-    changes.push({
-      type: "repo-delete",
-      org: it.owner.login,
-      repo: it.name,
-    })
-  }
 
   return changes
 }

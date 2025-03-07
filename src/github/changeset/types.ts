@@ -8,12 +8,6 @@ export interface RepoCreateItem {
   repo: string
 }
 
-export interface RepoDeleteItem {
-  type: "repo-delete"
-  org: string
-  repo: string
-}
-
 export interface RepoAttribUpdateItem {
   type: "repo-update"
   org: string
@@ -109,7 +103,6 @@ export interface TeamMemberPermissionItem {
  */
 export type ChangeSetItem =
   | RepoCreateItem
-  | RepoDeleteItem
   | RepoAttribUpdateItem
   | RepoTeamPermissionItem
   | RepoTeamAddItem

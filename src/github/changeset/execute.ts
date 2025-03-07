@@ -5,7 +5,7 @@ import {
   ReposUpdateParams,
   TeamsListResponseItem,
 } from "../types"
-import { ChangeSetItem, RepoCreateItem, RepoDeleteItem } from "./types"
+import { ChangeSetItem, RepoCreateItem } from "./types"
 
 function buildLookup(github: GitHubService) {
   // We operate using the Octokit SDK, so cache the objects to avoid
@@ -45,11 +45,10 @@ function buildLookup(github: GitHubService) {
   }
 }
 
-type NotImplementedChangeSetItem = RepoCreateItem | RepoDeleteItem
+type NotImplementedChangeSetItem = RepoCreateItem
 
 const notImplementedChangeSetItems: NotImplementedChangeSetItem["type"][] = [
   "repo-create",
-  "repo-delete",
 ]
 
 export function isNotImplementedChangeSetItem(
