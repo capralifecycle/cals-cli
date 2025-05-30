@@ -39,7 +39,7 @@
     "read": "^4.0.0",
     "semver": "^7.6.2",
     "sprintf-js": "^1.1.2",
-    "yargs": "17.7.2"
+    "yargs": "18.0.0"
   },
   "overrides": {
     "semantic-release": {
