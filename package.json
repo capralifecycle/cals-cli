@@ -70,7 +70,7 @@
     "dateformat": "5.0.3",
     "eslint": "9.27.0",
     "eslint-config-prettier": "10.1.5",
-    "eslint-plugin-prettier": "5.4.0",
+    "eslint-plugin-prettier": "5.4.1",
     "husky": "9.1.7",
     "prettier": "3.5.3",
     "rollup": "4.41.1",
