@@ -140,7 +140,6 @@ export class GitHubService {
     this.semaphore = pLimit(6)
 
     this.octokit.hook.wrap("request", async (request, options) => {
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       this._requestCount++
 
       if (options.method !== "GET") {
@@ -150,10 +149,8 @@ export class GitHubService {
       // Try to cache ETag for GET requests to save on rate limiting.
       // Hits on ETag does not count towards rate limiting.
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const rest = {
         ...options,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any
       delete rest.method
       delete rest.baseUrl
@@ -216,7 +213,6 @@ export class GitHubService {
       }
 
       return response
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     })
   }
 
@@ -274,7 +270,6 @@ export class GitHubService {
 
     const json = (await response.json()) as {
       data?: T | null
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errors?: any
     }
 
@@ -627,7 +622,6 @@ export class GitHubService {
 
       return true
     } catch (e) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (e.status === 404) {
         return false
       }

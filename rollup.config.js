@@ -17,7 +17,6 @@ const external = [
   "stream",
   "util",
   ...Object.keys(pkg.dependencies || {}),
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   ...Object.keys(pkg.peerDependencies || {}),
 ]
 
@@ -35,7 +34,6 @@ const plugins = [
   json(),
   replace({
     BUILD_TIMESTAMP: JSON.stringify(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       dateFormat(new Date(), "isoDateTime", true),
     ),
     preventAssignment: true,

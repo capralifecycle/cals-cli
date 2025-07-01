@@ -379,13 +379,9 @@ async function dumpSetup(
   //  package. However it often produced invalid yaml, so we have removed
   //  it. We might want to revisit it to preserve comments.
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any
   const doc = yaml.load(await definitionFile.getContents()) as any
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.snyk = generatedDefinition.snyk
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.projects = generatedDefinition.projects
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   doc.github = generatedDefinition.github
 
   // Convert to/from plain JSON so that undefined elements are removed.

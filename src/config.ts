@@ -30,7 +30,6 @@ export class Config {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return JSON.parse(fs.readFileSync(this.configFile, "utf-8"))
     } catch (e) {
       console.error("Failed", e)

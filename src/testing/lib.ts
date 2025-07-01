@@ -443,7 +443,6 @@ export async function startContainer({
     try {
       await r
     } catch (e) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       if (!(e.stderr || "").includes("No such container")) {
         throw e
       }

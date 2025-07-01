@@ -75,7 +75,6 @@ export async function undefinedForNotFound<T>(
   try {
     return await value
   } catch (e) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (e.name === "HttpError" && e.status === 404) {
       return undefined
     }
