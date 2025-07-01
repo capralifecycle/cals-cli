@@ -1,4 +1,4 @@
-import { Permission } from "../github/types"
+import type { Permission } from "../github/types"
 
 export interface Definition {
   snyk?: {

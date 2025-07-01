@@ -1,11 +1,11 @@
-import { Reporter } from "../../cli/reporter"
-import { GitHubService } from "../service"
-import {
+import type { Reporter } from "../../cli/reporter"
+import type { GitHubService } from "../service"
+import type {
   OrgsGetResponse,
   ReposUpdateParams,
   TeamsListResponseItem,
 } from "../types"
-import { ChangeSetItem, RepoCreateItem } from "./types"
+import type { ChangeSetItem, RepoCreateItem } from "./types"
 
 function buildLookup(github: GitHubService) {
   // We operate using the Octokit SDK, so cache the objects to avoid
@@ -134,7 +134,7 @@ async function executeChangeSetItem(
       })
       return true
 
-    case "repo-update":
+    case "repo-update": {
       const upd: ReposUpdateParams = {
         owner: changeItem.org,
         repo: changeItem.repo,
@@ -154,6 +154,7 @@ async function executeChangeSetItem(
 
       await github.octokit.repos.update(upd)
       return true
+    }
 
     case "repo-team-remove":
       await github.octokit.teams.removeRepoInOrg({

@@ -1,11 +1,11 @@
-import { execa, type Subprocess } from "execa"
+import type { Buffer } from "node:buffer"
 import fs from "node:fs"
+import process from "node:process"
+import { execa, type Subprocess } from "execa"
 import { performance } from "perf_hooks"
 import { read } from "read"
 import { Transform } from "stream"
-import { TestExecutor } from "./executor"
-import { Buffer } from "node:buffer"
-import process from "node:process"
+import type { TestExecutor } from "./executor"
 
 export interface Container {
   id: string
@@ -25,8 +25,8 @@ export interface Network {
  * Gives a value formatted as "yyyymmdd-xxxxxx", e.g. "20200523-3f2c87".
  */
 function generateRunId(): string {
-  const low = parseInt("100000", 16)
-  const high = parseInt("ffffff", 16)
+  const low = 0x100000
+  const high = 0xffffff
   const range = high - low + 1
   const now = new Date()
   return [

@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest"
 import { reorderListToSimilarAsBefore } from "./util"
-import { it, expect, describe } from "vitest"
 
 describe("function reorderListToSimilarAsBefore", () => {
   describe("having the same list", () => {

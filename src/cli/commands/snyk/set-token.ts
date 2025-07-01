@@ -1,7 +1,7 @@
 import { read } from "read"
-import { CommandModule } from "yargs"
+import type { CommandModule } from "yargs"
 import { SnykTokenCliProvider } from "../../../snyk/token"
-import { Reporter } from "../../reporter"
+import type { Reporter } from "../../reporter"
 import { createReporter } from "../../util"
 
 async function setToken({

@@ -1,12 +1,19 @@
-import { sumBy } from "../../../collections/collections"
 import { sprintf } from "sprintf-js"
-import { CommandModule } from "yargs"
-import { DefinitionFile, getRepos } from "../../../definition"
-import { Project } from "../../../definition"
-import { createSnykService, SnykService } from "../../../snyk"
-import { SnykProject } from "../../../snyk"
-import { getGitHubRepo, getGitHubRepoId } from "../../../snyk"
-import { Reporter } from "../../reporter"
+import type { CommandModule } from "yargs"
+import { groupBy, sortBy, sumBy } from "../../../collections/collections"
+import {
+  type DefinitionFile,
+  getRepos,
+  type Project,
+} from "../../../definition"
+import {
+  createSnykService,
+  getGitHubRepo,
+  getGitHubRepoId,
+  type SnykProject,
+  type SnykService,
+} from "../../../snyk"
+import type { Reporter } from "../../reporter"
 import {
   createConfig,
   createReporter,
@@ -14,7 +21,6 @@ import {
   definitionFileOptionValue,
   getDefinitionFile,
 } from "../../util"
-import { groupBy, sortBy } from "../../../collections/collections"
 
 function totalSeverityCount(project: SnykProject) {
   return (

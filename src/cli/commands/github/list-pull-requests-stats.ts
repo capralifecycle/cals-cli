@@ -1,7 +1,7 @@
 import { sprintf } from "sprintf-js"
-import { CommandModule } from "yargs"
-import { createGitHubService, GitHubService } from "../../../github"
-import { Reporter } from "../../reporter"
+import type { CommandModule } from "yargs"
+import { createGitHubService, type GitHubService } from "../../../github"
+import type { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 async function listPullRequestsStats({

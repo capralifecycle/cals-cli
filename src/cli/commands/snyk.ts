@@ -1,15 +1,19 @@
-import yargs, { CommandModule } from "yargs"
+import process from "node:process"
+import yargs, { type CommandModule } from "yargs"
+import { hideBin } from "yargs/helpers"
 import report from "./snyk/report"
 import setToken from "./snyk/set-token"
 import sync from "./snyk/sync"
-import { hideBin } from "yargs/helpers"
-import process from "node:process"
 
 const command: CommandModule = {
   command: "snyk",
   describe: "Integration with Snyk",
   builder: (yargs) =>
-    yargs.command(setToken).command(report).command(sync).demandCommand()
+    yargs
+      .command(setToken)
+      .command(report)
+      .command(sync)
+      .demandCommand()
       .usage(`cals snyk
 
 Notes:

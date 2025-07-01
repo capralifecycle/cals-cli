@@ -1,23 +1,26 @@
-import { findUp } from "find-up"
 import fs from "node:fs"
+import process from "node:process"
+import { findUp } from "find-up"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
 import path from "path"
 import { read } from "read"
-import { CommandModule } from "yargs"
-import { Config } from "../../../config"
+import type { CommandModule } from "yargs"
+import type { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition"
-import {
+import type {
   Definition,
   DefinitionRepo,
   GetReposResponse,
 } from "../../../definition/types"
-import { CloneType, GitRepo, UpdateResult } from "../../../git/GitRepo"
+import { CloneType, GitRepo, type UpdateResult } from "../../../git/GitRepo"
 import { getCompareLink } from "../../../git/util"
-import { createGitHubService, GitHubService } from "../../../github/service"
-import { Reporter } from "../../reporter"
+import {
+  createGitHubService,
+  type GitHubService,
+} from "../../../github/service"
+import type { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
-import process from "node:process"
 
 const CALS_YAML = ".cals.yaml"
 const CALS_LOG = ".cals.log"
@@ -128,9 +131,8 @@ function formatAuthorAndCount(
 
   if (isBotAuthor(name)) {
     return reporter.format.grey(text)
-  } else {
-    return reporter.format.greenBright(text)
   }
+  return reporter.format.greenBright(text)
 }
 
 async function updateRepos(reporter: Reporter, foundRepos: ActualRepo[]) {
@@ -580,7 +582,8 @@ const command: CommandModule = {
       .option("ask-move", {
         describe: "Ask to actual move renamed repos",
         type: "boolean",
-      }).usage(`cals github sync
+      })
+      .usage(`cals github sync
 
 Synchronize all checked out GitHub repositories within the working directory
 grouped by the project in the resource definition file. The command can also

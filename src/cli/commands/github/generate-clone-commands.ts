@@ -1,15 +1,14 @@
 import fs from "node:fs"
+import process from "node:process"
 import path from "path"
 import { sprintf } from "sprintf-js"
-import yargs, { CommandModule } from "yargs"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
-import { Config } from "../../../config"
-import { createGitHubService, GitHubService } from "../../../github"
-
-import { getGroupedRepos, includesTopic } from "../../../github/util"
-import { Reporter } from "../../reporter"
+import yargs, { type CommandModule } from "yargs"
 import { hideBin } from "yargs/helpers"
-import process from "node:process"
+import type { Config } from "../../../config"
+import { createGitHubService, type GitHubService } from "../../../github"
+import { getGroupedRepos, includesTopic } from "../../../github/util"
+import type { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 async function generateCloneCommands({
   reporter,

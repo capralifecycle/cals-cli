@@ -1,10 +1,10 @@
 import { promises as fsPromises } from "node:fs"
 import { rm } from "node:fs/promises"
-import { DefinitionFile, schema } from "./definition"
-import { Definition } from "./types"
-import { it, expect, describe } from "vitest"
 import { tmpdir } from "os"
 import { join } from "path"
+import { describe, expect, it } from "vitest"
+import { DefinitionFile, schema } from "./definition"
+import type { Definition } from "./types"
 
 async function createTempFile(): Promise<string> {
   const tmpDir = await fsPromises.mkdtemp(join(tmpdir(), "temp-"))

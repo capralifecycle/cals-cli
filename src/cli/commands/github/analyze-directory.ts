@@ -1,12 +1,12 @@
 import fs from "node:fs"
 import path from "path"
 import { sprintf } from "sprintf-js"
-import { CommandModule } from "yargs"
-import { Reporter } from "../../reporter"
+import type { CommandModule } from "yargs"
+import type { Config } from "../../../config"
+import { createGitHubService, type GitHubService } from "../../../github"
+import type { Repo } from "../../../github/types"
+import type { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
-import { Config } from "../../../config"
-import { createGitHubService, GitHubService } from "../../../github"
-import { Repo } from "../../../github/types"
 
 async function analyzeDirectory(
   reporter: Reporter,

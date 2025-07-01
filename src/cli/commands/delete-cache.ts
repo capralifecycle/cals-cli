@@ -1,4 +1,4 @@
-import { CommandModule } from "yargs"
+import type { CommandModule } from "yargs"
 import { createCacheProvider, createConfig, createReporter } from "../util"
 
 const command: CommandModule = {

@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "path"
-import { Config } from "./config"
+import type { Config } from "./config"
 
 interface CacheItem<T> {
   cacheTime: ReturnType<Date["getTime"]>
