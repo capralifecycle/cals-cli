@@ -1,8 +1,11 @@
-import fetch from "node-fetch"
-import { Config } from "../config"
-import { SonarCloudTokenCliProvider, SonarCloudTokenProvider } from "./token"
 import { Buffer } from "node:buffer"
 import process from "node:process"
+import fetch from "node-fetch"
+import type { Config } from "../config"
+import {
+  SonarCloudTokenCliProvider,
+  type SonarCloudTokenProvider,
+} from "./token"
 
 interface SonarCloudServiceProps {
   config: Config

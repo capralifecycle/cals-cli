@@ -37,6 +37,6 @@ export function parseShortlogSummary(value: string): {
   const matches = [...value.matchAll(/^\s*(\d+)\s+(.+)$/gm)]
   return matches.map((it) => ({
     name: it[2],
-    count: parseInt(it[1]),
+    count: Number.parseInt(it[1]),
   }))
 }

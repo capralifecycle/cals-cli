@@ -1,6 +1,6 @@
-import { SnykProject } from "./types"
+import { describe, expect, it } from "vitest"
+import type { SnykProject } from "./types"
 import { getGitHubRepo } from "./util"
-import { it, expect, describe } from "vitest"
 
 describe("getGitHubRepo", () => {
   it("can parse value that contains a file path", () => {

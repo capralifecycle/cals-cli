@@ -1,10 +1,10 @@
-import { CommandModule } from "yargs"
-import { createGitHubService, GitHubService } from "../../../github"
-import { Repo } from "../../../github/types"
-import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
-import { Reporter } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
 import process from "node:process"
+import type { CommandModule } from "yargs"
+import { createGitHubService, type GitHubService } from "../../../github"
+import type { Repo } from "../../../github/types"
+import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
+import type { Reporter } from "../../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 function getReposMissingGroup(repos: Repo[]) {
   return repos.filter((it) => getGroup(it) === null)
@@ -176,7 +176,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,
-      org: argv["org"] as string,
+      org: argv.org as string,
     })
   },
 }

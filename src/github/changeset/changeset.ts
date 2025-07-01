@@ -1,14 +1,14 @@
 import pMap from "p-map"
-import {
+import type {
   Definition,
   DefinitionRepo,
   Project,
   RepoTeam,
   Team,
 } from "../../definition/types"
-import { GitHubService } from "../service"
-import { OrgsGetResponse, Permission, ReposGetResponse } from "../types"
-import { ChangeSetItem, RepoAttribUpdateItem } from "./types"
+import type { GitHubService } from "../service"
+import type { OrgsGetResponse, Permission, ReposGetResponse } from "../types"
+import type { ChangeSetItem, RepoAttribUpdateItem } from "./types"
 
 function getChangedRepoAttribs(
   definitionRepo: DefinitionRepo,

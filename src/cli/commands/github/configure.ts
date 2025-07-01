@@ -1,8 +1,7 @@
 import pLimit from "p-limit"
 import { read } from "read"
-import { CommandModule } from "yargs"
-import { Reporter } from "../../reporter"
-import { Definition, getGitHubOrgs } from "../../../definition"
+import type { CommandModule } from "yargs"
+import { type Definition, getGitHubOrgs } from "../../../definition"
 import {
   cleanupChangeSetItems,
   createChangeSetItemsForMembers,
@@ -13,9 +12,16 @@ import {
   executeChangeSet,
   isNotImplementedChangeSetItem,
 } from "../../../github/changeset/execute"
-import { ChangeSetItem } from "../../../github/changeset/types"
-import { createGitHubService, GitHubService } from "../../../github/service"
-import { OrgsGetResponse, TeamsListResponseItem } from "../../../github/types"
+import type { ChangeSetItem } from "../../../github/changeset/types"
+import {
+  createGitHubService,
+  type GitHubService,
+} from "../../../github/service"
+import type {
+  OrgsGetResponse,
+  TeamsListResponseItem,
+} from "../../../github/types"
+import type { Reporter } from "../../reporter"
 import {
   createCacheProvider,
   createConfig,
@@ -45,8 +51,8 @@ function createOrgGetter(github: GitHubService) {
     return semaphores[orgName]
   }
 
-  return async function (orgName: string) {
-    return await getSemaphore(orgName)(async () => {
+  return async (orgName: string) =>
+    await getSemaphore(orgName)(async () => {
       if (!(orgName in orgs)) {
         const org = await github.getOrg(orgName)
         orgs[orgName] = {
@@ -56,7 +62,6 @@ function createOrgGetter(github: GitHubService) {
       }
       return orgs[orgName]
     })
-  }
 }
 
 async function process(
@@ -100,16 +105,16 @@ async function process(
   if (ignored.length > 0) {
     reporter.info("Not implemented:")
     for (const change of ignored) {
-      reporter.info("  - " + JSON.stringify(change))
+      reporter.info(`  - ${JSON.stringify(change)}`)
     }
   }
 
   if (changes.length === 0) {
-    reporter.info(`No actions to be performed`)
+    reporter.info("No actions to be performed")
   } else {
-    reporter.info(`To be performed:`)
+    reporter.info("To be performed:")
     for (const change of changes) {
-      reporter.info("  - " + JSON.stringify(change))
+      reporter.info(`  - ${JSON.stringify(change)}`)
     }
   }
 
@@ -161,8 +166,8 @@ const command: CommandModule = {
         github,
         definition,
         orgGetter,
-        !!argv["execute"],
-        argv["org"] as string | undefined,
+        !!argv.execute,
+        argv.org as string | undefined,
       )
     })
   },

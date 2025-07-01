@@ -1,4 +1,6 @@
-import yargs, { CommandModule } from "yargs"
+import process from "node:process"
+import yargs, { type CommandModule } from "yargs"
+import { hideBin } from "yargs/helpers"
 import analyzeDirectory from "./github/analyze-directory"
 import configure from "./github/configure"
 import generateCloneCommands from "./github/generate-clone-commands"
@@ -7,8 +9,6 @@ import listRepos from "./github/list-repos"
 import listWebhooks from "./github/list-webhooks"
 import setToken from "./github/set-token"
 import sync from "./github/sync"
-import { hideBin } from "yargs/helpers"
-import process from "node:process"
 
 const command: CommandModule = {
   command: "github",
@@ -23,7 +23,8 @@ const command: CommandModule = {
       .command(listWebhooks)
       .command(setToken)
       .command(sync)
-      .demandCommand().usage(`cals github
+      .demandCommand()
+      .usage(`cals github
 
 Notes:
   Before doing anything against GitHub you need to configure a token

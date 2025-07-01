@@ -1,4 +1,4 @@
-import { SnykGitHubRepo, SnykProject } from "./types"
+import type { SnykGitHubRepo, SnykProject } from "./types"
 
 export function getGitHubRepo(
   snykProject: SnykProject,
@@ -15,10 +15,8 @@ export function getGitHubRepo(
       owner: match[1],
       name: match[2],
     }
-  } else if (
-    snykProject.origin === "cli" &&
-    snykProject.remoteRepoUrl != null
-  ) {
+  }
+  if (snykProject.origin === "cli" && snykProject.remoteRepoUrl != null) {
     // The remoteRepoUrl can be overridden when using the CLI, so don't
     // fail if we cannot extract the value.
 
@@ -33,9 +31,8 @@ export function getGitHubRepo(
       owner: match[1],
       name: match[2],
     }
-  } else {
-    return undefined
   }
+  return undefined
 }
 
 export function getGitHubRepoId(

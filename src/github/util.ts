@@ -1,4 +1,4 @@
-import { Repo } from "./types"
+import type { Repo } from "./types"
 
 export function getGroup(repo: Repo): string | null {
   const projectTopics: string[] = []
@@ -78,8 +78,7 @@ export async function undefinedForNotFound<T>(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (e.name === "HttpError" && e.status === 404) {
       return undefined
-    } else {
-      throw e
     }
+    throw e
   }
 }

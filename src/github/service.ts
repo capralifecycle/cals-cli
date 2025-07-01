@@ -1,11 +1,14 @@
+import { Buffer } from "node:buffer"
+import { performance } from "node:perf_hooks"
 import { Octokit } from "@octokit/rest"
-import { EndpointOptions, OctokitResponse } from "@octokit/types"
+import type { EndpointOptions, OctokitResponse } from "@octokit/types"
 import fetch from "node-fetch"
-import pLimit, { LimitFunction } from "p-limit"
-import { CacheProvider } from "../cache"
-import { Config } from "../config"
-import { GitHubTokenCliProvider, GitHubTokenProvider } from "./token"
-import {
+import pLimit, { type LimitFunction } from "p-limit"
+import * as process from "process"
+import type { CacheProvider } from "../cache"
+import type { Config } from "../config"
+import { GitHubTokenCliProvider, type GitHubTokenProvider } from "./token"
+import type {
   OrgMemberOrInvited,
   OrgsGetResponse,
   OrgsListMembersResponseItem,
@@ -22,9 +25,6 @@ import {
   VulnerabilityAlert,
 } from "./types"
 import { undefinedForNotFound } from "./util"
-import * as process from "process"
-import { performance } from "perf_hooks"
-import { Buffer } from "node:buffer"
 
 interface SearchedPullRequestListQueryResult {
   search: {
@@ -278,7 +278,7 @@ export class GitHubService {
       errors?: any
     }
 
-    if (!!json.errors) {
+    if (json.errors) {
       throw new Error(
         `Error from GitHub GraphQL API: ${JSON.stringify(json.errors)}`,
       )
@@ -286,7 +286,7 @@ export class GitHubService {
 
     if (json.data == null) {
       throw new Error(
-        `No data received from GitHub GraphQL API (unknown reason)`,
+        "No data received from GitHub GraphQL API (unknown reason)",
       )
     }
 

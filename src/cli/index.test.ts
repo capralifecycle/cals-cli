@@ -1,5 +1,5 @@
 import "./"
-import { it, describe } from "vitest"
+import { describe, it } from "vitest"
 
 describe("cli", () => {
   it("should load properly", () => {

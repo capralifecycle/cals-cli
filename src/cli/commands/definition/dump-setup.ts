@@ -1,15 +1,15 @@
 import fs from "node:fs"
 import yaml from "js-yaml"
 import pMap from "p-map"
-import { CommandModule } from "yargs"
-import { Config } from "../../../config"
+import type { CommandModule } from "yargs"
+import type { Config } from "../../../config"
 import {
-  DefinitionFile,
+  type DefinitionFile,
   getGitHubOrgs,
   getRepoId,
   getRepos,
 } from "../../../definition"
-import {
+import type {
   Definition,
   DefinitionRepo,
   GetReposResponse,
@@ -18,8 +18,8 @@ import {
   Team,
   User,
 } from "../../../definition/types"
-import { createGitHubService, GitHubService } from "../../../github"
-import {
+import { createGitHubService, type GitHubService } from "../../../github"
+import type {
   OrgsGetResponse,
   Permission,
   Repo,
@@ -28,10 +28,13 @@ import {
   TeamMemberOrInvited,
   TeamsListResponseItem,
 } from "../../../github/types"
-import { createSnykService, SnykService } from "../../../snyk"
-import { SnykGitHubRepo } from "../../../snyk"
-import { getGitHubRepo } from "../../../snyk"
-import { Reporter } from "../../reporter"
+import {
+  createSnykService,
+  getGitHubRepo,
+  type SnykGitHubRepo,
+  type SnykService,
+} from "../../../snyk"
+import type { Reporter } from "../../reporter"
 import {
   createCacheProvider,
   createConfig,
@@ -348,7 +351,7 @@ function buildGitHubUsersList(
 }
 
 async function dumpSetup(
-  config: Config,
+  _config: Config,
   reporter: Reporter,
   github: GitHubService,
   snyk: SnykService,

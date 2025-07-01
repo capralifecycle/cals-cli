@@ -1,15 +1,15 @@
 import { sprintf } from "sprintf-js"
-import { CommandModule } from "yargs"
-import { CacheProvider } from "../../../cache"
-import { createGitHubService, GitHubService } from "../../../github"
-import { Reporter } from "../../reporter"
+import type { CommandModule } from "yargs"
+import type { CacheProvider } from "../../../cache"
+import { createGitHubService, type GitHubService } from "../../../github"
+import type { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const e = encodeURIComponent
 
 async function listWebhooks(
   reporter: Reporter,
-  cache: CacheProvider,
+  _cache: CacheProvider,
   github: GitHubService,
   org: string,
 ) {
@@ -92,7 +92,7 @@ const command: CommandModule = {
       createReporter(argv),
       cacheProvider,
       await createGitHubService({ config, cache: cacheProvider }),
-      argv["org"] as string,
+      argv.org as string,
     )
   },
 }

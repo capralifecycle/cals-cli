@@ -1,5 +1,5 @@
-import keytar from "keytar"
 import process from "node:process"
+import keytar from "keytar"
 
 export interface SnykTokenProvider {
   getToken(): Promise<string | undefined>

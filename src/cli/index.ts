@@ -1,3 +1,4 @@
+import process from "node:process"
 import { engines, version } from "package.json"
 import semver from "semver"
 import yargs from "yargs"
@@ -7,7 +8,6 @@ import deleteCache from "./commands/delete-cache"
 import gettingStarted from "./commands/getting-started"
 import github from "./commands/github"
 import snyk from "./commands/snyk"
-import process from "node:process"
 
 declare const BUILD_TIMESTAMP: string
 

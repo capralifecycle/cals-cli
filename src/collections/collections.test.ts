@@ -1,5 +1,5 @@
-import { groupBy, uniq, sortBy, sumBy } from "./collections"
-import { test, expect, describe } from "vitest"
+import { describe, expect, test } from "vitest"
+import { groupBy, sortBy, sumBy, uniq } from "./collections"
 
 describe("collections", () => {
   describe("groupBy", () => {

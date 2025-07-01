@@ -1,7 +1,7 @@
 import { sprintf } from "sprintf-js"
-import { CommandModule } from "yargs"
-import { createGitHubService, GitHubService } from "../../../github"
-import { Reporter } from "../../reporter"
+import type { CommandModule } from "yargs"
+import { createGitHubService, type GitHubService } from "../../../github"
+import type { Reporter } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 async function listPullRequestsStats({
@@ -24,7 +24,7 @@ async function listPullRequestsStats({
     recentSnyk: typeof pulls
   }
 
-  const cutoffOld = new Date(new Date().getTime() - 86400 * 1000 * 60)
+  const cutoffOld = new Date(Date.now() - 86400 * 1000 * 60)
   const categories = pulls
     .reduce<Category[]>((acc, cur) => {
       const key = `${cur.baseRepository.owner.login}/${cur.baseRepository.name}`

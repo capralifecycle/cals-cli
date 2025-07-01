@@ -1,11 +1,11 @@
 import fs from "node:fs"
-import path from "path"
-import { getUpdateRange, parseShortlogSummary, wasUpdated } from "./util"
+import path from "node:path"
 import { execa, type Result } from "execa"
+import { getUpdateRange, parseShortlogSummary, wasUpdated } from "./util"
 
 export enum CloneType {
-  HTTPS,
-  SSH,
+  HTTPS = 0,
+  SSH = 1,
 }
 
 export interface UpdateResult {

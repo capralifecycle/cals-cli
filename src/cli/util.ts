@@ -1,6 +1,6 @@
 import fs from "node:fs"
-import { deprecate } from "util"
-import { Arguments, Options } from "yargs"
+import { deprecate } from "node:util"
+import type { Arguments, Options } from "yargs"
 import { CacheProvider } from "../cache"
 import { Config } from "../config"
 import { DefinitionFile } from "../definition"
