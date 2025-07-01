@@ -1,9 +1,9 @@
 import fs from "node:fs"
+import path from "node:path"
 import process from "node:process"
 import { findUp } from "find-up"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
-import path from "path"
 import { read } from "read"
 import type { CommandModule } from "yargs"
 import type { Config } from "../../../config"
@@ -261,12 +261,12 @@ function getGitRepo(rootdir: string, relpath: string): GitRepo {
   return new GitRepo(path.resolve(rootdir, relpath), async (result) => {
     await appendFile(
       path.resolve(rootdir, CALS_LOG),
-      JSON.stringify({
+      `${JSON.stringify({
         time: new Date().toISOString(),
         context: relpath,
         type: "exec-result",
         payload: result,
-      }) + "\n",
+      })}\n`,
     )
   })
 }

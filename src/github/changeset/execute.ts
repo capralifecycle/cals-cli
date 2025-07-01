@@ -142,13 +142,13 @@ async function executeChangeSetItem(
 
       for (const attrib of changeItem.attribs) {
         if ("archived" in attrib) {
-          upd.archived = attrib["archived"]
+          upd.archived = attrib.archived
         } else if ("issues" in attrib) {
-          upd.has_issues = attrib["issues"]
+          upd.has_issues = attrib.issues
         } else if ("wiki" in attrib) {
-          upd.has_wiki = attrib["wiki"]
+          upd.has_wiki = attrib.wiki
         } else if ("private" in attrib) {
-          upd.private = attrib["private"]
+          upd.private = attrib.private
         }
       }
 

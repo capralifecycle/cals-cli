@@ -351,7 +351,7 @@ function buildGitHubUsersList(
 }
 
 async function dumpSetup(
-  config: Config,
+  _config: Config,
   reporter: Reporter,
   github: GitHubService,
   snyk: SnykService,

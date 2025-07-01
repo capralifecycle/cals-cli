@@ -9,7 +9,7 @@ const e = encodeURIComponent
 
 async function listWebhooks(
   reporter: Reporter,
-  cache: CacheProvider,
+  _cache: CacheProvider,
   github: GitHubService,
   org: string,
 ) {
@@ -92,7 +92,7 @@ const command: CommandModule = {
       createReporter(argv),
       cacheProvider,
       await createGitHubService({ config, cache: cacheProvider }),
-      argv["org"] as string,
+      argv.org as string,
     )
   },
 }

@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import path from "path"
+import path from "node:path"
 import { sprintf } from "sprintf-js"
 import type { CommandModule } from "yargs"
 import type { Config } from "../../../config"
@@ -84,7 +84,7 @@ const command: CommandModule = {
       cache: createCacheProvider(config, argv),
     })
     const reporter = createReporter(argv)
-    return analyzeDirectory(reporter, config, github, argv["org"] as string)
+    return analyzeDirectory(reporter, config, github, argv.org as string)
   },
 }
 

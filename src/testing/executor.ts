@@ -1,5 +1,5 @@
+import { strict as assert } from "node:assert"
 import process from "node:process"
-import { strict as assert } from "assert"
 
 export class TestExecutor {
   private shutdown = false

@@ -1,10 +1,10 @@
 import type { Buffer } from "node:buffer"
 import fs from "node:fs"
+import { performance } from "node:perf_hooks"
 import process from "node:process"
+import { Transform } from "node:stream"
 import { execa, type Subprocess } from "execa"
-import { performance } from "perf_hooks"
 import { read } from "read"
-import { Transform } from "stream"
 import type { TestExecutor } from "./executor"
 
 export interface Container {
@@ -252,7 +252,7 @@ class OutputPrefixTransform extends Transform {
           result = result.slice(0, -5) + result.slice(-4)
         }
 
-        result = prefix + result.replace(/\n/g, `\n${prefix}`) + "\n"
+        result = `${prefix + result.replace(/\n/g, `\n${prefix}`)}\n`
         callback(null, result)
       },
     })
@@ -439,7 +439,7 @@ export async function startContainer({
   executor.registerCleanupTask(async () => {
     console.log(`Stopping container ${containerName}`)
     const r = execa("docker", ["stop", containerName])
-    pipeToConsole(r, (alias ?? containerName) + " (stop)")
+    pipeToConsole(r, `${alias ?? containerName} (stop)`)
     try {
       await r
     } catch (e) {

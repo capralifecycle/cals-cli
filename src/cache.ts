@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import path from "path"
+import path from "node:path"
 import type { Config } from "./config"
 
 interface CacheItem<T> {
@@ -60,7 +60,7 @@ export class CacheProvider {
     const cacheItem = this.mustValidate
       ? undefined
       : this.retrieveJson<T>(cachekey)
-    const expire = new Date(new Date().getTime() - cachetime * 1000).getTime()
+    const expire = new Date(Date.now() - cachetime * 1000).getTime()
 
     if (cacheItem !== undefined && cacheItem.cacheTime > expire) {
       return cacheItem.data

@@ -24,7 +24,7 @@ async function listPullRequestsStats({
     recentSnyk: typeof pulls
   }
 
-  const cutoffOld = new Date(new Date().getTime() - 86400 * 1000 * 60)
+  const cutoffOld = new Date(Date.now() - 86400 * 1000 * 60)
   const categories = pulls
     .reduce<Category[]>((acc, cur) => {
       const key = `${cur.baseRepository.owner.login}/${cur.baseRepository.name}`

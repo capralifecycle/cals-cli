@@ -134,7 +134,7 @@ export function parseDefinition(value: string): Definition {
   const result = checkAgainstSchema(yaml.load(value))
 
   if ("error" in result) {
-    throw new Error("Definition content invalid: " + result.error)
+    throw new Error(`Definition content invalid: ${result.error}`)
   }
 
   requireValidDefinition(result.definition)

@@ -11,8 +11,8 @@
     "test:watch": "vitest --coverage src",
     "lint": "biome check",
     "lint:fix": "biome check --fix",
+    "format": "biome format --write",
     "prepack": "./scripts/build-and-verify.sh",
-    "prettier": "prettier --config .prettierrc --write .",
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w"
   },

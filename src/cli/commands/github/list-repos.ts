@@ -176,7 +176,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       compact: !!argv.compact,
       csv: !!argv.csv,
-      org: argv["org"] as string,
+      org: argv.org as string,
     })
   },
 }

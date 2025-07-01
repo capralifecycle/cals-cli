@@ -1,9 +1,9 @@
 import fs from "node:fs"
+import https from "node:https"
+import os from "node:os"
+import path from "node:path"
 import process from "node:process"
 import cachedir from "cachedir"
-import https from "https"
-import os from "os"
-import path from "path"
 
 export class Config {
   public cwd = path.resolve(process.cwd())

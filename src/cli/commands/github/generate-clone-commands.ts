@@ -1,6 +1,6 @@
 import fs from "node:fs"
+import path from "node:path"
 import process from "node:process"
-import path from "path"
 import { sprintf } from "sprintf-js"
 import yargs, { type CommandModule } from "yargs"
 import { hideBin } from "yargs/helpers"
@@ -126,7 +126,7 @@ const command: CommandModule = {
       topic: argv.topic as string | undefined,
       excludeExisting: !!argv["exclude-existing"],
       group: argv.group as string | undefined,
-      org: argv["org"] as string,
+      org: argv.org as string,
     })
   },
 }

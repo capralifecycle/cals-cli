@@ -105,7 +105,7 @@ async function process(
   if (ignored.length > 0) {
     reporter.info("Not implemented:")
     for (const change of ignored) {
-      reporter.info("  - " + JSON.stringify(change))
+      reporter.info(`  - ${JSON.stringify(change)}`)
     }
   }
 
@@ -114,7 +114,7 @@ async function process(
   } else {
     reporter.info("To be performed:")
     for (const change of changes) {
-      reporter.info("  - " + JSON.stringify(change))
+      reporter.info(`  - ${JSON.stringify(change)}`)
     }
   }
 
@@ -166,8 +166,8 @@ const command: CommandModule = {
         github,
         definition,
         orgGetter,
-        !!argv["execute"],
-        argv["org"] as string | undefined,
+        !!argv.execute,
+        argv.org as string | undefined,
       )
     })
   },
