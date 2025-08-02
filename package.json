@@ -57,7 +57,7 @@
     "@types/js-yaml": "4.0.9",
     "@types/lodash-es": "4.17.12",
     "@types/node": "24.1.0",
-    "@types/node-fetch": "2.6.12",
+    "@types/node-fetch": "2.6.13",
     "@types/read": "3.0.0",
     "@types/semver": "7.7.0",
     "@types/sprintf-js": "1.1.4",
