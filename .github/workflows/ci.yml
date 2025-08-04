@@ -57,3 +57,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.SHARED_NPMJS_TOKEN }}
         run: npm run semantic-release
+
+      - uses: capralifecycle/actions-lib/slack-notify@15d6e3ef41e608eb59e4c12c656018b832c0117c # v1.6.1
+        # NOTE: We only want to be notified about failures on the default branch
+        if: ${{ failure() && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        with:
+          bot-token: ${{ secrets.SHARED_SLACK_BOT_TOKEN }}
+          channel: "#cals-dev-info"
