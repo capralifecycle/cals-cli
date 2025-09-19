@@ -29,7 +29,7 @@
     "cachedir": "^2.4.0",
     "chalk": "5.6.2",
     "execa": "^9.0.0",
-    "find-up": "^7.0.0",
+    "find-up": "^8.0.0",
     "js-yaml": "^4.1.0",
     "keytar": "^7.9.0",
     "node-fetch": "^3.0.0",
