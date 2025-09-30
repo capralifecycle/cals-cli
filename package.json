@@ -14,7 +14,8 @@
     "format": "biome format --write",
     "prepack": "./scripts/build-and-verify.sh",
     "semantic-release": "semantic-release",
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "upgrade-deps": "ncu --upgrade --install=always"
   },
   "main": "lib/index.js",
   "module": "lib/index.es.js",
@@ -66,6 +67,7 @@
     "@vitest/ui": "3.2.4",
     "dateformat": "5.0.3",
     "husky": "9.1.7",
+    "npm-check-updates": "19.0.0",
     "rollup": "4.52.2",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "24.2.9",

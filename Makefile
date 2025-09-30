@@ -28,3 +28,7 @@ format:
 .PHONY: clean
 clean:
 	rm -rf lib coverage
+
+.PHONY: upgrade-deps
+upgrade-deps:
+	npm run upgrade-deps
