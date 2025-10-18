@@ -44,7 +44,7 @@
   },
   "overrides": {
     "semantic-release": {
-      "@semantic-release/npm": "12.0.2"
+      "@semantic-release/npm": "13.0.0"
     }
   },
   "devDependencies": {
@@ -70,7 +70,7 @@
     "npm-check-updates": "19.1.0",
     "rollup": "4.52.4",
     "rollup-plugin-typescript2": "0.36.0",
-    "semantic-release": "24.2.9",
+    "semantic-release": "25.0.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
     "typescript-json-schema": "0.65.1",
