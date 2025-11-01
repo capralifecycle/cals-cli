@@ -62,7 +62,7 @@
     "@vitest/ui": "3.2.4",
     "dateformat": "5.0.3",
     "husky": "9.1.7",
-    "npm-check-updates": "19.1.1",
+    "npm-check-updates": "19.1.2",
     "rollup": "4.52.5",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "25.0.1",
