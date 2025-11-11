@@ -63,7 +63,7 @@
     "dateformat": "5.0.3",
     "husky": "9.1.7",
     "npm-check-updates": "19.1.2",
-    "rollup": "4.52.5",
+    "rollup": "4.53.1",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "25.0.2",
     "tsx": "4.20.6",
