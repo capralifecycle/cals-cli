@@ -42,12 +42,13 @@ describe("collections", () => {
       },
     ]
 
-    test.each(tests)(
-      "$description",
-      ({ got, iteratee, want }: TestCase<{ id: number }>) => {
-        expect(groupBy(got, iteratee)).toEqual(want)
-      },
-    )
+    test.each(tests)("$description", ({
+      got,
+      iteratee,
+      want,
+    }: TestCase<{ id: number }>) => {
+      expect(groupBy(got, iteratee)).toEqual(want)
+    })
   })
 
   describe("uniq", () => {
@@ -129,12 +130,13 @@ describe("collections", () => {
       },
     ]
 
-    test.each(tests)(
-      "$description",
-      ({ got, getKey, want }: TestCase<{ name: string }>) => {
-        expect(sortBy(got, getKey)).toEqual(want)
-      },
-    )
+    test.each(tests)("$description", ({
+      got,
+      getKey,
+      want,
+    }: TestCase<{ name: string }>) => {
+      expect(sortBy(got, getKey)).toEqual(want)
+    })
   })
 
   describe("sumBy", () => {
@@ -177,11 +179,12 @@ describe("collections", () => {
       },
     ]
 
-    test.each(cases)(
-      "$description",
-      ({ got, iteratee, want }: TestCase<{ value: number }>) => {
-        expect(sumBy(got, iteratee)).toEqual(want)
-      },
-    )
+    test.each(cases)("$description", ({
+      got,
+      iteratee,
+      want,
+    }: TestCase<{ value: number }>) => {
+      expect(sumBy(got, iteratee)).toEqual(want)
+    })
   })
 })
