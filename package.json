@@ -68,7 +68,7 @@
     "semantic-release": "25.0.2",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "typescript-json-schema": "0.66.0",
+    "typescript-json-schema": "0.67.0",
     "vitest": "4.0.14"
   },
   "files": [
