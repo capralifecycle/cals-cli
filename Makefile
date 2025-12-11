@@ -29,6 +29,10 @@ format:
 clean:
 	rm -rf lib coverage
 
+.PHONY: clean-all
+clean-all: clean
+	rm -rf node_modules
+
 .PHONY: upgrade-deps
 upgrade-deps:
 	npm run upgrade-deps
