@@ -46,9 +46,9 @@ export class SnykService {
     }
 
     let backportedProjects: SnykProject[] = []
-    const snykRestApiVersion = "2023-08-04"
+    const snykRestApiVersion = "2025-11-05"
 
-    let nextUrl: string | undefined = `/orgs/${encodeURIComponent(
+    let nextUrl: string | undefined = `/rest/orgs/${encodeURIComponent(
       snykAccountId,
     )}/projects?version=${snykRestApiVersion}&meta.latest_dependency_total=true&meta.latest_issue_counts=true&limit=100`
 
@@ -57,7 +57,7 @@ export class SnykService {
      * We continue calling the Snyk API and retrieving more projects until links.next is null
      * */
     while (nextUrl) {
-      const response = await fetch(`https://api.snyk.io/rest${nextUrl}`, {
+      const response = await fetch(`https://api.snyk.io${nextUrl}`, {
         method: "GET",
         headers: {
           Accept: "application/json",

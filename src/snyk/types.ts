@@ -1,4 +1,4 @@
-// See https://apidocs.snyk.io/?version=2023-08-04#get-/orgs/-org_id-/projects
+// See https://apidocs.snyk.io/?version=2025-11-05#get-/orgs/-org_id-/projects
 export interface ProjectResponse {
   data: RestAPIProject[]
   links: {
@@ -20,7 +20,6 @@ export interface RestAPIProject {
       }
     }
   }
-  status: boolean
   meta: {
     latest_dependency_total: {
       updated_at: string
