@@ -13,25 +13,13 @@ It is recommended to use `npx` over global install to ensure you
 always run the latest version. If you install it globally remember
 to update it before running.
 
-## Building locally
+## Build
 
-Clone this repo.
+Build and verify:
 
-Use NPM to link this repo as a global package:
-
-```bash
-npm install
-npm run build
-npm link
+```sh
+$ make  # or "make build"
 ```
-
-Run the cli from any terminal/folder:
-
-```bash
-cals
-```
-
-Rebuild using `npm run build`.
 
 ## Contributing
 
