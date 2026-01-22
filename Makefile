@@ -2,12 +2,22 @@
 all: build
 
 .PHONY: build
-build: clean
+build: clean install lint-fix prepare build-cli test
+
+.PHONY: ci
+ci: install lint prepare build-cli test
+
+.PHONY: install
+install:
+ifeq ($(CI),true)
+	npm ci
+else
 	npm install
+endif
+
+.PHONY: build-cli
+build-cli:
 	./scripts/build-and-verify.sh
-	npm run lint
-	npm run prepare
-	npm run test
 
 .PHONY: test
 test:
@@ -16,6 +26,10 @@ test:
 .PHONY: lint
 lint:
 	npm run lint
+
+.PHONY: prepare
+prepare:
+	npm run prepare
 
 .PHONY: lint-fix
 lint-fix:
