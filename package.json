@@ -12,6 +12,7 @@
     "lint": "biome check",
     "lint:fix": "biome check --fix",
     "format": "biome format --write",
+    "format:check": "biome format",
     "prepack": "./scripts/build-and-verify.sh",
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w",
