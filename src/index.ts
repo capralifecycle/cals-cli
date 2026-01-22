@@ -11,7 +11,6 @@ export const VERSION = version
 export * as definition from "./definition"
 export * as github from "./github"
 export * as snyk from "./snyk"
-export * as sonarCloud from "./sonarcloud"
 export * from "./testing"
 // Consider removing old exports later.
 export {
