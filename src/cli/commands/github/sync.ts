@@ -622,7 +622,7 @@ will be stored there.`),
       config,
       cache: createCacheProvider(config, argv),
     })
-    const reporter = createReporter(argv)
+    const reporter = createReporter()
 
     const manifest = await loadCalsManifest(config, reporter)
     if (manifest === null) return

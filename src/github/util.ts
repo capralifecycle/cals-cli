@@ -68,16 +68,3 @@ export function getGroupedRepos(repos: Repo[]): {
 export function includesTopic(repo: Repo, topic: string): boolean {
   return repo.repositoryTopics.edges.some((it) => it.node.topic.name === topic)
 }
-
-export async function undefinedForNotFound<T>(
-  value: Promise<T>,
-): Promise<T | undefined> {
-  try {
-    return await value
-  } catch (e) {
-    if (e.name === "HttpError" && e.status === 404) {
-      return undefined
-    }
-    throw e
-  }
-}

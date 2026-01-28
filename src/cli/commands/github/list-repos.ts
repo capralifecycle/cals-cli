@@ -166,7 +166,7 @@ const command: CommandModule = {
   handler: async (argv) => {
     const config = createConfig()
     await listRepos({
-      reporter: createReporter(argv),
+      reporter: createReporter(),
       github: await createGitHubService({
         config,
         cache: createCacheProvider(config, argv),

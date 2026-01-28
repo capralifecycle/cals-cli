@@ -10,20 +10,8 @@ function clearLine(stdout: NodeJS.WriteStream) {
 }
 
 export class Reporter {
-  public constructor(
-    opts: {
-      nonInteractive?: boolean
-      verbose?: boolean
-    } = {},
-  ) {
-    this.nonInteractive = !!opts.nonInteractive
-    this.isVerbose = !!opts.verbose
-  }
-
   public stdout = process.stdout
   public stderr = process.stderr
-  public nonInteractive: boolean
-  public isVerbose: boolean
   public format: typeof chalk = chalk
 
   public error(msg: string): void {

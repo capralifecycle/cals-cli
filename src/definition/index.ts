@@ -10,5 +10,4 @@ export type {
   DefinitionRepo,
   GetReposResponse,
   Project,
-  RepoTeam,
 } from "./types"

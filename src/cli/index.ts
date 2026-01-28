@@ -23,14 +23,6 @@ export async function main(): Promise<void> {
     .command(github)
     .version(version)
     .demandCommand()
-    .option("non-interactive", {
-      describe: "Non-interactive mode",
-      type: "boolean",
-    })
-    .option("verbose", {
-      describe: "Verbose output",
-      type: "boolean",
-    })
     .option("validate-cache", {
       describe: "Only read from cache if validated against server",
       type: "boolean",

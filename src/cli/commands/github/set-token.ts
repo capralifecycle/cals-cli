@@ -39,7 +39,7 @@ const command: CommandModule = {
     }),
   handler: async (argv) => {
     await setToken({
-      reporter: createReporter(argv),
+      reporter: createReporter(),
       token: argv.token as string | undefined,
       tokenProvider: new GitHubTokenCliProvider(),
     })

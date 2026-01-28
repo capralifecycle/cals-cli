@@ -7,10 +7,6 @@ import type { Definition, GetReposResponse } from "./types"
 
 export { schema }
 
-function getTeamId(org: string, teamName: string) {
-  return `${org}/${teamName}`
-}
-
 export function getRepoId(orgName: string, repoName: string): string {
   return `${orgName}/${repoName}`
 }
@@ -27,41 +23,6 @@ function checkAgainstSchema(
 }
 
 function requireValidDefinition(definition: Definition) {
-  // Verify no duplicates in users and extract known logins.
-  const loginList = definition.github.users.reduce<string[]>((acc, user) => {
-    if (acc.includes(user.login)) {
-      throw new Error(`Duplicate login: ${user.login}`)
-    }
-    return [...acc, user.login]
-  }, [])
-
-  // Verify no duplicates in teams and extract team names.
-  const teamIdList = definition.github.teams.reduce<string[]>(
-    (acc, orgTeams) => {
-      return orgTeams.teams.reduce<string[]>((acc1, team) => {
-        const id = getTeamId(orgTeams.organization, team.name)
-        if (acc1.includes(id)) {
-          throw new Error(`Duplicate team: ${id}`)
-        }
-        return [...acc1, id]
-      }, acc)
-    },
-    [],
-  )
-
-  // Verify team members exists as users.
-  definition.github.teams
-    .flatMap((it) => it.teams)
-    .forEach((team) => {
-      team.members.forEach((login) => {
-        if (!loginList.includes(login)) {
-          throw new Error(
-            `Team member ${login} in team ${team.name} is not registered in user list`,
-          )
-        }
-      })
-    })
-
   // Verify no duplicates in project names.
   definition.projects.reduce<string[]>((acc, project) => {
     if (acc.includes(project.name)) {
@@ -69,30 +30,6 @@ function requireValidDefinition(definition: Definition) {
     }
     return [...acc, project.name]
   }, [])
-
-  definition.projects.forEach((project) => {
-    project.github.forEach((org) => {
-      // Verify project teams exists as teams.
-      ;(org.teams || []).forEach((team) => {
-        const id = getTeamId(org.organization, team.name)
-        if (!teamIdList.includes(id)) {
-          throw new Error(
-            `Project team ${id} in project ${project.name} is not registered in team list`,
-          )
-        }
-      }) // Verify repo teams exists as teams.
-      ;(org.repos || []).forEach((repo) => {
-        ;(repo.teams || []).forEach((team) => {
-          const id = getTeamId(org.organization, team.name)
-          if (!teamIdList.includes(id)) {
-            throw new Error(
-              `Repo team ${id} for repo ${repo.name} in project ${project.name} is not registered in team list`,
-            )
-          }
-        })
-      })
-    })
-  })
 
   // Verify no duplicates in repos.
   definition.projects

@@ -113,7 +113,7 @@ const command: CommandModule = {
     const config = createConfig()
 
     return generateCloneCommands({
-      reporter: createReporter(argv),
+      reporter: createReporter(),
       config,
       github: await createGitHubService({
         config,
