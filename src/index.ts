@@ -10,8 +10,6 @@ export const VERSION = version
 
 export * as definition from "./definition"
 export * as github from "./github"
-export * as snyk from "./snyk"
-export * from "./testing"
 // Consider removing old exports later.
 export {
   CacheProvider,

@@ -3,11 +3,7 @@ import semver from "semver"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 import { engines, version } from "../../package.json"
-import definition from "./commands/definition"
-import deleteCache from "./commands/delete-cache"
-import gettingStarted from "./commands/getting-started"
 import github from "./commands/github"
-import snyk from "./commands/snyk"
 
 declare const BUILD_TIMESTAMP: string
 
@@ -24,11 +20,7 @@ export async function main(): Promise<void> {
     .scriptName("cals")
     .locale("en")
     .help("help")
-    .command(deleteCache)
-    .command(definition)
     .command(github)
-    .command(gettingStarted)
-    .command(snyk)
     .version(version)
     .demandCommand()
     .option("non-interactive", {
