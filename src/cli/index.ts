@@ -7,6 +7,7 @@ import clone from "./commands/clone"
 import groups from "./commands/groups"
 import repos from "./commands/repos"
 import sync from "./commands/sync"
+import topics from "./commands/topics"
 
 declare const BUILD_TIMESTAMP: string
 
@@ -52,6 +53,7 @@ Before using, authenticate with: cals auth`)
     .command(groups)
     .command(repos)
     .command(sync)
+    .command(topics)
     .version(version)
     .demandCommand()
     .option("no-cache", {
@@ -61,6 +63,7 @@ Before using, authenticate with: cals auth`)
     .example("cals auth", "Set GitHub token")
     .example("cals repos", "List repositories")
     .example("cals groups", "List repository groups")
+    .example("cals topics", "List customer topics")
     .example("cals clone --all | bash", "Clone all repos")
     .example("cals sync", "Pull latest changes")
     .parse()
