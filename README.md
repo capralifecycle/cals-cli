@@ -31,13 +31,19 @@ cals repos --org capralifecycle --compact
 cals repos --org capralifecycle --csv
 ```
 
+### List repository groups
+
+```bash
+cals groups --org capralifecycle
+```
+
 ### Generate clone commands
 
 Generate clone commands (pipe to bash to execute):
 
 ```bash
 cals clone --org capralifecycle --all | bash
-cals clone --org capralifecycle --group mygroup | bash
+cals clone --org capralifecycle mygroup | bash
 ```
 
 ### Sync repositories
@@ -46,7 +52,7 @@ Pull latest changes for all repositories in a directory managed by a `.cals.yaml
 
 ```bash
 cals sync
-cals sync --ask-clone  # Prompt to clone missing repos
+cals sync --clone  # Prompt to clone missing repos
 ```
 
 ## Build
@@ -64,8 +70,4 @@ to automate releases and follows
 [Git commit guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
 from the Angular project.
 
-Version numbers depend on the commit type and footers: https://github.com/semantic-release/commit-analyzer/blob/75c9c87c88772d7ded4ca9614852b42519e41931/lib/default-release-rules.js#L7-L12
-
-## Contributing
-
-This project doesn't currently accept contributions. For inquiries, please contact the maintainers at [Slack](https://liflig.slack.com/archives/C02T4KTPYS2).
+For inquiries, please contact the maintainers at [Slack](https://liflig.slack.com/archives/C02T4KTPYS2).

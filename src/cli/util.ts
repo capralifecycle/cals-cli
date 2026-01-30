@@ -12,7 +12,7 @@ export function createCacheProvider(
 ): CacheProvider {
   const cache = new CacheProvider(config)
 
-  if (argv.validateCache === true) {
+  if (argv.noCache === true) {
     cache.mustValidate = true
   }
 

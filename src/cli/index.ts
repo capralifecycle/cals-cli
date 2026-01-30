@@ -4,6 +4,7 @@ import { hideBin } from "yargs/helpers"
 import { engines, version } from "../../package.json"
 import auth from "./commands/auth"
 import clone from "./commands/clone"
+import groups from "./commands/groups"
 import repos from "./commands/repos"
 import sync from "./commands/sync"
 
@@ -45,11 +46,12 @@ Before using, authenticate with: cals auth`)
     .help("help")
     .command(auth)
     .command(clone)
+    .command(groups)
     .command(repos)
     .command(sync)
     .version(version)
     .demandCommand()
-    .option("validate-cache", {
+    .option("no-cache", {
       describe: "Bypass cache and fetch fresh data",
       type: "boolean",
     })
