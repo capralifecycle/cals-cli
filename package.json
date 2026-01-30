@@ -5,7 +5,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "prepare": "tsx scripts/create-definition-schema.ts && husky",
+    "prepare": "node scripts/create-definition-schema.ts && husky",
     "build": "rollup -c",
     "test": "vitest run --coverage src",
     "test:watch": "vitest --coverage src",
@@ -60,7 +60,6 @@
     "rollup": "4.56.0",
     "rollup-plugin-typescript2": "0.36.0",
     "semantic-release": "25.0.2",
-    "tsx": "4.21.0",
     "typescript": "5.9.3",
     "typescript-json-schema": "0.67.1",
     "vitest": "4.0.18"
