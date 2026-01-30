@@ -1,7 +1,6 @@
-import { read } from "read"
 import type { CommandModule } from "yargs"
 import { GitHubTokenCliProvider } from "../../../github/token"
-import type { Reporter } from "../../reporter"
+import { type Reporter, readInput } from "../../reporter"
 import { createReporter } from "../../util"
 
 async function setToken({
@@ -18,7 +17,7 @@ async function setToken({
     reporter.info(
       "https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook",
     )
-    const inputToken = await read({
+    const inputToken = await readInput({
       prompt: "Enter new GitHub API token: ",
       silent: true,
     })

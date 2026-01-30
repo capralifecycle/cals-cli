@@ -4,7 +4,6 @@ import process from "node:process"
 import { findUp } from "find-up"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
-import { read } from "read"
 import type { CommandModule } from "yargs"
 import type { Config } from "../../../config"
 import { DefinitionFile, getRepos } from "../../../definition"
@@ -19,7 +18,7 @@ import {
   createGitHubService,
   type GitHubService,
 } from "../../../github/service"
-import type { Reporter } from "../../reporter"
+import { type Reporter, readInput } from "../../reporter"
 import { createCacheProvider, createConfig, createReporter } from "../../util"
 
 const CALS_YAML = ".cals.yaml"
@@ -338,7 +337,7 @@ async function getExpectedRepos(
 }
 
 async function getInput(prompt: string): Promise<string> {
-  return read({
+  return readInput({
     prompt,
     timeout: 60000,
   })
