@@ -5,21 +5,18 @@ import { findUp } from "find-up"
 import yaml from "js-yaml"
 import pLimit from "p-limit"
 import type { CommandModule } from "yargs"
-import type { Config } from "../../../config"
-import { DefinitionFile, getRepos } from "../../../definition"
+import type { Config } from "../../config"
+import { DefinitionFile, getRepos } from "../../definition"
 import type {
   Definition,
   DefinitionRepo,
   GetReposResponse,
-} from "../../../definition/types"
-import { CloneType, GitRepo, type UpdateResult } from "../../../git/GitRepo"
-import { getCompareLink } from "../../../git/util"
-import {
-  createGitHubService,
-  type GitHubService,
-} from "../../../github/service"
-import { type Reporter, readInput } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+} from "../../definition/types"
+import { CloneType, GitRepo, type UpdateResult } from "../../git/GitRepo"
+import { getCompareLink } from "../../git/util"
+import { createGitHubService, type GitHubService } from "../../github"
+import { type Reporter, readInput } from "../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../util"
 
 const CALS_YAML = ".cals.yaml"
 const CALS_LOG = ".cals.log"
@@ -374,15 +371,15 @@ async function sync({
   github,
   cals,
   rootdir,
-  askClone,
-  askMove,
+  clone,
+  move,
 }: {
   reporter: Reporter
   github: GitHubService
   cals: CalsManifest
   rootdir: string
-  askClone: boolean
-  askMove: boolean
+  clone: boolean
+  move: boolean
 }) {
   const { expectedRepos, definitionRepo } = await getExpectedRepos(
     reporter,
@@ -464,8 +461,8 @@ async function sync({
       reporter.info(`  ${it.actualRelpath} -> ${getRelpath(it)}`)
     }
 
-    if (!askMove) {
-      reporter.info("To move these repos on disk add --ask-move option")
+    if (!move) {
+      reporter.info("To move these repos on disk add --move option")
     } else {
       const shouldMove = await askMoveConfirm()
       if (shouldMove) {
@@ -506,8 +503,8 @@ async function sync({
       reporter.info(`  ${it.id}`)
     }
 
-    if (!askClone) {
-      reporter.info("To clone these repos add --ask-clone option for dialog")
+    if (!clone) {
+      reporter.info("To clone these repos add --clone option")
     } else {
       reporter.info(
         "You must already have working credentials for GitHub set up for clone to work",
@@ -572,16 +569,17 @@ const command: CommandModule = {
   describe: "Sync repositories for working directory",
   builder: (yargs) =>
     yargs
-      .option("ask-clone", {
+      .option("clone", {
         alias: "c",
-        describe: "Ask to clone new missing repos",
+        describe: "Prompt to clone missing repos",
         type: "boolean",
       })
-      .option("ask-move", {
-        describe: "Ask to actual move renamed repos",
+      .option("move", {
+        alias: "m",
+        describe: "Prompt to move renamed repos",
         type: "boolean",
       })
-      .usage(`cals github sync
+      .usage(`cals sync
 
 Synchronize all checked out GitHub repositories within the working directory
 grouped by the project in the resource definition file. The command can also
@@ -631,8 +629,8 @@ will be stored there.`),
       github,
       cals,
       rootdir: dir,
-      askClone: !!argv["ask-clone"],
-      askMove: !!argv["ask-move"],
+      clone: !!argv.clone,
+      move: !!argv.move,
     })
   },
 }

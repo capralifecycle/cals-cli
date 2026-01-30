@@ -2,7 +2,12 @@ import process from "node:process"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 import { engines, version } from "../../package.json"
-import github from "./commands/github"
+import auth from "./commands/auth"
+import clone from "./commands/clone"
+import groups from "./commands/groups"
+import repos from "./commands/repos"
+import sync from "./commands/sync"
+import topics from "./commands/topics"
 
 declare const BUILD_TIMESTAMP: string
 
@@ -32,16 +37,34 @@ export async function main(): Promise<void> {
   }
 
   await yargs(hideBin(process.argv))
-    .usage(`cals-cli v${version} (build: ${BUILD_TIMESTAMP})`)
+    .usage(`cals v${version} (build: ${BUILD_TIMESTAMP})
+
+A CLI for managing GitHub repositories.
+
+Before using, authenticate with: cals auth`)
     .scriptName("cals")
     .locale("en")
+    .strict()
+    .strictCommands()
+    .strictOptions()
     .help("help")
-    .command(github)
+    .command(auth)
+    .command(clone)
+    .command(groups)
+    .command(repos)
+    .command(sync)
+    .command(topics)
     .version(version)
     .demandCommand()
-    .option("validate-cache", {
-      describe: "Only read from cache if validated against server",
+    .option("no-cache", {
+      describe: "Bypass cache and fetch fresh data",
       type: "boolean",
     })
+    .example("cals auth", "Set GitHub token")
+    .example("cals repos", "List repositories")
+    .example("cals groups", "List repository groups")
+    .example("cals topics", "List customer topics")
+    .example("cals clone --all | bash", "Clone all repos")
+    .example("cals sync", "Pull latest changes")
     .parse()
 }

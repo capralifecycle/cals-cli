@@ -3,32 +3,28 @@ import path from "node:path"
 import process from "node:process"
 import yargs, { type CommandModule } from "yargs"
 import { hideBin } from "yargs/helpers"
-import type { Config } from "../../../config"
-import { createGitHubService, type GitHubService } from "../../../github"
-import { getGroupedRepos, includesTopic } from "../../../github/util"
-import type { Reporter } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+import type { Config } from "../../config"
+import { createGitHubService, type GitHubService } from "../../github"
+import { getGroupedRepos, includesTopic } from "../../github/util"
+import { createCacheProvider, createConfig } from "../util"
 
 async function generateCloneCommands({
-  reporter,
   config,
   github,
   org,
   ...opt
 }: {
-  reporter: Reporter
   config: Config
   github: GitHubService
   all: boolean
-  excludeExisting: boolean
+  skipCloned: boolean
   group: string | undefined
   includeArchived: boolean
-  listGroups: boolean
   name: string | undefined
   topic: string | undefined
   org: string
 }) {
-  if (!opt.listGroups && !opt.all && opt.group === undefined) {
+  if (!opt.all && opt.group === undefined) {
     yargs(hideBin(process.argv)).showHelp()
     return
   }
@@ -36,16 +32,9 @@ async function generateCloneCommands({
   const repos = await github.getOrgRepoList({ org })
   const groups = getGroupedRepos(repos)
 
-  if (opt.listGroups) {
-    groups.forEach((it) => {
-      reporter.log(it.name)
-    })
-    return
-  }
-
-  groups.forEach((group) => {
+  for (const group of groups) {
     if (opt.group !== undefined && opt.group !== group.name) {
-      return
+      continue
     }
 
     group.items
@@ -54,39 +43,35 @@ async function generateCloneCommands({
       .filter((it) => opt.topic === undefined || includesTopic(it, opt.topic))
       .filter(
         (it) =>
-          !opt.excludeExisting ||
-          !fs.existsSync(path.resolve(config.cwd, it.name)),
+          !opt.skipCloned || !fs.existsSync(path.resolve(config.cwd, it.name)),
       )
       .forEach((repo) => {
         // The output of this is used to pipe into e.g. bash.
-        // We cannot use reporter.log as it adds additional characters.
         process.stdout.write(
           `[ ! -e "${repo.name}" ] && git clone ${repo.sshUrl}\n`,
         )
       })
-  })
+  }
 }
 
 const command: CommandModule = {
-  command: "generate-clone-commands",
-  describe: "Generate shell commands to clone GitHub repos for an organization",
+  command: "clone [group]",
+  describe: "Generate git clone commands (pipe to bash to execute)",
   builder: (yargs) =>
     yargs
       .positional("group", {
-        describe: "Group to generate commands for",
+        describe: "Clone only repos in this group",
+        type: "string",
       })
       .options("org", {
-        demandOption: true,
-        describe: "Specify GitHub organization",
+        alias: "o",
+        default: "capralifecycle",
+        requiresArg: true,
+        describe: "GitHub organization",
         type: "string",
       })
       .option("all", {
-        describe: "Use all groups",
-        type: "boolean",
-      })
-      .option("list-groups", {
-        alias: "l",
-        describe: "List available groups",
+        describe: "Clone all repos",
         type: "boolean",
       })
       .option("include-archived", {
@@ -97,32 +82,32 @@ const command: CommandModule = {
       .option("name", {
         describe: "Filter to include the specified name",
         type: "string",
+        requiresArg: true,
       })
       .option("topic", {
         alias: "t",
         describe: "Filter by specific topic",
         type: "string",
+        requiresArg: true,
       })
-      .option("exclude-existing", {
-        alias: "x",
-        describe: "Exclude if existing in working directory",
+      .option("skip-cloned", {
+        alias: "s",
+        describe: "Skip repos already cloned in working directory",
         type: "boolean",
       }),
   handler: async (argv) => {
     const config = createConfig()
 
     return generateCloneCommands({
-      reporter: createReporter(),
       config,
       github: await createGitHubService({
         cache: createCacheProvider(config, argv),
       }),
       all: !!argv.all,
-      listGroups: !!argv["list-groups"],
       includeArchived: !!argv["include-archived"],
       name: argv.name as string | undefined,
       topic: argv.topic as string | undefined,
-      excludeExisting: !!argv["exclude-existing"],
+      skipCloned: !!argv["skip-cloned"],
       group: argv.group as string | undefined,
       org: argv.org as string,
     })

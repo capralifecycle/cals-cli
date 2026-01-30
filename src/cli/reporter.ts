@@ -14,15 +14,56 @@ export async function readInput(options: {
   silent?: boolean
   timeout?: number
 }): Promise<string> {
+  process.stdout.write(options.prompt)
+
+  // For silent mode, read character by character with raw mode to hide input
+  if (options.silent && process.stdin.isTTY) {
+    return new Promise((resolve, reject) => {
+      let input = ""
+      process.stdin.setRawMode(true)
+      process.stdin.resume()
+      process.stdin.setEncoding("utf8")
+
+      const timer = options.timeout
+        ? setTimeout(() => {
+            cleanup()
+            reject(new Error("Input timed out"))
+          }, options.timeout)
+        : null
+
+      const cleanup = () => {
+        process.stdin.setRawMode(false)
+        process.stdin.pause()
+        process.stdin.removeListener("data", onData)
+        if (timer) clearTimeout(timer)
+      }
+
+      const onData = (char: string) => {
+        if (char === "\r" || char === "\n") {
+          cleanup()
+          process.stdout.write("\n")
+          resolve(input)
+        } else if (char === "\u0003") {
+          // Ctrl+C
+          cleanup()
+          process.exit(1)
+        } else if (char === "\u007F" || char === "\b") {
+          // Backspace
+          input = input.slice(0, -1)
+        } else {
+          input += char
+        }
+      }
+
+      process.stdin.on("data", onData)
+    })
+  }
+
+  // Normal (non-silent) mode
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   })
-
-  if (options.silent) {
-    // Mute output for password entry
-    ;(rl as any)._writeToOutput = () => {}
-  }
 
   return new Promise((resolve, reject) => {
     const timer = options.timeout
@@ -32,12 +73,9 @@ export async function readInput(options: {
         }, options.timeout)
       : null
 
-    rl.question(options.prompt, (answer) => {
+    rl.question("", (answer) => {
       if (timer) clearTimeout(timer)
       rl.close()
-      if (options.silent) {
-        process.stdout.write("\n")
-      }
       resolve(answer)
     })
   })

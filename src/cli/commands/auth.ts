@@ -1,9 +1,9 @@
 import type { CommandModule } from "yargs"
-import { GitHubTokenCliProvider } from "../../../github/token"
-import { type Reporter, readInput } from "../../reporter"
-import { createReporter } from "../../util"
+import { GitHubTokenCliProvider } from "../../github/token"
+import { type Reporter, readInput } from "../reporter"
+import { createReporter } from "../util"
 
-async function setToken({
+async function authenticate({
   reporter,
   token,
   tokenProvider,
@@ -18,26 +18,26 @@ async function setToken({
       "https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook",
     )
     const inputToken = await readInput({
-      prompt: "Enter new GitHub API token: ",
+      prompt: "Enter GitHub token: ",
       silent: true,
     })
     token = inputToken
   }
 
   await tokenProvider.setToken(token)
-  reporter.info("Token saved")
+  reporter.info("Token saved to keychain")
 }
 
 const command: CommandModule = {
-  command: "set-token",
-  describe: "Set GitHub token for API calls",
+  command: "auth [token]",
+  describe: "Authenticate with GitHub",
   builder: (yargs) =>
     yargs.positional("token", {
-      describe:
-        "Token. If not provided it will be requested as input. Can be generated at https://github.com/settings/tokens/new?scopes=repo:status,read:repo_hook",
+      describe: "GitHub token (prompted if not provided)",
+      type: "string",
     }),
   handler: async (argv) => {
-    await setToken({
+    await authenticate({
       reporter: createReporter(),
       token: argv.token as string | undefined,
       tokenProvider: new GitHubTokenCliProvider(),

@@ -1,10 +1,10 @@
 import process from "node:process"
 import type { CommandModule } from "yargs"
-import { createGitHubService, type GitHubService } from "../../../github"
-import type { Repo } from "../../../github/types"
-import { getGroup, getGroupedRepos, includesTopic } from "../../../github/util"
-import type { Reporter } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+import { createGitHubService, type GitHubService } from "../../github"
+import type { Repo } from "../../github/types"
+import { getGroup, getGroupedRepos, includesTopic } from "../../github/util"
+import type { Reporter } from "../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../util"
 
 function getReposMissingGroup(repos: Repo[]) {
   return repos.filter((it) => getGroup(it) === null)
@@ -131,13 +131,15 @@ async function listRepos({
 }
 
 const command: CommandModule = {
-  command: "list-repos",
-  describe: "List Git repos for a GitHub organization",
+  command: "repos",
+  describe: "List repositories in a GitHub organization",
   builder: (yargs) =>
     yargs
       .options("org", {
-        required: true,
-        describe: "Specify GitHub organization",
+        alias: "o",
+        default: "capralifecycle",
+        requiresArg: true,
+        describe: "GitHub organization",
         type: "string",
       })
       .option("include-archived", {
@@ -157,11 +159,13 @@ const command: CommandModule = {
       .option("name", {
         describe: "Filter to include the specified name",
         type: "string",
+        requiresArg: true,
       })
       .option("topic", {
         alias: "t",
         describe: "Filter by specific topic",
         type: "string",
+        requiresArg: true,
       }),
   handler: async (argv) => {
     const config = createConfig()
