@@ -56,9 +56,10 @@ Before using, authenticate with: cals auth`)
     .command(topics)
     .version(version)
     .demandCommand()
-    .option("no-cache", {
-      describe: "Bypass cache and fetch fresh data",
+    .option("cache", {
+      describe: "Use cached data",
       type: "boolean",
+      default: true,
     })
     .example("cals auth", "Set GitHub token")
     .example("cals repos", "List repositories")
