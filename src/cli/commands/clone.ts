@@ -3,11 +3,11 @@ import path from "node:path"
 import process from "node:process"
 import yargs, { type CommandModule } from "yargs"
 import { hideBin } from "yargs/helpers"
-import type { Config } from "../../../config"
-import { createGitHubService, type GitHubService } from "../../../github"
-import { getGroupedRepos, includesTopic } from "../../../github/util"
-import type { Reporter } from "../../reporter"
-import { createCacheProvider, createConfig, createReporter } from "../../util"
+import type { Config } from "../../config"
+import { createGitHubService, type GitHubService } from "../../github"
+import { getGroupedRepos, includesTopic } from "../../github/util"
+import type { Reporter } from "../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../util"
 
 async function generateCloneCommands({
   reporter,
@@ -68,20 +68,22 @@ async function generateCloneCommands({
 }
 
 const command: CommandModule = {
-  command: "generate-clone-commands",
-  describe: "Generate shell commands to clone GitHub repos for an organization",
+  command: "clone [group]",
+  describe: "Generate git clone commands (pipe to bash to execute)",
   builder: (yargs) =>
     yargs
       .positional("group", {
-        describe: "Group to generate commands for",
+        describe: "Clone only repos in this group",
+        type: "string",
       })
       .options("org", {
+        alias: "o",
         demandOption: true,
-        describe: "Specify GitHub organization",
+        describe: "GitHub organization",
         type: "string",
       })
       .option("all", {
-        describe: "Use all groups",
+        describe: "Clone all repos",
         type: "boolean",
       })
       .option("list-groups", {

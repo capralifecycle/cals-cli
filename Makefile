@@ -54,3 +54,16 @@ clean-all: clean
 .PHONY: upgrade-deps
 upgrade-deps:
 	npm run upgrade-deps
+
+# Manual test targets (requires CALS_GITHUB_TOKEN env var)
+.PHONY: test-repos
+test-repos:
+	CALS_GITHUB_TOKEN=$(CALS_GITHUB_TOKEN) node lib/cals-cli.mjs repos --org capralifecycle --compact
+
+.PHONY: test-clone
+test-clone:
+	CALS_GITHUB_TOKEN=$(CALS_GITHUB_TOKEN) node lib/cals-cli.mjs clone --org capralifecycle --all | head -5
+
+.PHONY: test-help
+test-help:
+	node lib/cals-cli.mjs --help

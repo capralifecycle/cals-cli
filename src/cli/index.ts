@@ -2,7 +2,10 @@ import process from "node:process"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 import { engines, version } from "../../package.json"
-import github from "./commands/github"
+import auth from "./commands/auth"
+import clone from "./commands/clone"
+import repos from "./commands/repos"
+import sync from "./commands/sync"
 
 declare const BUILD_TIMESTAMP: string
 
@@ -32,16 +35,27 @@ export async function main(): Promise<void> {
   }
 
   await yargs(hideBin(process.argv))
-    .usage(`cals-cli v${version} (build: ${BUILD_TIMESTAMP})`)
+    .usage(`cals v${version} (build: ${BUILD_TIMESTAMP})
+
+A CLI for managing GitHub repositories.
+
+Before using, authenticate with: cals auth`)
     .scriptName("cals")
     .locale("en")
     .help("help")
-    .command(github)
+    .command(auth)
+    .command(clone)
+    .command(repos)
+    .command(sync)
     .version(version)
     .demandCommand()
     .option("validate-cache", {
-      describe: "Only read from cache if validated against server",
+      describe: "Bypass cache and fetch fresh data",
       type: "boolean",
     })
+    .example("cals auth", "Set GitHub token")
+    .example("cals repos --org myorg", "List repositories")
+    .example("cals clone --org myorg --all | bash", "Clone all repos")
+    .example("cals sync", "Pull latest changes")
     .parse()
 }
