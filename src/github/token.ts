@@ -11,8 +11,8 @@ export class GitHubTokenCliProvider implements GitHubTokenProvider {
   private keyringAccount = "github-token"
 
   async getToken(): Promise<string | undefined> {
-    if (process.env.CALS_GITHUB_TOKEN) {
-      return process.env.CALS_GITHUB_TOKEN
+    if (process.env.GITHUB_TOKEN) {
+      return process.env.GITHUB_TOKEN
     }
 
     const result = await keytar.getPassword(
@@ -20,9 +20,7 @@ export class GitHubTokenCliProvider implements GitHubTokenProvider {
       this.keyringAccount,
     )
     if (result == null) {
-      process.stderr.write(
-        "No token found. Register using `cals github set-token`\n",
-      )
+      process.stderr.write("No token found. Register using `cals auth`\n")
       return undefined
     }
 
