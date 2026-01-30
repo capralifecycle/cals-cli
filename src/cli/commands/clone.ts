@@ -79,6 +79,7 @@ const command: CommandModule = {
       .options("org", {
         alias: "o",
         demandOption: true,
+        requiresArg: true,
         describe: "GitHub organization",
         type: "string",
       })
@@ -99,11 +100,13 @@ const command: CommandModule = {
       .option("name", {
         describe: "Filter to include the specified name",
         type: "string",
+        requiresArg: true,
       })
       .option("topic", {
         alias: "t",
         describe: "Filter by specific topic",
         type: "string",
+        requiresArg: true,
       })
       .option("exclude-existing", {
         alias: "x",
