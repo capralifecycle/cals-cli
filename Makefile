@@ -2,7 +2,7 @@
 all: build
 
 .PHONY: build
-build: clean install format lint-fix prepare build-cli test
+build: clean install fmt lint-fix prepare build-cli test
 
 .PHONY: ci
 ci: install fmt-check lint prepare build-cli test
@@ -40,7 +40,7 @@ fmt:
 	npm run format
 
 .PHONY: fmt-check
-format:
+fmt-check:
 	npm run format:check
 
 .PHONY: clean
