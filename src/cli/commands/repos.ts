@@ -137,7 +137,7 @@ const command: CommandModule = {
     yargs
       .options("org", {
         alias: "o",
-        demandOption: true,
+        default: "capralifecycle",
         requiresArg: true,
         describe: "GitHub organization",
         type: "string",
