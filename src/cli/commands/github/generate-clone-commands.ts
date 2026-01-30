@@ -116,7 +116,6 @@ const command: CommandModule = {
       reporter: createReporter(),
       config,
       github: await createGitHubService({
-        config,
         cache: createCacheProvider(config, argv),
       }),
       all: !!argv.all,

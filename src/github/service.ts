@@ -3,10 +3,8 @@ import { performance } from "node:perf_hooks"
 import * as process from "node:process"
 import { Octokit } from "@octokit/rest"
 import type { OctokitResponse } from "@octokit/types"
-import fetch from "node-fetch"
 import pLimit, { type LimitFunction } from "p-limit"
 import type { CacheProvider } from "../cache"
-import type { Config } from "../config"
 import { GitHubTokenCliProvider, type GitHubTokenProvider } from "./token"
 import type { Repo } from "./types"
 
@@ -16,21 +14,18 @@ interface EtagCacheItem<T> {
 }
 
 interface GitHubServiceProps {
-  config: Config
   octokit: Octokit
   cache: CacheProvider
   tokenProvider: GitHubTokenProvider
 }
 
 export class GitHubService {
-  private config: Config
   public octokit: Octokit
   private cache: CacheProvider
   private tokenProvider: GitHubTokenProvider
   private semaphore: LimitFunction
 
   public constructor(props: GitHubServiceProps) {
-    this.config = props.config
     this.octokit = props.octokit
     this.cache = props.cache
     this.tokenProvider = props.tokenProvider
@@ -132,7 +127,6 @@ export class GitHubService {
         method: "POST",
         headers,
         body: JSON.stringify({ query }),
-        agent: this.config.agent,
       })
       requestDuration = performance.now() - requestStart
       return result
@@ -257,20 +251,13 @@ export class GitHubService {
   }
 }
 
-async function createOctokit(
-  config: Config,
-  tokenProvider: GitHubTokenProvider,
-) {
+async function createOctokit(tokenProvider: GitHubTokenProvider) {
   return new Octokit({
     auth: await tokenProvider.getToken(),
-    request: {
-      agent: config.agent,
-    },
   })
 }
 
 interface CreateGitHubServiceProps {
-  config: Config
   cache: CacheProvider
   tokenProvider?: GitHubTokenProvider
 }
@@ -281,8 +268,7 @@ export async function createGitHubService(
   const tokenProvider = props.tokenProvider ?? new GitHubTokenCliProvider()
 
   return new GitHubService({
-    config: props.config,
-    octokit: await createOctokit(props.config, tokenProvider),
+    octokit: await createOctokit(tokenProvider),
     cache: props.cache,
     tokenProvider,
   })

@@ -168,7 +168,6 @@ const command: CommandModule = {
     await listRepos({
       reporter: createReporter(),
       github: await createGitHubService({
-        config,
         cache: createCacheProvider(config, argv),
       }),
       includeArchived: !!argv["include-archived"],

@@ -619,7 +619,6 @@ will be stored there.`),
   handler: async (argv) => {
     const config = createConfig()
     const github = await createGitHubService({
-      config,
       cache: createCacheProvider(config, argv),
     })
     const reporter = createReporter()

@@ -1,5 +1,4 @@
 import fs from "node:fs"
-import https from "node:https"
 import os from "node:os"
 import path from "node:path"
 import process from "node:process"
@@ -9,9 +8,6 @@ export class Config {
   public cwd = path.resolve(process.cwd())
   public configFile = path.join(os.homedir(), ".cals-config.json")
   public cacheDir = cachedir("cals-cli")
-  public agent = new https.Agent({
-    keepAlive: true,
-  })
 
   private configCached?: Record<string, string> = undefined
   private get config() {
