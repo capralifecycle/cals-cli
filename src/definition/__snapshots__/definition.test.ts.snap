@@ -9,9 +9,6 @@ exports[`definition > should match expected schema 1`] = `
         "archived": {
           "type": "boolean",
         },
-        "issues": {
-          "type": "boolean",
-        },
         "name": {
           "type": "string",
         },
@@ -20,27 +17,6 @@ exports[`definition > should match expected schema 1`] = `
             "$ref": "#/definitions/DefinitionRepoPreviousName",
           },
           "type": "array",
-        },
-        "public": {
-          "type": "boolean",
-        },
-        "responsible": {
-          "description": "Some external-defined entity being responsible for the repository.
-
-Will override the project-defined responsible.",
-          "type": "string",
-        },
-        "snyk": {
-          "type": "boolean",
-        },
-        "teams": {
-          "items": {
-            "$ref": "#/definitions/RepoTeam",
-          },
-          "type": "array",
-        },
-        "wiki": {
-          "type": "boolean",
         },
       },
       "required": [
@@ -63,14 +39,6 @@ Will override the project-defined responsible.",
       ],
       "type": "object",
     },
-    "Permission": {
-      "enum": [
-        "admin",
-        "pull",
-        "push",
-      ],
-      "type": "string",
-    },
     "Project": {
       "properties": {
         "github": {
@@ -85,12 +53,6 @@ Will override the project-defined responsible.",
                 },
                 "type": "array",
               },
-              "teams": {
-                "items": {
-                  "$ref": "#/definitions/RepoTeam",
-                },
-                "type": "array",
-              },
             },
             "required": [
               "organization",
@@ -100,10 +62,6 @@ Will override the project-defined responsible.",
           "type": "array",
         },
         "name": {
-          "type": "string",
-        },
-        "responsible": {
-          "description": "Some external-defined entity being responsible for the project.",
           "type": "string",
         },
         "tags": {
@@ -119,174 +77,16 @@ Will override the project-defined responsible.",
       ],
       "type": "object",
     },
-    "RepoTeam": {
-      "properties": {
-        "name": {
-          "type": "string",
-        },
-        "permission": {
-          "$ref": "#/definitions/Permission",
-        },
-      },
-      "required": [
-        "name",
-        "permission",
-      ],
-      "type": "object",
-    },
-    "Team": {
-      "properties": {
-        "members": {
-          "items": {
-            "type": "string",
-          },
-          "type": "array",
-        },
-        "name": {
-          "type": "string",
-        },
-      },
-      "required": [
-        "members",
-        "name",
-      ],
-      "type": "object",
-    },
-    "User": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/UserBot",
-        },
-        {
-          "$ref": "#/definitions/UserEmployee",
-        },
-        {
-          "$ref": "#/definitions/UserExternal",
-        },
-      ],
-    },
-    "UserBot": {
-      "properties": {
-        "login": {
-          "type": "string",
-        },
-        "name": {
-          "type": "string",
-        },
-        "type": {
-          "const": "bot",
-          "type": "string",
-        },
-      },
-      "required": [
-        "login",
-        "name",
-        "type",
-      ],
-      "type": "object",
-    },
-    "UserEmployee": {
-      "properties": {
-        "capraUsername": {
-          "type": "string",
-        },
-        "login": {
-          "type": "string",
-        },
-        "name": {
-          "type": "string",
-        },
-        "type": {
-          "const": "employee",
-          "type": "string",
-        },
-      },
-      "required": [
-        "capraUsername",
-        "login",
-        "name",
-        "type",
-      ],
-      "type": "object",
-    },
-    "UserExternal": {
-      "properties": {
-        "login": {
-          "type": "string",
-        },
-        "name": {
-          "type": "string",
-        },
-        "type": {
-          "const": "external",
-          "type": "string",
-        },
-      },
-      "required": [
-        "login",
-        "name",
-        "type",
-      ],
-      "type": "object",
-    },
   },
   "properties": {
-    "github": {
-      "properties": {
-        "teams": {
-          "items": {
-            "properties": {
-              "organization": {
-                "type": "string",
-              },
-              "teams": {
-                "items": {
-                  "$ref": "#/definitions/Team",
-                },
-                "type": "array",
-              },
-            },
-            "required": [
-              "organization",
-              "teams",
-            ],
-            "type": "object",
-          },
-          "type": "array",
-        },
-        "users": {
-          "items": {
-            "$ref": "#/definitions/User",
-          },
-          "type": "array",
-        },
-      },
-      "required": [
-        "teams",
-        "users",
-      ],
-      "type": "object",
-    },
     "projects": {
       "items": {
         "$ref": "#/definitions/Project",
       },
       "type": "array",
     },
-    "snyk": {
-      "properties": {
-        "accountId": {
-          "type": "string",
-        },
-      },
-      "required": [
-        "accountId",
-      ],
-      "type": "object",
-    },
   },
   "required": [
-    "github",
     "projects",
   ],
   "type": "object",

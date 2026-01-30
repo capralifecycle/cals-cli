@@ -1,7 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import { sprintf } from "sprintf-js"
 import yargs, { type CommandModule } from "yargs"
 import { hideBin } from "yargs/helpers"
 import type { Config } from "../../../config"
@@ -62,7 +61,7 @@ async function generateCloneCommands({
         // The output of this is used to pipe into e.g. bash.
         // We cannot use reporter.log as it adds additional characters.
         process.stdout.write(
-          sprintf('[ ! -e "%s" ] && git clone %s\n', repo.name, repo.sshUrl),
+          `[ ! -e "${repo.name}" ] && git clone ${repo.sshUrl}\n`,
         )
       })
   })
@@ -113,10 +112,9 @@ const command: CommandModule = {
     const config = createConfig()
 
     return generateCloneCommands({
-      reporter: createReporter(argv),
+      reporter: createReporter(),
       config,
       github: await createGitHubService({
-        config,
         cache: createCacheProvider(config, argv),
       }),
       all: !!argv.all,

@@ -2,7 +2,6 @@ import alias from "@rollup/plugin-alias"
 import json from "@rollup/plugin-json"
 import replace from "@rollup/plugin-replace"
 import typescript from "rollup-plugin-typescript2"
-import dateFormat from "dateformat"
 import path from "path"
 import pkg from "./package.json" with { type: "json" }
 
@@ -33,9 +32,7 @@ const plugins = [
   typescript(),
   json(),
   replace({
-    BUILD_TIMESTAMP: JSON.stringify(
-      dateFormat(new Date(), "isoDateTime", true),
-    ),
+    BUILD_TIMESTAMP: JSON.stringify(new Date().toISOString()),
     preventAssignment: true,
   }),
 ]

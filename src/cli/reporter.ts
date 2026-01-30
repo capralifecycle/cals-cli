@@ -9,21 +9,43 @@ function clearLine(stdout: NodeJS.WriteStream) {
   readline.cursorTo(stdout, 0)
 }
 
-export class Reporter {
-  public constructor(
-    opts: {
-      nonInteractive?: boolean
-      verbose?: boolean
-    } = {},
-  ) {
-    this.nonInteractive = !!opts.nonInteractive
-    this.isVerbose = !!opts.verbose
+export async function readInput(options: {
+  prompt: string
+  silent?: boolean
+  timeout?: number
+}): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  if (options.silent) {
+    // Mute output for password entry
+    ;(rl as any)._writeToOutput = () => {}
   }
 
+  return new Promise((resolve, reject) => {
+    const timer = options.timeout
+      ? setTimeout(() => {
+          rl.close()
+          reject(new Error("Input timed out"))
+        }, options.timeout)
+      : null
+
+    rl.question(options.prompt, (answer) => {
+      if (timer) clearTimeout(timer)
+      rl.close()
+      if (options.silent) {
+        process.stdout.write("\n")
+      }
+      resolve(answer)
+    })
+  })
+}
+
+export class Reporter {
   public stdout = process.stdout
   public stderr = process.stderr
-  public nonInteractive: boolean
-  public isVerbose: boolean
   public format: typeof chalk = chalk
 
   public error(msg: string): void {

@@ -28,7 +28,7 @@ describe("definition", () => {
     await expect(
       definitionFile.getDefinition(),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Definition content invalid: data must have required property 'github', data must have required property 'projects']`,
+      `[Error: Definition content invalid: data must have required property 'projects']`,
     )
 
     await rm(tmpFile, { force: true })
@@ -36,10 +36,6 @@ describe("definition", () => {
 
   it("should successfully parse correct file", async () => {
     const data: Definition = {
-      github: {
-        teams: [],
-        users: [],
-      },
       projects: [
         {
           name: "myproject",
