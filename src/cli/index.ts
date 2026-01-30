@@ -7,7 +7,10 @@ import github from "./commands/github"
 declare const BUILD_TIMESTAMP: string
 
 function parseVersion(v: string): number[] {
-  return v.replace(/^[^\d]*/, "").split(".").map(Number)
+  return v
+    .replace(/^[^\d]*/, "")
+    .split(".")
+    .map(Number)
 }
 
 function satisfiesMinVersion(current: string, required: string): boolean {
