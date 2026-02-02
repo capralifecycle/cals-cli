@@ -20,6 +20,7 @@ const command: CommandModule = {
       cache: createCacheProvider(config, argv),
     })
 
+    reporter.status(`Fetching repositories from ${argv.org}...`)
     const repos = await github.getOrgRepoList({ org: argv.org as string })
 
     const topics = new Set<string>()

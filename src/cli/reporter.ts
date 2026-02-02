@@ -105,4 +105,12 @@ export class Reporter {
     clearLine(this.stdout)
     this.stdout.write(`${this.format.blue("info")} ${msg}\n`)
   }
+
+  /**
+   * Write a status message to stderr for feedback during long-running operations.
+   * Writing to stderr ensures it doesn't interfere with piped stdout.
+   */
+  public status(msg: string): void {
+    this.stderr.write(`${this.format.dim(msg)}\n`)
+  }
 }
