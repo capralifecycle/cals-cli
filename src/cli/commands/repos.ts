@@ -41,6 +41,7 @@ async function listRepos({
   csv: boolean
   org: string
 }) {
+  reporter.status(`Fetching repositories from ${org}...`)
   let repos = await github.getOrgRepoList({ org })
 
   if (!includeArchived) {

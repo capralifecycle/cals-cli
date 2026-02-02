@@ -6,16 +6,19 @@ import { hideBin } from "yargs/helpers"
 import type { Config } from "../../config"
 import { createGitHubService, type GitHubService } from "../../github"
 import { getGroupedRepos, includesTopic } from "../../github/util"
-import { createCacheProvider, createConfig } from "../util"
+import type { Reporter } from "../reporter"
+import { createCacheProvider, createConfig, createReporter } from "../util"
 
 async function generateCloneCommands({
   config,
   github,
+  reporter,
   org,
   ...opt
 }: {
   config: Config
   github: GitHubService
+  reporter: Reporter
   all: boolean
   skipCloned: boolean
   group: string | undefined
@@ -29,6 +32,7 @@ async function generateCloneCommands({
     return
   }
 
+  reporter.status(`Fetching repositories from ${org}...`)
   const repos = await github.getOrgRepoList({ org })
   const groups = getGroupedRepos(repos)
 
@@ -103,6 +107,7 @@ const command: CommandModule = {
       github: await createGitHubService({
         cache: createCacheProvider(config, argv),
       }),
+      reporter: createReporter(),
       all: !!argv.all,
       includeArchived: !!argv["include-archived"],
       name: argv.name as string | undefined,

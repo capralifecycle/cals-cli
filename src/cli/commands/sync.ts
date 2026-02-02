@@ -300,6 +300,7 @@ async function getExpectedRepos(
   expectedRepos: ExpectedRepo[]
   definitionRepo: ExpectedRepo | null
 }> {
+  reporter.status(`Fetching repositories from ${cals.githubOrganization}...`)
   const githubRepos = await github.getOrgRepoList({
     org: cals.githubOrganization,
   })
