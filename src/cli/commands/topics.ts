@@ -24,7 +24,7 @@ const command: CommandModule = {
     const repos = await github.getOrgRepoList({ org: argv.org as string })
 
     const topics = new Set<string>()
-    for (const repo of repos) {
+    for (const repo of repos.filter((it) => !it.isArchived)) {
       for (const edge of repo.repositoryTopics.edges) {
         const name = edge.node.topic.name
         if (name.startsWith("customer-")) {
