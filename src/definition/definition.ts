@@ -1,11 +1,8 @@
 import fs from "node:fs"
-import AJV from "ajv"
 import yaml from "js-yaml"
 import { uniq } from "../collections/collections"
-import schema from "../definition-schema.json"
 import type { Definition, GetReposResponse } from "./types"
-
-export { schema }
+import { definitionSchema } from "./types"
 
 export function getRepoId(orgName: string, repoName: string): string {
   return `${orgName}/${repoName}`
@@ -14,12 +11,15 @@ export function getRepoId(orgName: string, repoName: string): string {
 function checkAgainstSchema(
   value: unknown,
 ): { error: string } | { definition: Definition } {
-  const ajv = new AJV({ allErrors: true })
-  const valid = ajv.validate(schema, value)
+  const result = definitionSchema.safeParse(value)
 
-  return valid
-    ? { definition: value as Definition }
-    : { error: ajv.errorsText() ?? "Unknown error" }
+  return result.success
+    ? { definition: result.data }
+    : {
+        error: result.error.issues
+          .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+          .join(", "),
+      }
 }
 
 function requireValidDefinition(definition: Definition) {
