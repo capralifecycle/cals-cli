@@ -4,8 +4,8 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
 import { DefinitionFile, parseDefinition } from "./definition"
-import { definitionSchema } from "./types"
 import type { Definition } from "./types"
+import { definitionSchema } from "./types"
 
 async function createTempFile(): Promise<string> {
   const tmpDir = await fsPromises.mkdtemp(join(tmpdir(), "temp-"))
@@ -273,9 +273,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
         projects: [{ name: "p", github: [{ organization: "org" }] }],
       }
       const withRepos = {
-        projects: [
-          { name: "p", github: [{ organization: "org", repos: [] }] },
-        ],
+        projects: [{ name: "p", github: [{ organization: "org", repos: [] }] }],
       }
       expect(succeeds(withoutRepos)).toBe(true)
       expect(succeeds(withRepos)).toBe(true)
@@ -338,15 +336,9 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
     })
 
     it("rejects non-string project.name", () => {
-      expect(
-        fails({ projects: [{ name: 123, github: [] }] }),
-      ).toBe(true)
-      expect(
-        fails({ projects: [{ name: true, github: [] }] }),
-      ).toBe(true)
-      expect(
-        fails({ projects: [{ name: [], github: [] }] }),
-      ).toBe(true)
+      expect(fails({ projects: [{ name: 123, github: [] }] })).toBe(true)
+      expect(fails({ projects: [{ name: true, github: [] }] })).toBe(true)
+      expect(fails({ projects: [{ name: [], github: [] }] })).toBe(true)
     })
 
     it("rejects non-array project.github", () => {
