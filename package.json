@@ -16,7 +16,7 @@
     "prepack": "./scripts/build-and-verify.sh",
     "semantic-release": "semantic-release",
     "watch": "rollup -c -w",
-    "upgrade-deps": "ncu --upgrade --install=always"
+    "upgrade-deps": "ncu --upgrade --install=always --reject @types/node"
   },
   "main": "lib/index.js",
   "module": "lib/index.es.js",
