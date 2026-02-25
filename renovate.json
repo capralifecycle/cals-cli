@@ -1,3 +1,3 @@
 {
-  "extends": ["github>capraconsulting/renovate-config:aggressive"]
+  "extends": ["github>capralifecycle/renovate-config:aggressive"]
 }
