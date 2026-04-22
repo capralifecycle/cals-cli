@@ -18,6 +18,6 @@ jobs:
         run: |
           aikido-local-scanner scan cals-cli \
             --apikey ${{ secrets.AIKIDO_API_KEY }} \
-            --linked-team-name cals-cli \
+            --linked-team-name aikido-liflig-internal \
             --repositoryname cals-cli \
             --branchname master
