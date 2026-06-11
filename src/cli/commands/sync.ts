@@ -112,7 +112,7 @@ async function updateReposInParallel(
   )
 }
 
-const botAuthors = ["renovate", "jenkins", "snyk-"]
+const botAuthors = ["renovate", "jenkins"]
 
 function isBotAuthor(name: string): boolean {
   return botAuthors.some((author) => name.toLowerCase().includes(author))
