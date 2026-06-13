@@ -45,7 +45,7 @@
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-replace": "6.0.3",
     "@types/js-yaml": "4.0.9",
-    "@types/node": "24.13.1",
+    "@types/node": "24.13.2",
     "@types/yargs": "17.0.35",
     "@vitest/coverage-v8": "4.1.8",
     "husky": "9.1.7",
