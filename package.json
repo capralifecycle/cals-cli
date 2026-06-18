@@ -47,14 +47,14 @@
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.2",
     "@types/yargs": "17.0.35",
-    "@vitest/coverage-v8": "4.1.8",
+    "@vitest/coverage-v8": "4.1.9",
     "husky": "9.1.7",
     "npm-check-updates": "22.2.3",
     "rollup": "4.62.0",
     "rollup-plugin-typescript2": "0.37.0",
     "semantic-release": "25.0.5",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.9"
   },
   "files": [
     "lib"
