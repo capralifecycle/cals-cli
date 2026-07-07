@@ -14,6 +14,20 @@ defaults:
 concurrency: ci-${{ github.ref }}-${{ github.workflow }}
 
 jobs:
+  aikido-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: capralifecycle/actions-lib/aikido-scan@1457d51592743644e6adc8557c89e77571a6d07c # v1.8.0
+        with:
+          apikey: ${{ secrets.SHARED_AIKIDO_TOKEN }}
+          bot-token: ${{ secrets.SHARED_SLACK_BOT_TOKEN }}
+          channel: "#infra-aikido"
+          no-fail: "true"
   build-and-release:
     timeout-minutes: 60
     runs-on: ubuntu-24.04
