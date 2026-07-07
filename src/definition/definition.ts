@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import yaml from "js-yaml"
+import { load } from "js-yaml"
 import { uniq } from "../collections/collections"
 import type { Definition, GetReposResponse } from "./types"
 import { definitionSchema } from "./types"
@@ -68,7 +68,7 @@ export class DefinitionFile {
 }
 
 export function parseDefinition(value: string): Definition {
-  const result = checkAgainstSchema(yaml.load(value))
+  const result = checkAgainstSchema(load(value))
 
   if ("error" in result) {
     throw new Error(`Definition content invalid: ${result.error}`)

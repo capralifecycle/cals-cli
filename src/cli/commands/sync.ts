@@ -2,7 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { findUp } from "find-up"
-import yaml from "js-yaml"
+import { load } from "js-yaml"
 import pLimit from "p-limit"
 import type { CommandModule } from "yargs"
 import type { Config } from "../../config"
@@ -553,7 +553,7 @@ async function loadCalsManifest(
 
   // TODO: Verify file has expected contents.
   //  (Can we easily generate schema for type and verify?)
-  const cals: CalsManifest = yaml.load(fs.readFileSync(p, "utf-8")) as any
+  const cals: CalsManifest = load(fs.readFileSync(p, "utf-8")) as any
 
   if (cals.version !== 2) {
     throw new Error(`Unexpected version in ${p}`)

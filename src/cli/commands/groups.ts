@@ -2,7 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { findUp } from "find-up"
-import yaml from "js-yaml"
+import { load } from "js-yaml"
 import type { CommandModule } from "yargs"
 import { DefinitionFile } from "../../definition"
 import { createReporter } from "../util"
@@ -31,7 +31,7 @@ const command: CommandModule = {
       return
     }
 
-    const manifest: CalsManifest = yaml.load(
+    const manifest: CalsManifest = load(
       fs.readFileSync(manifestPath, "utf-8"),
     ) as CalsManifest
 
