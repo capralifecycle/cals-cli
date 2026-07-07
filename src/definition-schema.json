@@ -1,0 +1,232 @@
+{
+  "type": "object",
+  "properties": {
+    "github": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "organization": {
+                "type": "string"
+              },
+              "teams": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Team"
+                }
+              }
+            },
+            "required": ["organization", "teams"]
+          }
+        }
+      },
+      "required": ["teams", "users"]
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Project"
+      }
+    }
+  },
+  "required": ["github", "projects"],
+  "definitions": {
+    "User": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/UserBot"
+        },
+        {
+          "$ref": "#/definitions/UserEmployee"
+        },
+        {
+          "$ref": "#/definitions/UserExternal"
+        }
+      ]
+    },
+    "UserBot": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "bot"
+        },
+        "login": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["login", "name", "type"]
+    },
+    "UserEmployee": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "employee"
+        },
+        "login": {
+          "type": "string"
+        },
+        "capraUsername": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["capraUsername", "login", "name", "type"]
+    },
+    "UserExternal": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "external"
+        },
+        "login": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["login", "name", "type"]
+    },
+    "Team": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["members", "name"]
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "github": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "organization": {
+                "type": "string"
+              },
+              "repos": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/DefinitionRepo"
+                }
+              },
+              "teams": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RepoTeam"
+                }
+              }
+            },
+            "required": ["organization"]
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "responsible": {
+          "description": "Some external-defined entity being responsible for the project.",
+          "type": "string"
+        }
+      },
+      "required": ["github", "name"]
+    },
+    "DefinitionRepo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "previousNames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DefinitionRepoPreviousName"
+          }
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "issues": {
+          "type": "boolean"
+        },
+        "wiki": {
+          "type": "boolean"
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RepoTeam"
+          }
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "responsible": {
+          "description": "Some external-defined entity being responsible for the repository.\n\nWill override the project-defined responsible.",
+          "type": "string"
+        }
+      },
+      "required": ["name"]
+    },
+    "DefinitionRepoPreviousName": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "project"]
+    },
+    "RepoTeam": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "permission": {
+          "$ref": "#/definitions/Permission"
+        }
+      },
+      "required": ["name", "permission"]
+    },
+    "Permission": {
+      "enum": ["admin", "pull", "push"],
+      "type": "string"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
