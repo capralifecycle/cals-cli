@@ -46,14 +46,14 @@
     "@rollup/plugin-replace": "6.0.3",
     "@types/node": "24.13.2",
     "@types/yargs": "17.0.35",
-    "@vitest/coverage-v8": "4.1.9",
+    "@vitest/coverage-v8": "4.1.10",
     "husky": "9.1.7",
     "npm-check-updates": "22.2.9",
     "rollup": "4.62.2",
     "rollup-plugin-typescript2": "0.37.0",
     "semantic-release": "25.0.5",
     "typescript": "6.0.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   },
   "files": [
     "lib"
