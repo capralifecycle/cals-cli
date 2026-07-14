@@ -51,7 +51,7 @@
     "npm-check-updates": "22.2.9",
     "rollup": "4.62.2",
     "rollup-plugin-typescript2": "0.37.0",
-    "semantic-release": "25.0.5",
+    "semantic-release": "25.0.6",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
