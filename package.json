@@ -28,7 +28,7 @@
     "@octokit/rest": "^22.0.1",
     "cachedir": "^2.4.0",
     "chalk": "5.6.2",
-    "execa": "^9.6.1",
+    "execa": "^10.0.0",
     "find-up": "^8.0.0",
     "js-yaml": "^5.0.0",
     "keytar": "^7.9.0",
