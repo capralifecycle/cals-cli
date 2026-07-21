@@ -6,7 +6,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "prepare": "husky",
-    "build": "rollup -c",
+    "build": "rollup -c && npm run build:types",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir lib",
     "test": "vitest run --coverage src",
     "test:watch": "vitest --coverage src",
     "lint": "biome check",
@@ -47,12 +48,13 @@
     "@types/node": "24.13.3",
     "@types/yargs": "17.0.35",
     "@vitest/coverage-v8": "4.1.10",
+    "esbuild": "0.28.1",
     "husky": "9.1.7",
     "npm-check-updates": "22.2.9",
     "rollup": "4.62.2",
-    "rollup-plugin-typescript2": "0.37.0",
+    "rollup-plugin-esbuild": "6.2.1",
     "semantic-release": "25.0.8",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.10"
   },
   "files": [
