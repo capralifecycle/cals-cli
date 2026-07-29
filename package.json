@@ -34,7 +34,7 @@
     "js-yaml": "^5.0.0",
     "keytar": "^7.9.0",
     "p-limit": "^7.3.0",
-    "yargs": "18.0.0",
+    "yargs": "18.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
