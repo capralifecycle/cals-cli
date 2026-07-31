@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: capralifecycle/actions-lib/check-runtime-dependencies@e171100ce03323fb228b3c03072fc7b83f93a775 # v1.10.1
+      - uses: capralifecycle/actions-lib/check-runtime-dependencies@385012d62f38f2cb77c5383ebc9531b5d9382e7b # v1.10.2
 
       - name: apt - update package cache
         run: sudo apt-get --yes update
