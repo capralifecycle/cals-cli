@@ -27,7 +27,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: capralifecycle/actions-lib/check-runtime-dependencies@6dfc999f2b7c6a541ef43dfcc11e8551fa4f803f # v1.10.4
+      - uses: capralifecycle/actions-lib/check-runtime-dependencies@70f610a62f350ce4ede3ff44660b0fa8f0273062 # v1.12.0
 
       - name: apt - update package cache
         run: sudo apt-get --yes update
