@@ -1,8 +1,9 @@
+import assert from "node:assert/strict"
 import { promises as fsPromises } from "node:fs"
 import { rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { describe, expect, it } from "vitest"
+import { describe, it } from "node:test"
 import { DefinitionFile, parseDefinition } from "./definition"
 import type { Definition } from "./types"
 import { definitionSchema } from "./types"
@@ -26,8 +27,9 @@ describe("definition", () => {
 
     const definitionFile = new DefinitionFile(tmpFile)
 
-    await expect(definitionFile.getDefinition()).rejects.toThrow(
-      "Definition content invalid",
+    await assert.rejects(
+      definitionFile.getDefinition(),
+      /Definition content invalid/,
     )
 
     await rm(tmpFile, { force: true })
@@ -56,71 +58,78 @@ describe("definition", () => {
     await fsPromises.writeFile(tmpFile, JSON.stringify(data))
 
     const definitionFile = new DefinitionFile(tmpFile)
-    await expect(definitionFile.getDefinition()).resolves.toStrictEqual(data)
+    assert.deepEqual(await definitionFile.getDefinition(), data)
 
     await rm(tmpFile, { force: true })
   })
 
   it("should reject when projects is missing", () => {
-    expect(() => parseDefinition("{}")).toThrow("Definition content invalid")
+    assert.throws(() => parseDefinition("{}"), /Definition content invalid/)
   })
 
   it("should reject when project name is missing", () => {
-    expect(() =>
-      parseDefinition(JSON.stringify({ projects: [{ github: [] }] })),
-    ).toThrow("Definition content invalid")
+    assert.throws(
+      () => parseDefinition(JSON.stringify({ projects: [{ github: [] }] })),
+      /Definition content invalid/,
+    )
   })
 
   it("should reject when github organization is missing", () => {
-    expect(() =>
-      parseDefinition(
-        JSON.stringify({
-          projects: [{ name: "p", github: [{ repos: [] }] }],
-        }),
-      ),
-    ).toThrow("Definition content invalid")
+    assert.throws(
+      () =>
+        parseDefinition(
+          JSON.stringify({
+            projects: [{ name: "p", github: [{ repos: [] }] }],
+          }),
+        ),
+      /Definition content invalid/,
+    )
   })
 
   it("should reject duplicate project names", () => {
-    expect(() =>
-      parseDefinition(
-        JSON.stringify({
-          projects: [
-            { name: "dup", github: [] },
-            { name: "dup", github: [] },
-          ],
-        }),
-      ),
-    ).toThrow("Duplicate project: dup")
+    assert.throws(
+      () =>
+        parseDefinition(
+          JSON.stringify({
+            projects: [
+              { name: "dup", github: [] },
+              { name: "dup", github: [] },
+            ],
+          }),
+        ),
+      /Duplicate project: dup/,
+    )
   })
 
   it("should reject duplicate repos", () => {
-    expect(() =>
-      parseDefinition(
-        JSON.stringify({
-          projects: [
-            {
-              name: "p1",
-              github: [
-                {
-                  organization: "org",
-                  repos: [{ name: "repo" }],
-                },
-              ],
-            },
-            {
-              name: "p2",
-              github: [
-                {
-                  organization: "org",
-                  repos: [{ name: "repo" }],
-                },
-              ],
-            },
-          ],
-        }),
-      ),
-    ).toThrow("Duplicate repo: org/repo")
+    assert.throws(
+      () =>
+        parseDefinition(
+          JSON.stringify({
+            projects: [
+              {
+                name: "p1",
+                github: [
+                  {
+                    organization: "org",
+                    repos: [{ name: "repo" }],
+                  },
+                ],
+              },
+              {
+                name: "p2",
+                github: [
+                  {
+                    organization: "org",
+                    repos: [{ name: "repo" }],
+                  },
+                ],
+              },
+            ],
+          }),
+        ),
+      /Duplicate repo: org\/repo/,
+    )
   })
 
   it("should accept optional fields", () => {
@@ -145,22 +154,24 @@ describe("definition", () => {
       ],
     }
 
-    expect(parseDefinition(JSON.stringify(data))).toStrictEqual(data)
+    assert.deepEqual(parseDefinition(JSON.stringify(data)), data)
   })
 
   it("should reject wrong types", () => {
-    expect(() =>
-      parseDefinition(
-        JSON.stringify({
-          projects: [
-            {
-              name: 123,
-              github: [],
-            },
-          ],
-        }),
-      ),
-    ).toThrow("Definition content invalid")
+    assert.throws(
+      () =>
+        parseDefinition(
+          JSON.stringify({
+            projects: [
+              {
+                name: 123,
+                github: [],
+              },
+            ],
+          }),
+        ),
+      /Definition content invalid/,
+    )
   })
 })
 
@@ -182,23 +193,23 @@ function fails(input: unknown) {
 describe("definitionSchema — equivalence with old JSON schema (draft-07)", () => {
   describe("required fields", () => {
     it("requires projects at the top level", () => {
-      expect(fails({})).toBe(true)
-      expect(succeeds(validDefinition)).toBe(true)
+      assert.ok(fails({}))
+      assert.ok(succeeds(validDefinition))
     })
 
     it("requires project.name", () => {
       const input = { projects: [{ github: [validGithubEntry] }] }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("requires project.github", () => {
       const input = { projects: [{ name: "p" }] }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("requires github[].organization", () => {
       const input = { projects: [{ name: "p", github: [{ repos: [] }] }] }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("requires DefinitionRepo.name", () => {
@@ -210,7 +221,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("requires DefinitionRepoPreviousName.name", () => {
@@ -232,7 +243,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("requires DefinitionRepoPreviousName.project", () => {
@@ -254,7 +265,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
   })
 
@@ -264,8 +275,8 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
       const withTags = {
         projects: [{ name: "p", github: [], tags: ["a", "b"] }],
       }
-      expect(succeeds(withoutTags)).toBe(true)
-      expect(succeeds(withTags)).toBe(true)
+      assert.ok(succeeds(withoutTags))
+      assert.ok(succeeds(withTags))
     })
 
     it("github[].repos is optional", () => {
@@ -275,8 +286,8 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
       const withRepos = {
         projects: [{ name: "p", github: [{ organization: "org", repos: [] }] }],
       }
-      expect(succeeds(withoutRepos)).toBe(true)
-      expect(succeeds(withRepos)).toBe(true)
+      assert.ok(succeeds(withoutRepos))
+      assert.ok(succeeds(withRepos))
     })
 
     it("DefinitionRepo.archived is optional", () => {
@@ -298,8 +309,8 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(withoutArchived)).toBe(true)
-      expect(succeeds(withArchived)).toBe(true)
+      assert.ok(succeeds(withoutArchived))
+      assert.ok(succeeds(withArchived))
     })
 
     it("DefinitionRepo.previousNames is optional", () => {
@@ -323,52 +334,52 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(withoutPreviousNames)).toBe(true)
-      expect(succeeds(withPreviousNames)).toBe(true)
+      assert.ok(succeeds(withoutPreviousNames))
+      assert.ok(succeeds(withPreviousNames))
     })
   })
 
   describe("type enforcement", () => {
     it("rejects non-array projects", () => {
-      expect(fails({ projects: "not-an-array" })).toBe(true)
-      expect(fails({ projects: 42 })).toBe(true)
-      expect(fails({ projects: {} })).toBe(true)
+      assert.ok(fails({ projects: "not-an-array" }))
+      assert.ok(fails({ projects: 42 }))
+      assert.ok(fails({ projects: {} }))
     })
 
     it("rejects non-string project.name", () => {
-      expect(fails({ projects: [{ name: 123, github: [] }] })).toBe(true)
-      expect(fails({ projects: [{ name: true, github: [] }] })).toBe(true)
-      expect(fails({ projects: [{ name: [], github: [] }] })).toBe(true)
+      assert.ok(fails({ projects: [{ name: 123, github: [] }] }))
+      assert.ok(fails({ projects: [{ name: true, github: [] }] }))
+      assert.ok(fails({ projects: [{ name: [], github: [] }] }))
     })
 
     it("rejects non-array project.github", () => {
-      expect(fails({ projects: [{ name: "p", github: "org" }] })).toBe(true)
-      expect(fails({ projects: [{ name: "p", github: 1 }] })).toBe(true)
+      assert.ok(fails({ projects: [{ name: "p", github: "org" }] }))
+      assert.ok(fails({ projects: [{ name: "p", github: 1 }] }))
     })
 
     it("rejects non-string github[].organization", () => {
-      expect(
+      assert.ok(
         fails({ projects: [{ name: "p", github: [{ organization: 99 }] }] }),
-      ).toBe(true)
-      expect(
+      )
+      assert.ok(
         fails({
           projects: [{ name: "p", github: [{ organization: false }] }],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-array github[].repos", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             { name: "p", github: [{ organization: "org", repos: "bad" }] },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-string DefinitionRepo.name", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             {
@@ -377,11 +388,11 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-boolean DefinitionRepo.archived", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             {
@@ -395,8 +406,8 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
-      expect(
+      )
+      assert.ok(
         fails({
           projects: [
             {
@@ -407,11 +418,11 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-array DefinitionRepo.previousNames", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             {
@@ -425,11 +436,11 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-string DefinitionRepoPreviousName.name", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             {
@@ -448,11 +459,11 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-string DefinitionRepoPreviousName.project", () => {
-      expect(
+      assert.ok(
         fails({
           projects: [
             {
@@ -471,19 +482,15 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
             },
           ],
         }),
-      ).toBe(true)
+      )
     })
 
     it("rejects non-array project.tags", () => {
-      expect(
-        fails({ projects: [{ name: "p", github: [], tags: "tag1" }] }),
-      ).toBe(true)
+      assert.ok(fails({ projects: [{ name: "p", github: [], tags: "tag1" }] }))
     })
 
     it("rejects non-string items in project.tags", () => {
-      expect(
-        fails({ projects: [{ name: "p", github: [], tags: [1, 2] }] }),
-      ).toBe(true)
+      assert.ok(fails({ projects: [{ name: "p", github: [], tags: [1, 2] }] }))
     })
   })
 
@@ -509,7 +516,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("rejects repos array containing non-object items", () => {
@@ -521,7 +528,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(fails(input)).toBe(true)
+      assert.ok(fails(input))
     })
 
     it("accepts multiple github entries per project", () => {
@@ -536,7 +543,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("accepts multiple projects", () => {
@@ -546,29 +553,29 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           { name: "p2", github: [{ organization: "org-b" }] },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("accepts empty projects array", () => {
-      expect(succeeds({ projects: [] })).toBe(true)
+      assert.ok(succeeds({ projects: [] }))
     })
 
     it("accepts empty github array for a project", () => {
-      expect(succeeds({ projects: [{ name: "p", github: [] }] })).toBe(true)
+      assert.ok(succeeds({ projects: [{ name: "p", github: [] }] }))
     })
   })
 
   describe("extra properties", () => {
     it("does not reject extra properties at the top level (strips them)", () => {
       const input = { projects: [], unknownTopLevel: "value" }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("does not reject extra properties on a project (strips them)", () => {
       const input = {
         projects: [{ name: "p", github: [], extraProjectField: 42 }],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("does not reject extra properties on a github entry (strips them)", () => {
@@ -580,7 +587,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("does not reject extra properties on a repo (strips them)", () => {
@@ -597,7 +604,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
 
     it("does not reject extra properties on a previousName entry (strips them)", () => {
@@ -625,7 +632,7 @@ describe("definitionSchema — equivalence with old JSON schema (draft-07)", () 
           },
         ],
       }
-      expect(succeeds(input)).toBe(true)
+      assert.ok(succeeds(input))
     })
   })
 })

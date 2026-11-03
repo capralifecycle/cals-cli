@@ -1,4 +1,5 @@
-import { describe, expect, test } from "vitest"
+import assert from "node:assert/strict"
+import { describe, test } from "node:test"
 import { groupBy, sortBy, sumBy, uniq } from "./collections"
 
 describe("collections", () => {
@@ -42,12 +43,11 @@ describe("collections", () => {
       },
     ]
 
-    test.each(tests)(
-      "$description",
-      ({ got, iteratee, want }: TestCase<{ id: number }>) => {
-        expect(groupBy(got, iteratee)).toEqual(want)
-      },
-    )
+    for (const { description, got, iteratee, want } of tests) {
+      test(description, () => {
+        assert.deepEqual(groupBy(got, iteratee), want)
+      })
+    }
   })
 
   describe("uniq", () => {
@@ -84,9 +84,11 @@ describe("collections", () => {
       },
     ]
 
-    test.each(tests)("$description", ({ got, want }: TestCase<number>) => {
-      expect(uniq(got)).toEqual(want)
-    })
+    for (const { description, got, want } of tests) {
+      test(description, () => {
+        assert.deepEqual(uniq(got), want)
+      })
+    }
   })
 
   describe("sortBy", () => {
@@ -129,12 +131,11 @@ describe("collections", () => {
       },
     ]
 
-    test.each(tests)(
-      "$description",
-      ({ got, getKey, want }: TestCase<{ name: string }>) => {
-        expect(sortBy(got, getKey)).toEqual(want)
-      },
-    )
+    for (const { description, got, getKey, want } of tests) {
+      test(description, () => {
+        assert.deepEqual(sortBy(got, getKey), want)
+      })
+    }
   })
 
   describe("sumBy", () => {
@@ -177,11 +178,10 @@ describe("collections", () => {
       },
     ]
 
-    test.each(cases)(
-      "$description",
-      ({ got, iteratee, want }: TestCase<{ value: number }>) => {
-        expect(sumBy(got, iteratee)).toEqual(want)
-      },
-    )
+    for (const { description, got, iteratee, want } of cases) {
+      test(description, () => {
+        assert.deepEqual(sumBy(got, iteratee), want)
+      })
+    }
   })
 })

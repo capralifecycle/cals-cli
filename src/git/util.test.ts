@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest"
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
 import { getCompareLink, getUpdateRange, parseShortlogSummary } from "./util"
 
 describe("getUpdateRange", () => {
   it("should return range when given proper text", () => {
     const stdout = "Updating ff4f0fa..ccb7d01\n" + "Fast-forward\n..."
-    expect(getUpdateRange(stdout)).toStrictEqual({
+    assert.deepEqual(getUpdateRange(stdout), {
       from: "ff4f0fa",
       to: "ccb7d01",
     })
@@ -12,30 +13,31 @@ describe("getUpdateRange", () => {
 
   it("should return null for unknown text", () => {
     const stdout = "Some other message\n" + "Fast-forward\n..."
-    expect(getUpdateRange(stdout)).toBe(null)
+    assert.equal(getUpdateRange(stdout), null)
   })
 })
 
 describe("getCompareLink", () => {
   it("should return compare link", () => {
-    expect(
+    assert.equal(
       getCompareLink(
         { from: "ff4f0fa", to: "ccb7d01" },
         "repoowner",
         "reponame",
       ),
-    ).toBe("https://github.com/repoowner/reponame/compare/ff4f0fa...ccb7d01")
+      "https://github.com/repoowner/reponame/compare/ff4f0fa...ccb7d01",
+    )
   })
 })
 
 describe("parseShortlogSummary", () => {
   it("should handle empty output", () => {
-    expect(parseShortlogSummary("")).toStrictEqual([])
+    assert.deepEqual(parseShortlogSummary(""), [])
   })
 
   it("should handle one line of data", () => {
     const output = "     7\tRenovate Bot\n"
-    expect(parseShortlogSummary(output)).toStrictEqual([
+    assert.deepEqual(parseShortlogSummary(output), [
       {
         name: "Renovate Bot",
         count: 7,
@@ -46,7 +48,7 @@ describe("parseShortlogSummary", () => {
   it("should handle multiple lines of data", () => {
     const output =
       "     7\tRenovate Bot\n     2\tOther User\n    45\tThird User\n"
-    expect(parseShortlogSummary(output)).toStrictEqual([
+    assert.deepEqual(parseShortlogSummary(output), [
       {
         name: "Renovate Bot",
         count: 7,
