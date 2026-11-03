@@ -8,7 +8,7 @@
     "prepare": "husky",
     "build": "rollup -c && npm run build:types",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir lib",
-    "test": "node --import tsx --test 'src/**/*.test.ts'",
+    "test": "mkdir -p coverage && node --import tsx --test --experimental-test-coverage --test-coverage-exclude='**/*.test.ts' --test-coverage-exclude=package.json --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info 'src/**/*.test.ts'",
     "test:watch": "node --import tsx --test --watch 'src/**/*.test.ts'",
     "lint": "biome check",
     "lint:fix": "biome check --fix",
